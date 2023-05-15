@@ -64,7 +64,7 @@ export default function PublicPortal() {
                   </Typography.Text>
 
                   <div className="pt-10">
-                    <Button type="primary" onClick={() => Router.push("/auth")}>
+                    <Button type="primary" onClick={() => router.push("/auth")}>
                       SIGN IN
                     </Button>
                   </div>
