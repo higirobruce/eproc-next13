@@ -41,6 +41,7 @@ export default function RequestStats() {
     })
       .then((res) => res.json())
       .then((res) => {
+        
         let values = res.map((r) => {
           return r.totalCount;
         });

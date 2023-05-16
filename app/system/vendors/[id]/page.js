@@ -41,6 +41,7 @@ import moment from "moment";
 import { encode } from "base-64";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 let url = process.env.NEXT_PUBLIC_BKEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
@@ -278,7 +279,18 @@ export default function page({ params }) {
   }
 
   return (
-    <div className="flex flex-col  transition-opacity ease-in-out duration-1000 px-10 py-5 flex-1 space-y-3 h-full">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{
+        opacity: rowData ? 1 : 0,
+      }}
+      transition={{
+        duration: 0.3,
+        type: "tween",
+        ease: "circOut",
+      }}
+      className="flex flex-col  transition-opacity ease-in-out duration-1000 px-10 py-5 flex-1 space-y-3 h-full"
+    >
       {contextHolder}
       <div className="flex flex-col space-y-5">
         <div className="flex flex-row justify-between">
@@ -685,7 +697,7 @@ export default function page({ params }) {
                       Incorporation Certificate not found
                     </Typography.Link>
                   )}
-                  
+
                   {!rowData?.rdbCertId && (
                     <div>
                       <UploadOutlined className="text-blue-500 hover:cursor-pointer" />
@@ -700,18 +712,14 @@ export default function page({ params }) {
                       href={`${url}/file/vatCerts/${rowData?.vatCertId}.pdf`}
                       target="_blank"
                     >
-                      <Typography.Link>
-                      VAT Certificate
-                      </Typography.Link>
+                      <Typography.Link>VAT Certificate</Typography.Link>
                     </Link>
                   )}
 
                   {!rowData?.vatCertId && (
-                    <Typography.Link>
-                      VAT Certificate not found
-                    </Typography.Link>
+                    <Typography.Link>VAT Certificate not found</Typography.Link>
                   )}
-                  
+
                   {!rowData?.vatCertId && (
                     <div>
                       <UploadOutlined className="text-blue-500 hover:cursor-pointer" />
@@ -837,6 +845,6 @@ export default function page({ params }) {
         </div>
         {/* {previewAttachmentModal()} */}
       </div>
-    </div>
+    </motion.div>
   );
 }

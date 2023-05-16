@@ -18,6 +18,7 @@ import TendersByDep from "@/app/components/tendersByDep";
 import { LoadingOutlined } from "@ant-design/icons";
 import { encode } from "base-64";
 import { useRouter } from "next/navigation";
+import {motion} from "framer-motion";
 
 export default function page() {
   const [dataLoaded, setDataLoaded] = useState(true);
@@ -209,7 +210,19 @@ export default function page() {
     <>
       {contextHolder}
       {dataLoaded ? (
-        <div className="flex flex-col transition-opacity ease-in-out duration-1000 flex-1 space-y-10 h-full pb-10">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{
+            opacity: dataLoaded ? 1 : 0,
+          }}
+          transition={{
+            duration: 0.3,
+            type:'tween',
+            ease:'circOut'
+          }}
+          
+          className="flex flex-col transition-opacity ease-in-out duration-1000 flex-1 space-y-10 h-full pb-10"
+        >
           <div className="grid md:grid-cols-5 gap-4 p-5">
             <div
               className="cursor-pointer"
@@ -340,7 +353,7 @@ export default function page() {
           {/* <div class="absolute opacity-10 top-0 z-20">
               <Image src="/icons/blue icon.png" width={962} height={900} />
             </div> */}
-        </div>
+        </motion.div>
       ) : (
         <div className="flex items-center justify-center flex-1 h-screen">
           <Spin

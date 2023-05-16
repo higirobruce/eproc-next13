@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import _ from "lodash";
@@ -53,9 +53,10 @@ import {
   UsersIcon,
 } from "@heroicons/react/24/outline";
 import PermissionsTable from "../../components/permissionsTable";
+import { motion } from "framer-motion";
 
 export default function Users() {
-  let user = JSON.parse(localStorage.getItem('user'))
+  let user = JSON.parse(localStorage.getItem("user"));
   const [dataLoaded, setDataLoaded] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
@@ -462,8 +463,8 @@ export default function Users() {
   function setCanCreated(canCreate, module) {
     let newUser = { ...row };
     let permissionLable = "canCreate" + module;
-    let editPermissionLable = 'canEdit'+module
-    let viewPermissionLable = 'canView'+module
+    let editPermissionLable = "canEdit" + module;
+    let viewPermissionLable = "canView" + module;
 
     newUser.permissions[permissionLable] = canCreate;
     newUser.permissions[editPermissionLable] = canCreate;
@@ -577,34 +578,32 @@ export default function Users() {
       });
   }
 
-  function updatePassword(){
-    setSubmitting(true)
+  function updatePassword() {
+    setSubmitting(true);
     fetch(`${url}/users/reset/${row?.email}`, {
       method: "PUT",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
         "Content-Type": "application/json",
       },
-      
     })
       .then((res) => res.json())
       .then((res) => {
-
         messageApi.open({
           type: "info",
           content: "User password was successfully reset.",
         });
         refresh();
-        
       })
       .catch((err) => {
         messageApi.open({
           type: "error",
           content: "Something happened! Please try again.",
         });
-      }).finally(()=>{
-        setSubmitting(false)
       })
+      .finally(() => {
+        setSubmitting(false);
+      });
   }
 
   return !row ? (
@@ -693,15 +692,28 @@ export default function Users() {
             </Row>
           </Row>
           <Row className="flex flex-row space-x-5 mx-10 pt-5">
-            <Col flex={4}>
-              <UsersTable
-                dataSet={tempDataset}
-                handleApproveUser={approveUser}
-                handleDeclineUser={declineUser}
-                updatingId={updatingId}
-                handleSetRow={setRow}
-              />
-            </Col>
+            <motion.div
+              className="w-full"
+              initial={{ opacity: 0 }}
+              animate={{
+                opacity: tempDataset && tempDataset?.length >= 1 ? 1 : 0,
+              }}
+              transition={{
+                duration: 0.3,
+                type: "tween",
+                ease: "circOut",
+              }}
+            >
+              <Col flex={4}>
+                <UsersTable
+                  dataSet={tempDataset}
+                  handleApproveUser={approveUser}
+                  handleDeclineUser={declineUser}
+                  updatingId={updatingId}
+                  handleSetRow={setRow}
+                />
+              </Col>
+            </motion.div>
           </Row>
 
           <div class="absolute -bottom-28 right-10 opacity-10">
@@ -727,10 +739,9 @@ export default function Users() {
   );
 
   function buildUser() {
-   
     return (
       <div className="flex flex-col  transition-opacity ease-in-out duration-1000 px-10 py-5 flex-1 space-y-3 overflow-x-scroll">
-         {contextHolder}
+        {contextHolder}
         <div className="flex flex-col space-y-5">
           <div className="flex flex-row justify-between">
             <div className="flex flex-row items-center space-x-2">
@@ -915,31 +926,33 @@ export default function Users() {
               </div>
 
               {/* Reset password */}
-              {user?.permissions?.canEditUsers && <div className="bg-white ring-1 ring-gray-100 rounded shadow p-5">
-                <div className="text-xl font-semibold mb-5 flex flex-row justify-between items-center">
-                  <div>Reset password</div>
+              {user?.permissions?.canEditUsers && (
+                <div className="bg-white ring-1 ring-gray-100 rounded shadow p-5">
+                  <div className="text-xl font-semibold mb-5 flex flex-row justify-between items-center">
+                    <div>Reset password</div>
+                  </div>
+                  <Form
+                    // {...formItemLayout}
+                    form={passwordForm}
+                    name="resetPassword"
+                    onFinish={updatePassword}
+                    scrollToFirstError
+                    style={{ width: "100%" }}
+                  >
+                    <Form.Item>
+                      {submitting ? (
+                        <Spin indicator={antIcon} />
+                      ) : (
+                        <div className="flex flex-row items-center justify-between">
+                          <Button type="primary" danger htmlType="submit">
+                            Update user password
+                          </Button>
+                        </div>
+                      )}
+                    </Form.Item>
+                  </Form>
                 </div>
-                <Form
-                  // {...formItemLayout}
-                  form={passwordForm}
-                  name="resetPassword"
-                  onFinish={updatePassword}
-                  scrollToFirstError
-                  style={{ width: "100%" }}
-                >
-                  <Form.Item>
-                    {submitting ? (
-                      <Spin indicator={antIcon} />
-                    ) : (
-                      <div className="flex flex-row items-center justify-between">
-                        <Button type="primary" danger htmlType="submit">
-                          Update user password
-                        </Button>
-                      </div>
-                    )}
-                  </Form.Item>
-                </Form>
-              </div>}
+              )}
             </div>
 
             {/* Transactions */}

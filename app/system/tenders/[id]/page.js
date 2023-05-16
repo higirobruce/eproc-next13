@@ -1,10 +1,11 @@
-'use client'
-import TenderDetails from '../../../components/tenderDetails';
-import { ArrowLeftOutlined } from '@ant-design/icons';
-import { Button, message } from 'antd';
-import React, { useEffect, useState } from 'react'
-import { encode } from 'base-64';
-import { useRouter } from 'next/navigation';
+"use client";
+import TenderDetails from "../../../components/tenderDetails";
+import { ArrowLeftOutlined } from "@ant-design/icons";
+import { Button, message } from "antd";
+import React, { useEffect, useState } from "react";
+import { encode } from "base-64";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 let url = process.env.NEXT_PUBLIC_BKEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
@@ -28,21 +29,20 @@ async function getTenderDetails(id) {
   return res.json();
 }
 
-export default function page({params}) {
-  let router = useRouter()
-  let user = JSON.parse(localStorage.getItem('user'))
-  
+export default function page({ params }) {
+  let router = useRouter();
+  let user = JSON.parse(localStorage.getItem("user"));
+
   const [messageApi, contextHolder] = message.useMessage();
-  
+
   let [rowData, setRowData] = useState(null);
   let [loadingRowData, setLoadingRowData] = useState(false);
 
-
-  useEffect(()=>{
-    getTenderDetails(params?.id).then(res=>{
-      setRowData(res)
-    })
-  },[params])
+  useEffect(() => {
+    getTenderDetails(params?.id).then((res) => {
+      setRowData(res);
+    });
+  }, [params]);
 
   function updateStatus(id, status) {
     setLoadingRowData(true);
@@ -61,7 +61,6 @@ export default function page({params}) {
         loadTenders()
           .then((res) => res.json())
           .then((res) => {
-            
             let r = res.filter((d) => {
               return d._id === id;
             });
@@ -84,7 +83,6 @@ export default function page({params}) {
         });
       });
   }
-
 
   function createSubmission(data) {
     setLoadingRowData(true);
@@ -164,7 +162,6 @@ export default function page({params}) {
           loadTenders()
             .then((res2) => res2.json())
             .then((res3) => {
-              
               let r = res3.filter((d) => {
                 return d._id === rowData._id;
               });
@@ -210,7 +207,6 @@ export default function page({params}) {
         loadTenders()
           .then((res) => res.json())
           .then((res) => {
-            
             let r = res.filter((d) => {
               return d._id === id;
             });
@@ -254,7 +250,6 @@ export default function page({params}) {
         loadTenders()
           .then((res) => res.json())
           .then((res) => {
-            
             let r = res.filter((d) => {
               return d._id === tenderUpdate?._id;
             });
@@ -283,9 +278,7 @@ export default function page({params}) {
     loadTenders()
       .then((res) => res.json())
       .then((res) => {
-        
         setLoadingRowData(false);
-        
       })
       .catch((err) => {
         messageApi.open({
@@ -319,15 +312,25 @@ export default function page({params}) {
       });
   }
 
-
   return (
-    <div className="flex flex-col transition-opacity ease-in-out duration-1000 px-10 py-5 flex-1 space-y-3">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{
+        opacity: rowData ? 1 : 0,
+      }}
+      transition={{
+        duration: 0.2,
+        type: "tween",
+        ease: "circOut",
+      }}
+      className="flex flex-col transition-opacity ease-in-out duration-1000 px-10 py-5 flex-1 space-y-3"
+    >
       {contextHolder}
       <div className="flex flex-row items-center space-x-5">
         <Button
           type="primary"
           icon={<ArrowLeftOutlined />}
-          onClick={() => router.push('/system/tenders')}
+          onClick={() => router.push("/system/tenders")}
         >
           Back
         </Button>
@@ -336,18 +339,20 @@ export default function page({params}) {
           Tender - {rowData?.purchaseRequest?.title}{" "}
         </div>
       </div>
-      {rowData && <TenderDetails
-        handleUpdateStatus={updateStatus}
-        loading={loadingRowData}
-        data={rowData}
-        handleCreateSubmission={createSubmission}
-        handleClose={() => router.push('/system/tenders')}
-        handleRefreshData={refresh}
-        handleCreatePO={createPO}
-        handleSendInvitation={sendInvitation}
-        handleSendEvalApproval={sendEvalApproval}
-        user={user}
-      />}
-    </div>
-  )
+      {rowData && (
+        <TenderDetails
+          handleUpdateStatus={updateStatus}
+          loading={loadingRowData}
+          data={rowData}
+          handleCreateSubmission={createSubmission}
+          handleClose={() => router.push("/system/tenders")}
+          handleRefreshData={refresh}
+          handleCreatePO={createPO}
+          handleSendInvitation={sendInvitation}
+          handleSendEvalApproval={sendEvalApproval}
+          user={user}
+        />
+      )}
+    </motion.div>
+  );
 }

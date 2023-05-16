@@ -10,6 +10,7 @@ import {
   SaveOutlined,
 } from "@ant-design/icons";
 import RequestDetails from "../../../components/requestDetails";
+import { motion } from "framer-motion";
 
 let url = process.env.NEXT_PUBLIC_BKEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
@@ -325,7 +326,18 @@ export default function page({ params }) {
 
   return (
     // <h1>{rowData?.number}</h1>
-    <div className="flex flex-col mx-10 transition-opacity ease-in-out duration-1000 py-5 flex-1 space-y-3 h-full">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{
+        opacity: rowData ? 1 : 0,
+      }}
+      transition={{
+        duration: 0.2,
+        type: "tween",
+        ease: "circOut",
+      }}
+      className="flex flex-col mx-10 transition-opacity ease-in-out duration-1000 py-5 flex-1 space-y-3 h-full"
+    >
       {contextHolder}
       <div className="flex flex-row justify-between items-center">
         <div className="flex flex-row space-x-10 items-center">
@@ -412,6 +424,6 @@ export default function page({ params }) {
           setRefDoc={setSourcingMethod}
         />
       )}
-    </div>
+    </motion.div>
   );
 }

@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import {
   ArrowLeftOutlined,
   LoadingOutlined,
@@ -26,9 +26,10 @@ import React, { useState, useEffect } from "react";
 import ItemList from "../../components/itemList";
 import TenderDetails from "../../components/tenderDetails";
 import TendersTable from "../../components/tendersTable";
+import { motion } from "framer-motion";
 
 export default function Tenders() {
-  let user = JSON.parse(localStorage.getItem('user'))
+  let user = JSON.parse(localStorage.getItem("user"));
   const [dataLoaded, setDataLoaded] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
@@ -254,11 +255,11 @@ export default function Tenders() {
     setLoadingRowData(false);
   }
 
-  return  (
+  return (
     <>
       {contextHolder}
       {dataLoaded ? (
-        <div className="flex flex-col transition-opacity ease-in-out duration-1000 flex-1 space-y-10 h-full">
+        <motion.div className="flex flex-col transition-opacity ease-in-out duration-1000 flex-1 space-y-10 h-full">
           <Row className="flex flex-col space-y-2 bg-white px-10 py-3 shadow">
             <div className="flex flex-row justify-between items-center">
               <div className="text-xl font-semibold">Tenders</div>
@@ -300,16 +301,28 @@ export default function Tenders() {
             </Row>
           </Row>
 
-          <Row className="flex flex-row space-x-5 mx-10">
-            <Col flex={5}>
-              <TendersTable
-                handleSetRow={handleSetRow}
-                dataSet={tempDataset}
-                updatingId={updatingId}
-                user={user}
-              />
-            </Col>
-          </Row>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{
+              opacity: dataLoaded ? 1 : 0,
+            }}
+            transition={{
+              duration: 0.2,
+              type: "tween",
+              ease: "circOut",
+            }}
+          >
+            <Row className="flex flex-row space-x-5 mx-10">
+              <Col flex={5}>
+                <TendersTable
+                  handleSetRow={handleSetRow}
+                  dataSet={tempDataset}
+                  updatingId={updatingId}
+                  user={user}
+                />
+              </Col>
+            </Row>
+          </motion.div>
 
           <Modal
             title="Create a User Purchase request"
@@ -356,7 +369,7 @@ export default function Tenders() {
           <div class="absolute -bottom-32 right-10 opacity-10">
             <Image src="/icons/blue icon.png" width={110} height={100} />
           </div>
-        </div>
+        </motion.div>
       ) : dataLoaded && dataset?.length === 0 ? (
         <Empty />
       ) : (
@@ -373,5 +386,5 @@ export default function Tenders() {
         </div>
       )}
     </>
-  )
+  );
 }

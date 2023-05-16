@@ -49,6 +49,8 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import moment from "moment";
+import { motion } from "framer-motion";
+
 export default function Vendors() {
   let user = JSON.parse(localStorage.getItem("user"));
   const [passwordForm] = Form.useForm();
@@ -477,17 +479,30 @@ export default function Vendors() {
             }
           >
             <Row className="flex flex-row space-x-5 mx-10 pt-5">
-              <Col flex={4}>
-                <VendorsTable
-                  dataSet={tempDataset}
-                  handleApproveUser={approveUser}
-                  handleDeclineUser={declineUser}
-                  updatingId={updatingId}
-                  handleBanUser={banVendor}
-                  handleActivateUser={activateVendor}
-                  handleSetRow={setRowData}
-                />
-              </Col>
+              <motion.div
+              className="w-full"
+                initial={{ opacity: 0 }}
+                animate={{
+                  opacity: tempDataset && tempDataset?.length >= 1 ? 1 : 0,
+                }}
+                transition={{
+                  duration: 0.3,
+                  type: "tween",
+                  ease: "circOut",
+                }}
+              >
+                <Col flex={4}>
+                  <VendorsTable
+                    dataSet={tempDataset}
+                    handleApproveUser={approveUser}
+                    handleDeclineUser={declineUser}
+                    updatingId={updatingId}
+                    handleBanUser={banVendor}
+                    handleActivateUser={activateVendor}
+                    handleSetRow={setRowData}
+                  />
+                </Col>
+              </motion.div>
               {/* <Col flex={1}><OverviewWindow/></Col> */}
             </Row>
           </Suspense>

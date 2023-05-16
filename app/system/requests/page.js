@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import {
   ArrowLeftOutlined,
   BackwardOutlined,
@@ -33,9 +33,10 @@ import RequestDetails from "../../components/requestDetails";
 import UsersRequestsTable from "../../components/userRequestsTable";
 import { useRouter } from "next/navigation";
 import { encode } from "base-64";
+import { motion } from "framer-motion";
 
 export default function UserRequests() {
-  let router = useRouter()
+  let router = useRouter();
   const [serviceCategories, setServiceCategories] = useState([]);
   let [serviceCategory, setServiceCategory] = useState("");
   let [budgetLines, setBudgetLines] = useState([]);
@@ -254,8 +255,7 @@ export default function UserRequests() {
       fetch(`${url}/requests/`, {
         method: "POST",
         headers: {
-          Authorization:
-            "Basic " + encode(`${apiUsername}:${apiPassword}`),
+          Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -411,7 +411,7 @@ export default function UserRequests() {
             console.log(r);
             setRowData(r[0]);
             setLoadingRowData(false);
-            if(status==='withdrawn') setRowData(null)
+            if (status === "withdrawn") setRowData(null);
           })
           .catch((err) => {
             setLoadingRowData(false);
@@ -738,8 +738,7 @@ export default function UserRequests() {
             method: "POST",
             body: formData,
             headers: {
-              Authorization:
-                "Basic " + encode(`${apiUsername}:${apiPassword}`),
+              Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
               // "Content-Type": "multipart/form-data",
             },
           })
@@ -806,7 +805,7 @@ export default function UserRequests() {
     <>
       {contextHolder}
       {dataLoaded ? (
-        <div className="flex flex-col transition-opacity ease-in-out duration-1000 flex-1 space-y-10 h-full pb-10">
+        <motion.div className="flex flex-col transition-opacity ease-in-out duration-1000 flex-1 space-y-10 h-full pb-10">
           <Row className="flex flex-col bg-white px-10 py-3 shadow space-y-2">
             <div className="flex flex-row items-center justify-between">
               <div className="text-xl font-semibold">Purchase Requests</div>
@@ -875,7 +874,18 @@ export default function UserRequests() {
             </Row>
           </Row>
           {/* <RequestStats totalRequests={dataset?.length}/> */}
-          <div className="mx-10">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{
+              opacity: dataLoaded ? 1 : 0,
+            }}
+            transition={{
+              duration: 0.2,
+              type: "tween",
+              ease: "circOut",
+            }}
+            className="mx-10"
+          >
             <UsersRequestsTable
               handleSetRow={handleSetRow}
               dataSet={tempDataset}
@@ -883,7 +893,7 @@ export default function UserRequests() {
               handleDeclineRequest={declineRequest}
               updatingId={updatingId}
             />
-          </div>
+          </motion.div>
 
           <Modal
             title="Create a User Purchase request"
@@ -1180,7 +1190,7 @@ export default function UserRequests() {
           <div class="absolute -bottom-32 right-10 opacity-10">
             <Image src="/icons/blue icon.png" width={110} height={100} />
           </div>
-        </div>
+        </motion.div>
       ) : (
         <div className="flex items-center justify-center flex-1 h-screen">
           <Spin

@@ -29,6 +29,7 @@ import { EnvelopeIcon, UserIcon, UsersIcon } from "@heroicons/react/24/outline";
 import PermissionsTable from "../../../components/permissionsTable";
 import { useRouter } from "next/navigation";
 import { encode } from "base-64";
+import { motion } from "framer-motion";
 
 let url = process.env.NEXT_PUBLIC_BKEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
@@ -72,21 +73,17 @@ export default function page({ params }) {
 
   const [form] = Form.useForm();
   const [passwordForm] = Form.useForm();
-  
-  const [editUser, setEditUser] = useState(false);
 
+  const [editUser, setEditUser] = useState(false);
 
   const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
   useEffect(() => {
     getUserDetails(params?.id).then((res) => {
       setRow(res);
-      console.log(res)
+      console.log(res);
     });
-    
   }, []);
-
-  
 
   function loadUsersRequests() {
     fetch(`${url}/requests/byCreator/${row?._id}`, {
@@ -146,7 +143,7 @@ export default function page({ params }) {
     })
       .then((res) => res.json())
       .then((res) => {
-        setRow(res)
+        setRow(res);
       })
       .catch((err) => {
         messageApi.open({
@@ -189,7 +186,7 @@ export default function page({ params }) {
     })
       .then((res) => res.json())
       .then((res) => {
-        setRow(res)
+        setRow(res);
       })
       .catch((err) => {
         // messageApi.open({
@@ -214,7 +211,7 @@ export default function page({ params }) {
     })
       .then((res) => res.json())
       .then((res) => {
-        setRow(res)
+        setRow(res);
       })
       .catch((err) => {
         messageApi.open({
@@ -421,7 +418,18 @@ export default function page({ params }) {
   }
 
   return (
-    <div className="flex flex-col  transition-opacity ease-in-out duration-1000 px-10 py-5 flex-1 space-y-3 overflow-x-scroll">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{
+        opacity: row ? 1 : 0,
+      }}
+      transition={{
+        duration: 0.3,
+        type: "tween",
+        ease: "circOut",
+      }}
+      className="flex flex-col  transition-opacity ease-in-out duration-1000 px-10 py-5 flex-1 space-y-3 overflow-x-scroll"
+    >
       {contextHolder}
       <div className="flex flex-col space-y-5">
         <div className="flex flex-row justify-between">
@@ -659,85 +667,89 @@ export default function page({ params }) {
                 <div className="text-lg font-semibold mb-5 flex flex-row justify-between items-center">
                   <div>Module access permissions</div>
                 </div>
-                {row && <PermissionsTable
-                  canApproveRequests={row?.permissions?.canApproveRequests}
-                  canCreateRequests={row?.permissions?.canCreateRequests}
-                  canEditRequests={row?.permissions?.canEditRequests}
-                  canViewRequests={row?.permissions?.canViewRequests}
-                  canApproveTenders={row?.permissions?.canApproveTenders}
-                  canCreateTenders={row?.permissions?.canCreateTenders}
-                  canEditTenders={row?.permissions?.canEditTenders}
-                  canViewTenders={row?.permissions?.canViewTenders}
-                  canApproveBids={row?.permissions?.canApproveBids}
-                  canCreateBids={row?.permissions?.canCreateBids}
-                  canEditBids={row?.permissions?.canEditBids}
-                  canViewBids={row?.permissions?.canViewBids}
-                  canApproveContracts={row?.permissions?.canApproveContracts}
-                  canCreateContracts={row?.permissions?.canCreateContracts}
-                  canEditContracts={row?.permissions?.canEditContracts}
-                  canViewContracts={row?.permissions?.canViewContracts}
-                  canApprovePurchaseOrders={
-                    row?.permissions?.canApprovePurchaseOrders
-                  }
-                  canCreatePurchaseOrders={
-                    row?.permissions?.canCreatePurchaseOrders
-                  }
-                  canEditPurchaseOrders={
-                    row?.permissions?.canEditPurchaseOrders
-                  }
-                  canViewPurchaseOrders={
-                    row?.permissions?.canViewPurchaseOrders
-                  }
-                  canApproveVendors={row?.permissions?.canApproveVendors}
-                  canCreateVendors={row?.permissions?.canCreateVendors}
-                  canEditVendors={row?.permissions?.canEditVendors}
-                  canViewVendors={row?.permissions?.canViewVendors}
-                  canApproveUsers={row?.permissions?.canApproveUsers}
-                  canCreateUsers={row?.permissions?.canCreateUsers}
-                  canEditUsers={row?.permissions?.canEditUsers}
-                  canViewUsers={row?.permissions?.canViewUsers}
-                  canApproveDashboard={row?.permissions?.canApproveDashboard}
-                  canCreateDashboard={row?.permissions?.canCreateDashboard}
-                  canEditDashboard={row?.permissions?.canEditDashboard}
-                  canViewDashboard={row?.permissions?.canViewDashboard}
-                  handleSetCanView={setCanView}
-                  handleSetCanCreated={setCanCreated}
-                  handleSetCanEdit={setCanEdit}
-                  handleSetCanApprove={setCanApprove}
-                />}
+                {row && (
+                  <PermissionsTable
+                    canApproveRequests={row?.permissions?.canApproveRequests}
+                    canCreateRequests={row?.permissions?.canCreateRequests}
+                    canEditRequests={row?.permissions?.canEditRequests}
+                    canViewRequests={row?.permissions?.canViewRequests}
+                    canApproveTenders={row?.permissions?.canApproveTenders}
+                    canCreateTenders={row?.permissions?.canCreateTenders}
+                    canEditTenders={row?.permissions?.canEditTenders}
+                    canViewTenders={row?.permissions?.canViewTenders}
+                    canApproveBids={row?.permissions?.canApproveBids}
+                    canCreateBids={row?.permissions?.canCreateBids}
+                    canEditBids={row?.permissions?.canEditBids}
+                    canViewBids={row?.permissions?.canViewBids}
+                    canApproveContracts={row?.permissions?.canApproveContracts}
+                    canCreateContracts={row?.permissions?.canCreateContracts}
+                    canEditContracts={row?.permissions?.canEditContracts}
+                    canViewContracts={row?.permissions?.canViewContracts}
+                    canApprovePurchaseOrders={
+                      row?.permissions?.canApprovePurchaseOrders
+                    }
+                    canCreatePurchaseOrders={
+                      row?.permissions?.canCreatePurchaseOrders
+                    }
+                    canEditPurchaseOrders={
+                      row?.permissions?.canEditPurchaseOrders
+                    }
+                    canViewPurchaseOrders={
+                      row?.permissions?.canViewPurchaseOrders
+                    }
+                    canApproveVendors={row?.permissions?.canApproveVendors}
+                    canCreateVendors={row?.permissions?.canCreateVendors}
+                    canEditVendors={row?.permissions?.canEditVendors}
+                    canViewVendors={row?.permissions?.canViewVendors}
+                    canApproveUsers={row?.permissions?.canApproveUsers}
+                    canCreateUsers={row?.permissions?.canCreateUsers}
+                    canEditUsers={row?.permissions?.canEditUsers}
+                    canViewUsers={row?.permissions?.canViewUsers}
+                    canApproveDashboard={row?.permissions?.canApproveDashboard}
+                    canCreateDashboard={row?.permissions?.canCreateDashboard}
+                    canEditDashboard={row?.permissions?.canEditDashboard}
+                    canViewDashboard={row?.permissions?.canViewDashboard}
+                    handleSetCanView={setCanView}
+                    handleSetCanCreated={setCanCreated}
+                    handleSetCanEdit={setCanEdit}
+                    handleSetCanApprove={setCanApprove}
+                  />
+                )}
 
                 <div className="text-lg font-semibold my-5 flex flex-row justify-between items-center">
                   <div>Approval permissions</div>
                 </div>
-                {row && <Form>
-                  <Form.Item
-                    name="canApproveAsHod"
-                    label="Can approve as a Head of department"
-                  >
-                    <Checkbox
-                      defaultChecked={row?.permissions?.canApproveAsHod}
-                      onChange={(e) => setCanApproveAsHod(e.target.checked)}
-                    />
-                  </Form.Item>
-                  <Form.Item
-                    name="canApproveAsHof"
-                    label="Can approve as a Head of finance"
-                  >
-                    <Checkbox
-                      defaultChecked={row?.permissions?.canApproveAsHof}
-                      onChange={(e) => setCanApproveAsHof(e.target.checked)}
-                    />
-                  </Form.Item>
-                  <Form.Item
-                    name="canApproveAsPM"
-                    label="Can approve as a Procurement manager"
-                  >
-                    <Checkbox
-                      defaultChecked={row?.permissions?.canApproveAsPM}
-                      onChange={(e) => setCanApproveAsPM(e.target.checked)}
-                    />
-                  </Form.Item>
-                </Form>}
+                {row && (
+                  <Form>
+                    <Form.Item
+                      name="canApproveAsHod"
+                      label="Can approve as a Head of department"
+                    >
+                      <Checkbox
+                        defaultChecked={row?.permissions?.canApproveAsHod}
+                        onChange={(e) => setCanApproveAsHod(e.target.checked)}
+                      />
+                    </Form.Item>
+                    <Form.Item
+                      name="canApproveAsHof"
+                      label="Can approve as a Head of finance"
+                    >
+                      <Checkbox
+                        defaultChecked={row?.permissions?.canApproveAsHof}
+                        onChange={(e) => setCanApproveAsHof(e.target.checked)}
+                      />
+                    </Form.Item>
+                    <Form.Item
+                      name="canApproveAsPM"
+                      label="Can approve as a Procurement manager"
+                    >
+                      <Checkbox
+                        defaultChecked={row?.permissions?.canApproveAsPM}
+                        onChange={(e) => setCanApproveAsPM(e.target.checked)}
+                      />
+                    </Form.Item>
+                  </Form>
+                )}
               </div>
             )}
             {segment === "Requests History" && (
@@ -781,6 +793,6 @@ export default function page({ params }) {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

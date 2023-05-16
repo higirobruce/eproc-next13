@@ -32,6 +32,7 @@ import moment from "moment-timezone";
 import { LockClosedIcon, LockOpenIcon } from "@heroicons/react/24/solid";
 import { PaperClipIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import { motion } from "framer-motion";
 // import MyPdfViewer from "../common/pdfViewer";
 
 export default function PurchaseOrders() {
@@ -663,189 +664,209 @@ export default function PurchaseOrders() {
 
           {tempPOs && tempPOs?.length >= 1 && (
             <Row className="flex flex-col mx-10">
-              <Col flex={5}>
-                {tempPOs?.map((po) => {
-                  let t = 0;
-                  return (
-                    <div
-                      key={po?.number}
-                      className={`grid ${
-                        user?.userType !== "VENDOR"
-                          ? `md:grid-cols-7`
-                          : `md:grid-cols-4`
-                      }  gap-3 ring-1 ring-gray-200 bg-white rounded px-5 py-3 shadow hover:shadow-md m-3`}
-                    >
-                      <div className="flex flex-col space-y-1">
-                        <div className="text-xs text-gray-600">
-                          Purchase Order
-                        </div>
-                        <div className="font-semibold">{po?.number}</div>
-                        <div className="text-gray-600">
-                          {po?.tender?.purchaseRequest?.description ||
-                            po?.request?.description}
-                        </div>
-                        {po?.reqAttachmentDocId && (
-                          <Link
-                            target="_blank"
-                            href={`${url}/file/reqAttachments/${po?.reqAttachmentDocId}.pdf`}
-                          >
-                            <Typography.Link className="flex flex-row items-center space-x-1">
-                              <div>Reference doc</div>{" "}
-                              <PaperClipIcon className="h-4 w-4" />
-                            </Typography.Link>
-                          </Link>
-                        )}
-                      </div>
-
-                      {user?.userType !== "VENDOR" && (
-                        <>
-                          <div className="flex flex-col space-y-2">
-                            <div className="text-xs text-gray-600">
-                              SAP B1 reference(s)
-                            </div>
-                            <div className="text-gray-600">
-                              {po?.referenceDocs?.map((ref, i) => {
-                                return <Tag key={i}>{ref}</Tag>;
-                              })}
-                            </div>
-                          </div>
-                          <div className="flex flex-col space-y-1">
-                            <div className="text-xs text-gray-600">Vendor</div>
-                            <div className="font-semibold">
-                              {po?.vendor?.companyName}
-                            </div>
-                            <div className=" text-gray-500">
-                              TIN: {po?.vendor?.tin}
-                            </div>
-                            <div className=" text-gray-500">
-                              email: {po?.vendor?.companyEmail}
-                            </div>
-                          </div>
-                        </>
-                      )}
-
-                      <div className="flex flex-col space-y-1">
-                        <div className="text-xs text-gray-600">Total value</div>
-                        <div className="font-semibold">
-                          {po?.items?.map((i) => {
-                            let lTot = i?.quantity * i?.estimatedUnitCost;
-                            t = t + lTot;
-                          })}{" "}
-                          {t.toLocaleString()} RWF
-                        </div>
-                      </div>
-
-                      {user?.userType !== "VENDOR" && (
-                        <div className="flex flex-col space-y-3 text-gray-600">
-                          {po?.signatories?.map((s) => {
-                            return (
-                              <div
-                                key={s?.email}
-                                className="flex flex-row items-center space-x-2"
-                              >
-                                <div>
-                                  {s?.signed ? (
-                                    <Tooltip
-                                      placement="top"
-                                      title={`signed: ${moment(
-                                        s?.signedAt
-                                      ).format("DD MMM YYYY")} at ${moment(
-                                        s?.signedAt
-                                      )
-                                        .tz("Africa/Kigali")
-                                        .format("h:mm a z")}`}
-                                    >
-                                      <span>
-                                        <LockClosedIcon className="h-5 text-green-500" />
-                                      </span>
-                                    </Tooltip>
-                                  ) : (
-                                    <Tooltip title="Signature still pending">
-                                      <span>
-                                        <LockOpenIcon className="h-5 text-yellow-500" />
-                                      </span>
-                                    </Tooltip>
-                                  )}
-                                </div>
-                                <div className="flex flex-col text-gray-600">
-                                  <div>{s?.onBehalfOf}</div>
-                                  <div>{s?.names}</div>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-
-                      <div className="flex flex-col space-y-1 items-start justify-center">
-                        {/* <Dropdown.Button
-                        disabled={
-                          user?.userType === "VENDOR" &&
-                          !documentFullySignedInternally(po)
-                        }
-                        menu={{ items, onClick: onMenuClick }}
-                        onOpenChange={() => {
-                          setPO(po);
-                        }}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{
+                  opacity: tempPOs && tempPOs?.length >= 1 ? 1 : 0,
+                }}
+                transition={{
+                  duration: 0.3,
+                  type: "tween",
+                  ease: "circOut",
+                }}
+              >
+                <Col flex={5}>
+                  {tempPOs?.map((po) => {
+                    let t = 0;
+                    return (
+                      <div
+                        key={po?.number}
+                        className={`grid ${
+                          user?.userType !== "VENDOR"
+                            ? `md:grid-cols-7`
+                            : `md:grid-cols-4`
+                        }  gap-3 ring-1 ring-gray-200 bg-white rounded px-5 py-3 shadow hover:shadow-md m-3`}
                       >
-                        Actions
-                      </Dropdown.Button> */}
+                        <div className="flex flex-col space-y-1">
+                          <div className="text-xs text-gray-600">
+                            Purchase Order
+                          </div>
+                          <div className="font-semibold">{po?.number}</div>
+                          <div className="text-gray-600">
+                            {po?.tender?.purchaseRequest?.description ||
+                              po?.request?.description}
+                          </div>
+                          {po?.reqAttachmentDocId && (
+                            <Link
+                              target="_blank"
+                              href={`${url}/file/reqAttachments/${po?.reqAttachmentDocId}.pdf`}
+                            >
+                              <Typography.Link className="flex flex-row items-center space-x-1">
+                                <div>Reference doc</div>{" "}
+                                <PaperClipIcon className="h-4 w-4" />
+                              </Typography.Link>
+                            </Link>
+                          )}
+                        </div>
 
-                        <Button
+                        {user?.userType !== "VENDOR" && (
+                          <>
+                            <div className="flex flex-col space-y-2">
+                              <div className="text-xs text-gray-600">
+                                SAP B1 reference(s)
+                              </div>
+                              <div className="text-gray-600">
+                                {po?.referenceDocs?.map((ref, i) => {
+                                  return <Tag key={i}>{ref}</Tag>;
+                                })}
+                              </div>
+                            </div>
+                            <div className="flex flex-col space-y-1">
+                              <div className="text-xs text-gray-600">
+                                Vendor
+                              </div>
+                              <div className="font-semibold">
+                                {po?.vendor?.companyName}
+                              </div>
+                              <div className=" text-gray-500">
+                                TIN: {po?.vendor?.tin}
+                              </div>
+                              <div className=" text-gray-500">
+                                email: {po?.vendor?.companyEmail}
+                              </div>
+                            </div>
+                          </>
+                        )}
+
+                        <div className="flex flex-col space-y-1">
+                          <div className="text-xs text-gray-600">
+                            Total value
+                          </div>
+                          <div className="font-semibold">
+                            {po?.items?.map((i) => {
+                              let lTot = i?.quantity * i?.estimatedUnitCost;
+                              t = t + lTot;
+                            })}{" "}
+                            {t.toLocaleString()} RWF
+                          </div>
+                        </div>
+
+                        {user?.userType !== "VENDOR" && (
+                          <div className="flex flex-col space-y-3 text-gray-600">
+                            {po?.signatories?.map((s) => {
+                              return (
+                                <div
+                                  key={s?.email}
+                                  className="flex flex-row items-center space-x-2"
+                                >
+                                  <div>
+                                    {s?.signed ? (
+                                      <Tooltip
+                                        placement="top"
+                                        title={`signed: ${moment(
+                                          s?.signedAt
+                                        ).format("DD MMM YYYY")} at ${moment(
+                                          s?.signedAt
+                                        )
+                                          .tz("Africa/Kigali")
+                                          .format("h:mm a z")}`}
+                                      >
+                                        <span>
+                                          <LockClosedIcon className="h-5 text-green-500" />
+                                        </span>
+                                      </Tooltip>
+                                    ) : (
+                                      <Tooltip title="Signature still pending">
+                                        <span>
+                                          <LockOpenIcon className="h-5 text-yellow-500" />
+                                        </span>
+                                      </Tooltip>
+                                    )}
+                                  </div>
+                                  <div className="flex flex-col text-gray-600">
+                                    <div>{s?.onBehalfOf}</div>
+                                    <div>{s?.names}</div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        <div className="flex flex-col space-y-1 items-start justify-center">
+                          {/* <Dropdown.Button
                           disabled={
                             user?.userType === "VENDOR" &&
                             !documentFullySignedInternally(po)
                           }
-                          onClick={() => {
+                          menu={{ items, onClick: onMenuClick }}
+                          onOpenChange={() => {
                             setPO(po);
-                            setOpenViewPO(true);
                           }}
                         >
-                          View Document
-                        </Button>
+                          Actions
+                        </Dropdown.Button> */}
 
-                        {documentFullySigned(po) && (
-                          <div>
-                            <Tag color="green">Signed</Tag>
-                          </div>
-                        )}
-                      </div>
+                          <Button
+                            disabled={
+                              user?.userType === "VENDOR" &&
+                              !documentFullySignedInternally(po)
+                            }
+                            onClick={() => {
+                              setPO(po);
+                              setOpenViewPO(true);
+                            }}
+                          >
+                            View Document
+                          </Button>
 
-                      <div className="flex flex-col space-y-1 justify-center">
-                        {/* <div className="text-xs text-gray-400">Delivery</div> */}
-
-                        {po?.status !== "started" &&
-                          po?.status !== "stopped" &&
-                          user?.userType === "VENDOR" && (
-                            <Button
-                              type="primary"
-                              disabled={!documentFullySigned(po)}
-                              size="small"
-                              loading={po.status === "starting"}
-                              icon={<PlaySquareOutlined />}
-                              onClick={() => handleStartDelivery(po)}
-                            >
-                              Start delivering
-                            </Button>
+                          {documentFullySigned(po) && (
+                            <div>
+                              <Tag color="green">Signed</Tag>
+                            </div>
                           )}
-
-                        <div className="text-xs text-gray-600">
-                          Delivery progress
                         </div>
-                        <Progress
-                          percent={_.round(po?.deliveryProgress, 1)}
-                          size="small"
-                          status="active"
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
 
-                <div class="absolute -bottom-0 right-10 opacity-10">
-                  <Image src="/icons/blue icon.png" width={110} height={100} />
-                </div>
-              </Col>
+                        <div className="flex flex-col space-y-1 justify-center">
+                          {/* <div className="text-xs text-gray-400">Delivery</div> */}
+
+                          {po?.status !== "started" &&
+                            po?.status !== "stopped" &&
+                            user?.userType === "VENDOR" && (
+                              <Button
+                                type="primary"
+                                disabled={!documentFullySigned(po)}
+                                size="small"
+                                loading={po.status === "starting"}
+                                icon={<PlaySquareOutlined />}
+                                onClick={() => handleStartDelivery(po)}
+                              >
+                                Start delivering
+                              </Button>
+                            )}
+
+                          <div className="text-xs text-gray-600">
+                            Delivery progress
+                          </div>
+                          <Progress
+                            percent={_.round(po?.deliveryProgress, 1)}
+                            size="small"
+                            status="active"
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  <div class="absolute -bottom-0 right-10 opacity-10">
+                    <Image
+                      src="/icons/blue icon.png"
+                      width={110}
+                      height={100}
+                    />
+                  </div>
+                </Col>
+              </motion.div>
             </Row>
           )}
         </div>
