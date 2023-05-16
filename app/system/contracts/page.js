@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import {
   CloseCircleOutlined,
   EditOutlined,
@@ -28,6 +28,7 @@ import {
   Spin,
   Row,
   Input,
+  Col,
 } from "antd";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
@@ -75,7 +76,8 @@ let formats = [
   "link",
 ];
 
-export default function Contracts({ user }) {
+export default function Contracts() {
+  let user = JSON.parse(localStorage.getItem("user"));
   const [dataLoaded, setDataLoaded] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
@@ -92,13 +94,10 @@ export default function Contracts({ user }) {
   );
   const [previewAttachment, setPreviewAttachment] = useState(false);
   const [attachmentId, setAttachmentId] = useState("TOR-id.pdf");
- 
 
   const onMenuClick = (e) => {
     setOpenViewContract(true);
   };
-
-  
 
   let [sections, setSections] = useState([
     { title: "Set section title", body: "" },
@@ -116,11 +115,11 @@ export default function Contracts({ user }) {
   let [grossTotal, setGrossTotal] = useState(0);
   let [items, setItems] = useState(null);
   const [assetOptions, setAssetOptions] = useState([]);
-  const [assets, setAssets]=useState([])
+  const [assets, setAssets] = useState([]);
 
   useEffect(() => {
     getContracts();
-    getFixedAssets()
+    getFixedAssets();
   }, []);
 
   useEffect(() => {
@@ -144,7 +143,6 @@ export default function Contracts({ user }) {
     setTotVal(t);
     setTotTax(tax);
     setGrossTotal(t + tax);
-
   }, [contract]);
 
   useEffect(() => {
@@ -159,7 +157,6 @@ export default function Contracts({ user }) {
     setTotVal(t);
     setTotTax(tax);
     setGrossTotal(t + tax);
-
   }, [items]);
 
   useEffect(() => {
@@ -222,7 +219,7 @@ export default function Contracts({ user }) {
     })
       .then((res) => res.json())
       .then((res1) => {
-        alert(JSON.stringify(res1))
+        alert(JSON.stringify(res1));
         // if (res1.error) {
         //   messageApi.open({
         //     type: "error",
@@ -238,7 +235,7 @@ export default function Contracts({ user }) {
       })
       .catch((err) => {
         console.error(err);
-       
+
         messageApi.open({
           type: "error",
           content: JSON.stringify(err),
@@ -466,7 +463,9 @@ export default function Contracts({ user }) {
                 <Typography.Text type="secondary">
                   <div className="text-xs">Company Name</div>
                 </Typography.Text>
-                <Typography.Text strong>{contract?.vendor?.companyName}</Typography.Text>
+                <Typography.Text strong>
+                  {contract?.vendor?.companyName}
+                </Typography.Text>
               </div>
 
               <div className="flex flex-col">
@@ -474,14 +473,17 @@ export default function Contracts({ user }) {
                   <div className="text-xs">Company Address</div>
                 </Typography.Text>
                 <Typography.Text strong>
-                  {contract?.vendor?.building}-{contract?.vendor?.street}-{contract?.vendor?.avenue}
+                  {contract?.vendor?.building}-{contract?.vendor?.street}-
+                  {contract?.vendor?.avenue}
                 </Typography.Text>
               </div>
               <div className="flex flex-col">
                 <Typography.Text type="secondary">
                   <div className="text-xs">Company TIN no.</div>
                 </Typography.Text>
-                <Typography.Text strong>{contract?.vendor?.tin}</Typography.Text>
+                <Typography.Text strong>
+                  {contract?.vendor?.tin}
+                </Typography.Text>
               </div>
               <div className="flex flex-col">
                 <Typography.Text type="secondary">
@@ -744,8 +746,7 @@ export default function Contracts({ user }) {
       fetch(`${url}/contracts/byVendorId/${user?._id}/${searchStatus}`, {
         method: "GET",
         headers: {
-          Authorization:
-            "Basic " + encode(`${apiUsername}:${apiPassword}`),
+          Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
           "Content-Type": "application/json",
         },
       })
@@ -762,8 +763,7 @@ export default function Contracts({ user }) {
       fetch(`${url}/contracts/byStatus/${searchStatus}`, {
         method: "GET",
         headers: {
-          Authorization:
-            "Basic " + encode(`${apiUsername}:${apiPassword}`),
+          Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
           "Content-Type": "application/json",
         },
       })
@@ -1225,8 +1225,7 @@ export default function Contracts({ user }) {
         fetch(`${url}/contracts/${contract?._id}`, {
           method: "PUT",
           headers: {
-            Authorization:
-              "Basic " + encode(`${apiUsername}:${apiPassword}`),
+            Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
@@ -1372,10 +1371,10 @@ export default function Contracts({ user }) {
       {previewAttachmentModal()}
       {createPOMOdal()}
       {dataLoaded ? (
-        <div className="flex flex-col transition-opacity ease-in-out duration-1000 flex-1 space-y-1 h-full">
+        <div className="flex flex-col transition-opacity ease-in-out duration-1000 flex-1 space-y-10 h-full pb-10">
           {viewContractMOdal()}
 
-          <Row className="flex flex-col space-y-2 bg-white px-10 py-3 shadow">
+          <Row className="flex flex-col space-y-2 bg-white px-10 py-3 shadow stick top-0">
             <div className="flex flex-row justify-between items-center">
               <div className="text-xl font-semibold">Contracts List</div>
             </div>
@@ -1423,246 +1422,203 @@ export default function Contracts({ user }) {
               ></Button>
             </Row>
           </Row>
-          {/* <div className="flex flex-col items-start space-y-2 ml-3">
-            <div className="text-xl font-semibold">Contract List</div>
-            <div className="flex-1">
-              <Select
-                // mode="tags"
-                style={{ width: "300px" }}
-                placeholder="Select status"
-                onChange={(value) => setSearchStatus(value)}
-                value={searchStatus}
-                options={[
-                  { value: "all", label: "All" },
-                  { value: "draft", label: "Draft" },
-                  {
-                    value: "pending-signature",
-                    label: "Pending Signature",
-                  },
-                  {
-                    value: "partially-signed",
-                    label: "Paritally Signed",
-                  },
-                  {
-                    value: "signed",
-                    label: "Signed",
-                  },
-                ]}
-              />
-            </div>
-          </div> */}
-
           {(tempContracts?.length < 1 || !contracts) && <Empty />}
           {contracts && tempContracts?.length >= 1 && (
-            <div
-              className="space-y-4 pb-5 h-[800px] overflow-y-scroll"
-              // style={{
-              //   height: "800px",
-              //   overflowX: "scroll",
-              //   overflowY: "unset",
-              // }}
-            >
-              {tempContracts?.map((contract) => {
-                let t = 0;
-                return (
-                  <div
-                    key={contract?.number}
-                    className="grid md:grid-cols-6 gap-3 ring-1 ring-gray-200 bg-white rounded px-5 py-3 shadow hover:shadow-md m-3"
-                  >
-                    {/*  */}
-                    <div className="flex flex-col space-y-1">
-                      <div className="text-xs text-gray-600">Contract</div>
-                      <div className="font-semibold">{contract?.number}</div>
-                      <div className="text-gray-600">
-                        Req Number: {contract?.tender?.purchaseRequest?.number ||
-                          contract?.request?.number}
+            <Row className="flex flex-col mx-10">
+              <Col flex={5}>
+                {tempContracts?.map((contract) => {
+                  let t = 0;
+                  return (
+                    <div
+                      key={contract?.number}
+                      className="grid md:grid-cols-6 gap-3 ring-1 ring-gray-200 bg-white rounded px-5 py-3 shadow hover:shadow-md m-3"
+                    >
+                      {/*  */}
+                      <div className="flex flex-col space-y-1">
+                        <div className="text-xs text-gray-600">Contract</div>
+                        <div className="font-semibold">{contract?.number}</div>
+                        <div className="text-gray-600">
+                          Req Number:{" "}
+                          {contract?.tender?.purchaseRequest?.number ||
+                            contract?.request?.number}
+                        </div>
+                        {contract?.reqAttachmentDocId && (
+                          <Link
+                            href={`${url}/file/reqAttachments/${contract?.reqAttachmentDocId}.pdf`}
+                            target="_blank"
+                          >
+                            <Typography.Link className="flex flex-row items-center space-x-2">
+                              <div>Reference doc</div>{" "}
+                              <PaperClipIcon className="h-4 w-4" />
+                            </Typography.Link>
+                          </Link>
+                        )}
                       </div>
-                      {contract?.reqAttachmentDocId && (
-                        <Link href={`${url}/file/reqAttachments/${contract?.reqAttachmentDocId}.pdf`} target='_blank'>
-                          <Typography.Link
-                          className="flex flex-row items-center space-x-2"
-                          
-                        >
-                          <div>Reference doc</div>{" "}
-                          <PaperClipIcon className="h-4 w-4" />
-                        </Typography.Link>
-                        </Link>
-                      )}
-                    </div>
-                    <div className="flex flex-col space-y-1">
-                      <div className="text-xs text-gray-600">Vendor</div>
-                      <div className="font-semibold">
-                        {contract?.vendor?.companyName}
+                      <div className="flex flex-col space-y-1">
+                        <div className="text-xs text-gray-600">Vendor</div>
+                        <div className="font-semibold">
+                          {contract?.vendor?.companyName}
+                        </div>
+                        <div className=" text-gray-500">
+                          TIN: {contract?.vendor?.tin}
+                        </div>
+                        <div className=" text-gray-500">
+                          email: {contract?.vendor?.companyEmail}
+                        </div>
                       </div>
-                      <div className=" text-gray-500">
-                        TIN: {contract?.vendor?.tin}
-                      </div>
-                      <div className=" text-gray-500">
-                        email: {contract?.vendor?.companyEmail}
-                      </div>
-                    </div>
 
-                    {/* Signatories */}
-                    {(user?.userType !== "VENDOR" ||
-                      (user?.userType == "VENDOR" &&
-                        documentFullySignedInternally(contract))) && (
-                      <div className="flex flex-col space-y-3 text-gray-600">
-                        {contract?.signatories?.map((s) => {
-                          return (
-                            <div
-                              key={s?.email}
-                              className="flex flex-row items-center space-x-2"
-                            >
-                              <div>
-                                {s?.signed ? (
-                                  <Tooltip
-                                    title={`signed: ${moment(
-                                      s?.signedAt
-                                    ).format("DD MMM YYYY")} at ${moment(
-                                      s?.signedAt
-                                    )
-                                      .tz("Africa/Kigali")
-                                      .format("h:mm a z")}`}
-                                  >
-                                    <span>
-                                      <LockClosedIcon className="h-5 text-green-500" />
-                                    </span>
-                                  </Tooltip>
-                                ) : (
-                                  <Tooltip title="Signature still pending">
-                                    <span>
-                                      <LockOpenIcon className="h-5 text-yellow-500" />
-                                    </span>
-                                  </Tooltip>
-                                )}
+                      {/* Signatories */}
+                      {(user?.userType !== "VENDOR" ||
+                        (user?.userType == "VENDOR" &&
+                          documentFullySignedInternally(contract))) && (
+                        <div className="flex flex-col space-y-3 text-gray-600">
+                          {contract?.signatories?.map((s) => {
+                            return (
+                              <div
+                                key={s?.email}
+                                className="flex flex-row items-center space-x-2"
+                              >
+                                <div>
+                                  {s?.signed ? (
+                                    <Tooltip
+                                      title={`signed: ${moment(
+                                        s?.signedAt
+                                      ).format("DD MMM YYYY")} at ${moment(
+                                        s?.signedAt
+                                      )
+                                        .tz("Africa/Kigali")
+                                        .format("h:mm a z")}`}
+                                    >
+                                      <span>
+                                        <LockClosedIcon className="h-5 text-green-500" />
+                                      </span>
+                                    </Tooltip>
+                                  ) : (
+                                    <Tooltip title="Signature still pending">
+                                      <span>
+                                        <LockOpenIcon className="h-5 text-yellow-500" />
+                                      </span>
+                                    </Tooltip>
+                                  )}
+                                </div>
+                                <div className="flex flex-col text-gray-600">
+                                  <div>{s?.onBehalfOf}</div>
+                                  <div>{s?.names}</div>
+                                </div>
                               </div>
-                              <div className="flex flex-col text-gray-600">
-                                <div>{s?.onBehalfOf}</div>
-                                <div>{s?.names}</div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-
-                    <div className="flex flex-col space-y-1 items-center justify-center">
-                      {/* <Dropdown.Button
-                        menu={{ items, onClick: onMenuClick }}
-                        onOpenChange={() => {
-                          setContract(contract);
-                        }}
-                      >
-                        Actions
-                      </Dropdown.Button> */}
-                      <Button
-                        disabled={
-                          user?.userType === "VENDOR" &&
-                          !documentFullySignedInternally(contract)
-                        }
-                        onClick={() => {
-                          setContract(contract);
-                          setOpenViewContract(true);
-                        }}
-                      >
-                        View Document
-                      </Button>
-                    </div>
-
-                    <div className="flex flex-col space-y-1 items-center justify-center">
-                      {/* <Dropdown.Button
-                        menu={{ items, onClick: onMenuClick }}
-                        onOpenChange={() => {
-                          setContract(contract);
-                        }}
-                      >
-                        Actions
-                      </Dropdown.Button> */}
-                      <Button
-                        disabled={!documentFullySigned(contract) || user?.userType =='VENDOR' || moment(contract?.endDate).isBefore(moment()) }
-                        onClick={() => {
-                          setContract(contract);
-                          let _signatories = [
-                            {
-                              onBehalfOf:
-                                "Irembo Ltd",
-                              title:
-                                "Procurement Manager",
-                              names: "",
-                              email: "",
-                            },
-                            {
-                              onBehalfOf:
-                                "Irembo Ltd",
-                              title:
-                                "Finance Manager",
-                              names: "",
-                              email: "",
-                            },
-
-                            {
-                              onBehalfOf:
-                               contract?.vendor
-                                  ?.companyName,
-                              title:
-                               contract?.vendor
-                                  ?.title,
-                              names:
-                               contract?.vendor
-                                  ?.contactPersonNames,
-                              email:
-                               contract?.vendor
-                                  ?.email,
-                            },
-                          ];
-
-                          setSignatories(
-                            _signatories
-                          );
-                          setOpenCreatePO(true);
-                        }}
-                      >
-                        Creat PO
-                      </Button>
-                    </div>
-
-                    <div className="flex flex-col space-y-1 justify-center">
-                      {/* <div className="text-xs text-gray-400">Delivery</div> */}
-                      {(!documentFullySignedInternally(contract) ||
-                        !documentFullySigned(contract)) && (
-                        <div>
-                          <Tag color="yellow">{contract?.status}</Tag>
+                            );
+                          })}
                         </div>
                       )}
-                      {documentFullySigned(contract) && (
-                        <>
-                          <div>
-                            <Tag color="green">{contract?.status}</Tag>
-                          </div>
-                          <Popover
-                            placement="topLeft"
-                            content={`${moment(contract?.startDate).format(
-                              "YYYY-MMM-DD"
-                            )} - ${moment(contract?.endDate).format(
-                              "YYYY-MMM-DD"
-                            )}`}
-                          >
-                            <div className="text-xs font-thin text-gray-500">
-                              Expires in {moment(contract?.endDate).fromNow()}
-                            </div>
-                          </Popover>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
 
-              {/* <div class="absolute -bottom-0 right-10 opacity-10">
-                <Image src="/icons/blue icon.png" width={110} height={100} />
-              </div> */}
-            </div>
+                      <div className="flex flex-col space-y-1 items-center justify-center">
+                        {/* <Dropdown.Button
+                        menu={{ items, onClick: onMenuClick }}
+                        onOpenChange={() => {
+                          setContract(contract);
+                        }}
+                      >
+                        Actions
+                      </Dropdown.Button> */}
+                        <Button
+                          disabled={
+                            user?.userType === "VENDOR" &&
+                            !documentFullySignedInternally(contract)
+                          }
+                          onClick={() => {
+                            setContract(contract);
+                            setOpenViewContract(true);
+                          }}
+                        >
+                          View Document
+                        </Button>
+                      </div>
+
+                      <div className="flex flex-col space-y-1 items-center justify-center">
+                        {/* <Dropdown.Button
+                        menu={{ items, onClick: onMenuClick }}
+                        onOpenChange={() => {
+                          setContract(contract);
+                        }}
+                      >
+                        Actions
+                      </Dropdown.Button> */}
+                        <Button
+                          disabled={
+                            !documentFullySigned(contract) ||
+                            user?.userType == "VENDOR" ||
+                            moment(contract?.endDate).isBefore(moment())
+                          }
+                          onClick={() => {
+                            setContract(contract);
+                            let _signatories = [
+                              {
+                                onBehalfOf: "Irembo Ltd",
+                                title: "Procurement Manager",
+                                names: "",
+                                email: "",
+                              },
+                              {
+                                onBehalfOf: "Irembo Ltd",
+                                title: "Finance Manager",
+                                names: "",
+                                email: "",
+                              },
+
+                              {
+                                onBehalfOf: contract?.vendor?.companyName,
+                                title: contract?.vendor?.title,
+                                names: contract?.vendor?.contactPersonNames,
+                                email: contract?.vendor?.email,
+                              },
+                            ];
+
+                            setSignatories(_signatories);
+                            setOpenCreatePO(true);
+                          }}
+                        >
+                          Creat PO
+                        </Button>
+                      </div>
+
+                      <div className="flex flex-col space-y-1 justify-center">
+                        {/* <div className="text-xs text-gray-400">Delivery</div> */}
+                        {(!documentFullySignedInternally(contract) ||
+                          !documentFullySigned(contract)) && (
+                          <div>
+                            <Tag color="yellow">{contract?.status}</Tag>
+                          </div>
+                        )}
+                        {documentFullySigned(contract) && (
+                          <>
+                            <div>
+                              <Tag color="green">{contract?.status}</Tag>
+                            </div>
+                            <Popover
+                              placement="topLeft"
+                              content={`${moment(contract?.startDate).format(
+                                "YYYY-MMM-DD"
+                              )} - ${moment(contract?.endDate).format(
+                                "YYYY-MMM-DD"
+                              )}`}
+                            >
+                              <div className="text-xs font-thin text-gray-500">
+                                Expires in {moment(contract?.endDate).fromNow()}
+                              </div>
+                            </Popover>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </Col>
+            </Row>
           )}
+
+          {/* <div class="absolute -bottom-20 right-10 opacity-10">
+            <Image alt="watermatk" src="/icons/blue icon.png" width={110} height={100} />
+          </div> */}
         </div>
       ) : (
         <div className="flex items-center justify-center flex-1 h-screen">

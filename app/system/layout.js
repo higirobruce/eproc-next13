@@ -21,21 +21,22 @@ export default function SystemLayout({ children }) {
   return (
     <main>
       {loggedInUser && (
-        <div className="flex flex-col h-full min-h-screen">
+        <div className="flex flex-col">
           <TopMenu
             screen={screen}
             handleLogout={(v) => setLoggingOut(v)}
           />
           <Layout>
-            <div className="hidden md:flex">
-              <Layout.Sider width={200}>
+            <div className="hidden md:flex ">
+              <Layout.Sider width={200} >
                 <SideMenu
                   user={JSON.parse(loggedInUser)}
+                  className='h-screen sticky top-0'
                 />
               </Layout.Sider>
             </div>
             <Layout>
-              <Layout.Content className="bg-gray-100 h-full overflow-y-scroll">
+              <Layout.Content className="bg-gray-50 overflow-y-scroll">
                 <Spin
                   spinning={loggingOut}
                   indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}

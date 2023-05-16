@@ -1,4 +1,4 @@
-export default function RequestsLayout({ children }) {
+export default function TendersLayout({ children }) {
     return (
       <main className="flex min-h-screen flex-col">
        

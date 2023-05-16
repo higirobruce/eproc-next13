@@ -66,7 +66,7 @@ const TopMenu = ({ setScreen, screen, handleLogout }) => {
     handleLogout(true);
     localStorage.removeItem("user");
     router.push("/auth")
-    handleLogout(false)
+    // handleLogout(false)
   };
   const onClick = (e) => {
     if (e.key === "logout") {
