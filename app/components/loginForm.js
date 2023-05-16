@@ -95,7 +95,7 @@ const LoginForm = () => {
               content: "Success!!",
             });
             localStorage.setItem("user", JSON.stringify(res.user));
-            router.push("/system/")
+            router.push(`${res.user?.userType ==='VENDOR' ? '/system/tenders' :'/system/dashboard' }`)
             setSubmitting(false);
           } else {
             messageApi.open({
