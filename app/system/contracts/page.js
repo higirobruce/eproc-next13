@@ -790,7 +790,7 @@ export default function Contracts() {
         onOk={() => {
           editContract &&
             contract?.status === "draft" &&
-            handleUpdateContract(sections, signatories);
+            handleUpdateContract(sections, signatories, 'draft');
           setOpenViewContract(false);
         }}
         okText={
@@ -1176,11 +1176,13 @@ export default function Contracts() {
     );
   }
 
-  function handleUpdateContract(sections, signatories) {
+  function handleUpdateContract(sections, signatories, previousStatus) {
     let _contract = { ...contract };
     _contract.sections = sections;
     _contract.signatories = signatories;
     _contract.status = "pending-signature";
+
+    console.log(previousStatus)
 
     fetch(`${url}/contracts/${contract?._id}`, {
       method: "PUT",
@@ -1190,6 +1192,7 @@ export default function Contracts() {
       },
       body: JSON.stringify({
         newContract: _contract,
+        previousStatus
       }),
     })
       .then((res) => res.json())
@@ -1235,6 +1238,7 @@ export default function Contracts() {
             pending: contract?.status === "pending-signature",
             paritallySigned: documentFullySignedInternally(contract),
             signed: documentFullySigned(contract),
+            signingIndex: index
           }),
         })
           .then((res) => res.json())

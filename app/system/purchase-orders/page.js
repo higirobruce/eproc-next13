@@ -459,6 +459,7 @@ export default function PurchaseOrders() {
             pending: po?.status === "pending-signature" || !po?.status,
             paritallySigned: documentFullySignedInternally(po),
             signed: documentFullySigned(po),
+            signingIndex: index
           }),
         })
           .then((res) => res.json())
@@ -466,7 +467,7 @@ export default function PurchaseOrders() {
             setSigning(false);
             setSignatories([]);
             setSections([{ title: "Set section title", body: "" }]);
-            setPO(res);
+            // setPO(res);
           });
       })
       .catch((err) => {
@@ -480,7 +481,7 @@ export default function PurchaseOrders() {
   function getPoTotalVal() {
     let t = 0;
     let tax = 0;
-    po?.items.map((i) => {
+    po?.items?.map((i) => {
       t = t + i?.quantity * i?.estimatedUnitCost;
       if (i.taxGroup === "I1")
         tax = tax + (i?.quantity * i?.estimatedUnitCost * 18) / 100;

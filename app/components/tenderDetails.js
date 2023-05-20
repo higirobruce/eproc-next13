@@ -2615,6 +2615,7 @@ const TenderDetails = ({
             pending: po?.status === "pending-signature" || !po?.status,
             paritallySigned: documentFullySignedInternally(po),
             signed: documentFullySigned(po),
+            signingIndex: index
           }),
         })
           .then((res) => res.json())
@@ -3233,6 +3234,7 @@ const TenderDetails = ({
                                       <a
                                         href={`${url}/file/bidDocs/${item?.proposalDocId}.pdf`}
                                         className="text-xs"
+                                        target='_blank'
                                       >
                                         Proposal{" "}
                                         <PaperClipIcon className="h-3 w-3" />
@@ -3249,6 +3251,7 @@ const TenderDetails = ({
                                       <a
                                         href={`${url}/file/bidDocs/${item?.otherDocId}.pdf`}
                                         className="text-xs"
+                                        target='_blank'
                                       >
                                         Other Doc{" "}
                                         <PaperClipIcon className="h-3 w-3" />
