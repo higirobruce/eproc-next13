@@ -56,11 +56,11 @@ export default function PublicPortal() {
                     Procurement made easy
                   </Typography.Title>
                   <Typography.Text>
-                    A platform that supports Irembo’s procurement activities by
+                    {`A platform that supports Irembo's procurement activities by
                     enabling more effective ways to onboard and collaborate with
                     local and international vendors throughout the procurement
                     lifecycle. In turn, vendors looking to do business with
-                    Irembo gain access to business opportunities.
+                    Irembo gain access to business opportunities.`}
                   </Typography.Text>
 
                   <div className="pt-10">
