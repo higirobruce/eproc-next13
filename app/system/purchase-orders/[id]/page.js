@@ -154,8 +154,8 @@ export default function page({ params }) {
           .then((res) => res.json())
           .then((res) => {
             setSigning(false);
-            setSignatories([]);
-            setSections([{ title: "Set section title", body: "" }]);
+            // setSignatories([]);
+            // setSections([{ title: "Set section title", body: "" }]);
             // setPO(res);
           });
       })

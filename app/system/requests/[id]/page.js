@@ -324,6 +324,8 @@ export default function page({ params }) {
       });
   }
 
+  
+
   return (
     // <h1>{rowData?.number}</h1>
     <motion.div

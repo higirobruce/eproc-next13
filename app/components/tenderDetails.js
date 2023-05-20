@@ -2825,7 +2825,7 @@ const TenderDetails = ({
                         </div>
                       </div>
                     )}
-                    {!data?.invitationSent && (
+                    {!data?.invitationSent && user.permissions.canApproveAsPM && (
                       <div className="ml-3 flex">
                         <div className="">
                           <div>Invite Evaluators</div>

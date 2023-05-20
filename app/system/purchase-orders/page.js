@@ -849,8 +849,7 @@ export default function PurchaseOrders() {
                           {/* <div className="text-xs text-gray-400">Delivery</div> */}
 
                           {po?.status !== "started" &&
-                            po?.status !== "stopped" &&
-                            user?.userType === "VENDOR" && (
+                            po?.status !== "stopped" && (
                               <Button
                                 type="primary"
                                 disabled={!documentFullySigned(po)}

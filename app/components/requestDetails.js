@@ -49,6 +49,7 @@ import {
   EyeOutlined,
   UserOutlined,
   CloseOutlined,
+  PlaySquareOutlined,
 } from "@ant-design/icons";
 import moment from "moment";
 import dayjs from "dayjs";
@@ -381,6 +382,7 @@ const RequestDetails = ({
   let [totalVal, setTotVal] = useState(0);
   let [totalTax, setTotTax] = useState(0);
   let [grossTotal, setGrossTotal] = useState(0);
+  let [startingDelivery, setStartingDelivery] = useState(false);
 
   const [signatories, setSignatories] = useState([]);
   const [docDate, setDocDate] = useState(moment());
@@ -1598,7 +1600,10 @@ const RequestDetails = ({
                         setOpenConfirmDeliv(_openConfirmDeliv);
                       }}
                       disabled={
-                        po?.status !== "started" || deliveredQties[index] > qty
+                        po?.status !== "started" ||
+                        deliveredQties[index] > qty ||
+                        data?.createdBy?._id == user?._id || 
+                        !user?.permissions.canApproveAsPM
                       }
                     >
                       Confirm
@@ -2454,6 +2459,29 @@ const RequestDetails = ({
     return totSignatories?.length === signatures?.length;
   }
 
+  function handleStartDelivery(po) {
+    setStartingDelivery(true);
+    fetch(`${url}/purchaseOrders/status/${po?._id}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        status: "started",
+      }),
+      headers: {
+        Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        setStartingDelivery(false);
+        if (res?.error) {
+        } else {
+          if (tender) checkPOExists(tender);
+          else checkDirectPOExists(data);
+        }
+      });
+  }
+
   return (
     <div className="grid md:grid-cols-5 gap-1">
       {contextHolder}
@@ -2795,8 +2823,23 @@ const RequestDetails = ({
                         );
                       })} */}
 
-                    <div className="ml-3 text-lg font-bold">
-                      Delivery progress
+                    <div className="ml-3 ">
+                      <div className="text-lg font-bold">Delivery progress</div>
+                      <Button
+                        type="primary"
+                        disabled={
+                          !documentFullySigned(po) ||
+                          po?.status == "started" ||
+                          !po ||
+                          user._id !== data?.createdBy?._id
+                        }
+                        size="small"
+                        loading={startingDelivery}
+                        icon={<PlaySquareOutlined />}
+                        onClick={() => handleStartDelivery(po)}
+                      >
+                        Delivery has started
+                      </Button>
                     </div>
                     {data?.items?.map((i, index) => {
                       let deliveredQty = po?.items[index].deliveredQty || 0;
