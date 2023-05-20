@@ -696,6 +696,23 @@ export default function PurchaseOrders() {
                             {po?.tender?.purchaseRequest?.description ||
                               po?.request?.description}
                           </div>
+                          {(po?.tender?.purchaseRequest?.number ||
+                            po?.request?.number) && user?.userType!=='VENDOR' && (
+                            <div className="text-gray-600">
+                              <Link
+                                alt=""
+                                href={`/system/requests/${
+                                  po?.tender?.purchaseRequest?._id ||
+                                  po?.request?._id
+                                }`}
+                              >
+                                Req Number:{" "}
+                                {po?.tender?.purchaseRequest?.number ||
+                                  po?.request?.number}
+                              </Link>
+                            </div>
+                          )}
+
                           {po?.reqAttachmentDocId && (
                             <Link
                               target="_blank"

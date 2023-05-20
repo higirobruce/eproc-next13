@@ -254,7 +254,10 @@ const TenderDetails = ({
                 {item?.paths?.map((p, i) => {
                   return (
                     <div key={p}>
-                      <Link href={`${url}/file/termsOfReference/${p}`} target="_blank">
+                      <Link
+                        href={`${url}/file/termsOfReference/${p}`}
+                        target="_blank"
+                      >
                         <Typography.Link className="flex flex-row items-center space-x-2">
                           <div>supporting doc{i + 1} </div>{" "}
                           <div>
@@ -309,6 +312,7 @@ const TenderDetails = ({
   const [docType, setDocType] = useState("dDocument_Service");
   const [bankName, setBankName] = useState("BK");
   const [bankAccountNumber, setBankAccountNumber] = useState("");
+  const [bankAccountName, setBankAccountName] = useState("");
   const [signing, setSigning] = useState(false);
 
   const [previewAttachment, setPreviewAttachment] = useState(false);
@@ -617,6 +621,7 @@ const TenderDetails = ({
       warrantyDuration,
       bankName,
       bankAccountNumber,
+      bankAccountName,
       proposalDocId,
       otherDocId,
     };
@@ -705,8 +710,66 @@ const TenderDetails = ({
     return signed;
   }
 
+  const buildBankDetailsForm = (
+    <div className="">
+      <div className="font-semibold mb-4">Banking details</div>
+      <div className="grid md:grid-cols-3 gap-3">
+        <div>
+          <div className="flex flex-col">
+            <div>Bank Name</div>
+            <Form.Item name="bankName" noStyle>
+              <Input
+                required
+                placeholder="ABCX Bank"
+                style={{ width: "100%" }}
+                onChange={(v) => {
+                  setBankName(v.target.value);
+                }}
+              />
+            </Form.Item>
+          </div>
+        </div>
+
+        <div>
+          <div className="flex flex-col">
+            <div>Bank Account Name</div>
+            <Form.Item name="bankAccountName" noStyle>
+              <Input
+                required
+                placeholder="John Doe"
+                style={{ width: "100%" }}
+                onChange={(v) => {
+                  setBankAccountName(v.target.value);
+                }}
+              />
+            </Form.Item>
+          </div>
+        </div>
+
+        <div>
+          <div className="flex flex-col">
+            <div>Account Number</div>
+            <Form.Item name="bankAccountNumber" noStyle>
+              <Input
+                required
+                placeholder="1892-0092-0900"
+                style={{ width: "100%" }}
+                onChange={(v) => {
+                  setBankAccountNumber(v.target.value);
+                }}
+              />
+            </Form.Item>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   const buildSubmissionForm = (
     <div className="">
+      <Typography.Title className="pb-4" level={5}>
+        Bid Overview
+      </Typography.Title>
       <div className="grid md:grid-cols-2 gap-5 ">
         <div className="flex flex-col">
           <div>Delivery date</div>
@@ -815,6 +878,12 @@ const TenderDetails = ({
         </div>
       </div>
 
+      {buildBankDetailsForm}
+
+      <Typography.Title className="pb-4" level={5}>
+        Supporting Documents
+      </Typography.Title>
+
       <div className="grid md:grid-cols-2 gap-5">
         <div className="grid grid-cols-2">
           <div className="flex flex-col">
@@ -853,60 +922,6 @@ const TenderDetails = ({
           <div>Any additional comments</div>
           <Form.Item name="comment">
             <Input.TextArea onChange={(e) => setComment(e.target.value)} />
-          </Form.Item>
-        </div>
-      </div>
-    </div>
-  );
-  const buildBankDetailsForm = (
-    <div className="grid md:grid-cols-2">
-      <div>
-        <div className="flex flex-col">
-          <div>My Banking details</div>
-          <Form.Item name="bankAccountNumber" noStyle>
-            <Input
-              required
-              placeholder="1892-0092-0900"
-              style={{ width: "100%" }}
-              onChange={(v) => {
-                setBankAccountNumber(v.target.value);
-              }}
-              addonBefore={
-                <Form.Item noStyle name="bankName">
-                  <Select
-                    onChange={(value) => setBankName(value)}
-                    defaultValue="Bank of Kigali"
-                    value={bankName}
-                    options={[
-                      {
-                        value: "Bank of Kigali",
-                        label: "Bank of Kigali",
-                      },
-                      {
-                        value: "I&M Bank",
-                        label: "I&M Bank",
-                      },
-                      {
-                        value: "Access Bank",
-                        label: "Access Bank",
-                      },
-                      {
-                        value: "Equity Bank",
-                        label: "Equity Bank",
-                      },
-                      {
-                        value: "Cogebank",
-                        label: "Cogebanl",
-                      },
-                      {
-                        value: "KCB Bank",
-                        label: "KCB Bank",
-                      },
-                    ]}
-                  ></Select>
-                </Form.Item>
-              }
-            />
           </Form.Item>
         </div>
       </div>
@@ -2431,7 +2446,10 @@ const TenderDetails = ({
             </div>
           </div>
 
-          <Link href={`${url}/file/tenderDocs/${data?.docId}.pdf`} target='_blank'>
+          <Link
+            href={`${url}/file/tenderDocs/${data?.docId}.pdf`}
+            target="_blank"
+          >
             <Typography.Link>
               <FileTextOutlined /> Tender document
             </Typography.Link>
@@ -2666,18 +2684,15 @@ const TenderDetails = ({
                         <>
                           <Form form={form} onFinish={submitSubmissionData}>
                             <div className="ml-3 mt-5 items-center">
-                              <Divider></Divider>
+                              {/* <Divider></Divider> */}
 
-                              <Typography.Title className="pb-4" level={5}>
-                                Submit Proposal
+                              <Typography.Title className="" level={4}>
+                                Bid Submission
                               </Typography.Title>
 
                               <div className="grid grid-cols-2 gap-20">
                                 {/* Bid information */}
                                 {buildSubmissionForm}
-
-                                {/* Bank details */}
-                                {buildBankDetailsForm}
                               </div>
                             </div>
                             <div className="flex flex-row space-x-1 ml-3 mt-5 items-center">
@@ -2715,7 +2730,7 @@ const TenderDetails = ({
                               {data?.evaluationReportId && (
                                 <a
                                   href={`${url}/file/evaluationReports/${data?.evaluationReportId}.pdf`}
-                                  target='_blank'
+                                  target="_blank"
                                   className="text-sm"
                                   // onClick={() => {
                                   //   setAttachmentId(
@@ -3140,12 +3155,33 @@ const TenderDetails = ({
                                 </div>
 
                                 <div className="self-center">
-                                  <div className="text-xs text-gray-400">
-                                    Bank Info
-                                  </div>
-                                  <div className="flex flex-row">
+                                <div className="text-xs text-gray-400">
+                                      Bank Info
+                                    </div>
+                                  <div className="flex flex-col">
+                                    {/* <div className="text-xs text-gray-400">
+                                      Bank Name:
+                                    </div> */}
                                     <div className="text-xs text-gray-600">
-                                      {item?.bankName}-{item?.bankAccountNumber}
+                                      {item?.bankName}
+                                    </div>
+                                  </div>
+
+                                  <div className="flex flex-col">
+                                    {/* <div className="text-xs text-gray-400">
+                                      Account Name:
+                                    </div> */}
+                                    <div className="text-xs text-gray-600">
+                                      {item?.bankAccountName}
+                                    </div>
+                                  </div>
+
+                                  <div className="flex flex-col">
+                                    {/* <div className="text-xs text-gray-400">
+                                      Account Number
+                                    </div> */}
+                                    <div className="text-xs text-gray-600">
+                                      {item?.bankAccountNumber}
                                     </div>
                                   </div>
                                 </div>
@@ -3196,7 +3232,6 @@ const TenderDetails = ({
                                     <div>
                                       <a
                                         href={`${url}/file/bidDocs/${item?.proposalDocId}.pdf`}
-                                        
                                         className="text-xs"
                                       >
                                         Proposal{" "}
@@ -3213,7 +3248,6 @@ const TenderDetails = ({
                                     <div>
                                       <a
                                         href={`${url}/file/bidDocs/${item?.otherDocId}.pdf`}
-                                        
                                         className="text-xs"
                                       >
                                         Other Doc{" "}

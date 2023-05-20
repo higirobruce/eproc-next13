@@ -350,7 +350,7 @@ export default function page({ params }) {
               key={s?.email}
               className="flex flex-col ring-1 ring-gray-300 rounded pt-5 space-y-3 justify-between"
             >
-              <div className="px-5 flex flex-col space-y-6">
+              <div className="px-5 flex flex-col space-y-3">
                 <div className="flex flex-col">
                   <Typography.Text type="secondary">
                     <div className="text-xs">On Behalf of</div>

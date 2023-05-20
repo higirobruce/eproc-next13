@@ -48,7 +48,7 @@ import ItemsTable from "../../components/itemsTableB1";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { encode } from "base-64";
 import Link from "next/link";
-import {motion} from 'framer-motion'
+import { motion } from "framer-motion";
 
 let modules = {
   toolbar: [
@@ -1452,11 +1452,24 @@ export default function Contracts() {
                           <div className="font-semibold">
                             {contract?.number}
                           </div>
-                          <div className="text-gray-600">
-                            Req Number:{" "}
-                            {contract?.tender?.purchaseRequest?.number ||
-                              contract?.request?.number}
-                          </div>
+                          {(contract?.tender?.purchaseRequest?._id ||
+                            contract?.request?._id) &&
+                            user?.userType !== "VENDOR" && (
+                              <div className="text-gray-600">
+                                <Link
+                                  alt=""
+                                  href={`/system/requests/${
+                                    contract?.tender?.purchaseRequest?._id ||
+                                    contract?.request?._id
+                                  }`}
+                                >
+                                  Req Number:{" "}
+                                  {contract?.tender?.purchaseRequest?.number ||
+                                    contract?.request?.number}
+                                </Link>
+                              </div>
+                            )}
+
                           {contract?.reqAttachmentDocId && (
                             <Link
                               href={`${url}/file/reqAttachments/${contract?.reqAttachmentDocId}.pdf`}
