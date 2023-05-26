@@ -1,5 +1,6 @@
 "use client";
 import {
+  DollarOutlined,
   LoadingOutlined,
   PlaySquareOutlined,
   PrinterOutlined,
@@ -33,10 +34,12 @@ import { LockClosedIcon, LockOpenIcon } from "@heroicons/react/24/solid";
 import { PaperClipIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 // import MyPdfViewer from "../common/pdfViewer";
 
 export default function PurchaseOrders() {
   let user = JSON.parse(localStorage.getItem("user"));
+  let router = useRouter()
   const [dataLoaded, setDataLoaded] = useState(false);
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
@@ -459,7 +462,7 @@ export default function PurchaseOrders() {
             pending: po?.status === "pending-signature" || !po?.status,
             paritallySigned: documentFullySignedInternally(po),
             signed: documentFullySigned(po),
-            signingIndex: index
+            signingIndex: index,
           }),
         })
           .then((res) => res.json())
@@ -698,21 +701,22 @@ export default function PurchaseOrders() {
                               po?.request?.description}
                           </div>
                           {(po?.tender?.purchaseRequest?.number ||
-                            po?.request?.number) && user?.userType!=='VENDOR' && (
-                            <div className="text-gray-600">
-                              <Link
-                                alt=""
-                                href={`/system/requests/${
-                                  po?.tender?.purchaseRequest?._id ||
-                                  po?.request?._id
-                                }`}
-                              >
-                                Req Number:{" "}
-                                {po?.tender?.purchaseRequest?.number ||
-                                  po?.request?.number}
-                              </Link>
-                            </div>
-                          )}
+                            po?.request?.number) &&
+                            user?.userType !== "VENDOR" && (
+                              <div className="text-gray-600">
+                                <Link
+                                  alt=""
+                                  href={`/system/requests/${
+                                    po?.tender?.purchaseRequest?._id ||
+                                    po?.request?._id
+                                  }`}
+                                >
+                                  Req Number:{" "}
+                                  {po?.tender?.purchaseRequest?.number ||
+                                    po?.request?.number}
+                                </Link>
+                              </div>
+                            )}
 
                           {po?.reqAttachmentDocId && (
                             <Link
@@ -870,6 +874,19 @@ export default function PurchaseOrders() {
                             size="small"
                             status="active"
                           />
+
+                          {_.round(po?.deliveryProgress,1) >= 100 && (
+                            <Button
+                              type="default"
+                              // disabled={!documentFullySigned(po)}
+                              size="small"
+                              loading={false}
+                              icon={<DollarOutlined />}
+                              onClick={() => router.push(`/system/payment-requests/new/${po?._id}`)}
+                            >
+                              Payment
+                            </Button>
+                          )}
                         </div>
                       </div>
                     );
