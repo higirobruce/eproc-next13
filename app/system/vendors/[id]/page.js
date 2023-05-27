@@ -87,7 +87,7 @@ export default function page({ params }) {
 
   useEffect(() => {
     getVendorDetails(params?.id).then((res) => {
-      console.log(res);
+      
       setRowData(res[0]?.vendor);
     });
 
@@ -112,6 +112,7 @@ export default function page({ params }) {
 
   function approveUser(id) {
     setUpdatingId(id);
+    console.log(id)
     fetch(`${url}/users/approve/${id}`, {
       method: "POST",
       headers: {
@@ -122,12 +123,14 @@ export default function page({ params }) {
       .then((res) => res.json())
       .then((res) => {
         if (res.error) {
+          console.log(res)
           setUpdatingId(null);
           messageApi.open({
             type: "error",
             content: res.message,
           });
         } else {
+          console.log(res)
           res.avgRate = rowData.avgRate;
           setRowData(res);
           setUpdatingId(null);
@@ -138,6 +141,7 @@ export default function page({ params }) {
         }
       })
       .catch((err) => {
+        console.log(err)
         messageApi.open({
           type: "error",
           content: "Something happened! Please try again.",
@@ -156,6 +160,7 @@ export default function page({ params }) {
     })
       .then((res) => res.json())
       .then((res) => {
+        console.log(res)
         res.avgRate = rowData.avgRate;
         setRowData(res);
         setUpdatingId(null);
@@ -367,7 +372,7 @@ export default function page({ params }) {
                           description="Are you sure to activate this vendor?"
                           okText="Yes"
                           cancelText="No"
-                          onConfirm={() => activateVendor(rowData?._id)}
+                          onConfirm={() => approveUser(rowData?._id)}
                         >
                           <div className="flex flex-row items-center justify-center text-sm ring-1 ring-green-400 rounded px-2 py-1 cursor-pointer bg-green-200">
                             Approve
