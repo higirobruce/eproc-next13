@@ -66,7 +66,7 @@ async function getPaymentRequestDetails(id) {
 }
 
 async function getApprovers() {
-  const res = await fetch(`${url}/users/`, {
+  const res = await fetch(`${url}/users/level1Approvers`, {
     method: "GET",
     headers: {
       Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
