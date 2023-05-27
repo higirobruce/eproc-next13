@@ -21,7 +21,7 @@ import { useRouter } from "next/navigation";
 import {motion} from "framer-motion";
 
 export default function page() {
-  const [dataLoaded, setDataLoaded] = useState(true);
+  const [dataLoaded, setDataLoaded] = useState(false);
   const [requests, setRequests] = useState([]);
   const [tenders, setTenders] = useState([]);
   const [contracts, setContracts] = useState([]);
@@ -80,6 +80,7 @@ export default function page() {
             setUnbudgeted(
               Math.round((_unbudgeted[0]?.count / res?.length) * 100)
             );
+            setDataLoaded(true)
           });
       })
       .catch((err) => {
@@ -213,7 +214,7 @@ export default function page() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{
-            opacity: dataLoaded ? 1 : 0,
+            opacity: dataLoaded?1:0,
           }}
           transition={{
             duration: 0.3,
@@ -221,7 +222,7 @@ export default function page() {
             ease:'circOut'
           }}
           
-          className="flex flex-col transition-opacity ease-in-out duration-1000 flex-1 space-y-10 h-full pb-10"
+          className="flex flex-col flex-1 space-y-10 h-full pb-10"
         >
           <div className="grid md:grid-cols-5 gap-4 p-5">
             <div
