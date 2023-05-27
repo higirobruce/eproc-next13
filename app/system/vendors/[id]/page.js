@@ -132,6 +132,7 @@ export default function page({ params }) {
         } else {
           console.log(res)
           res.avgRate = rowData.avgRate;
+          res.status = 'approved'
           setRowData(res);
           setUpdatingId(null);
           messageApi.open({
