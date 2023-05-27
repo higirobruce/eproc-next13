@@ -1,4 +1,5 @@
-import Spinner from '../../../components/spinner'
+
+import Spinner from '@/app/components/spinner'
 import React from 'react'
 
 export default function loading() {

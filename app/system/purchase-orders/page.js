@@ -39,7 +39,7 @@ import { useRouter } from "next/navigation";
 
 export default function PurchaseOrders() {
   let user = JSON.parse(localStorage.getItem("user"));
-  let router = useRouter()
+  let router = useRouter();
   const [dataLoaded, setDataLoaded] = useState(false);
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
@@ -875,18 +875,23 @@ export default function PurchaseOrders() {
                             status="active"
                           />
 
-                          {_.round(po?.deliveryProgress,1) >= 100 && (
+                          {
+                            // _.round(po?.deliveryProgress,1) >= 100 &&
                             <Button
                               type="default"
                               // disabled={!documentFullySigned(po)}
                               size="small"
                               loading={false}
                               icon={<DollarOutlined />}
-                              onClick={() => router.push(`/system/payment-requests/new/${po?._id}`)}
+                              onClick={() =>
+                                router.push(
+                                  `/system/payment-requests/new/${po?._id}`
+                                )
+                              }
                             >
                               Payment
                             </Button>
-                          )}
+                          }
                         </div>
                       </div>
                     );

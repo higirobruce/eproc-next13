@@ -1602,7 +1602,7 @@ const RequestDetails = ({
                       disabled={
                         po?.status !== "started" ||
                         deliveredQties[index] > qty ||
-                        data?.createdBy?._id == user?._id || 
+                        data?.createdBy?._id !== user?._id ||
                         !user?.permissions.canApproveAsPM
                       }
                     >
@@ -3009,7 +3009,7 @@ const RequestDetails = ({
         {createContractMOdal()}
       </div>
       <div className="flex flex-col rounded space-y-5 bg-white px-4 pt-2 shadow ">
-        <div className="text-lg">Workflow tracker </div>
+        <Typography.Title level={5}>Workflow tracker</Typography.Title>
         <Timeline
           // mode="alternate"
           items={[
