@@ -2615,7 +2615,7 @@ const TenderDetails = ({
             pending: po?.status === "pending-signature" || !po?.status,
             paritallySigned: documentFullySignedInternally(po),
             signed: documentFullySigned(po),
-            signingIndex: index
+            signingIndex: index,
           }),
         })
           .then((res) => res.json())
@@ -2825,51 +2825,52 @@ const TenderDetails = ({
                         </div>
                       </div>
                     )}
-                    {!data?.invitationSent && user.permissions.canApproveAsPM && (
-                      <div className="ml-3 flex">
-                        <div className="">
-                          <div>Invite Evaluators</div>
+                    {!data?.invitationSent &&
+                      user.permissions.canApproveAsPM && (
+                        <div className="ml-3 flex">
+                          <div className="">
+                            <div>Invite Evaluators</div>
 
-                          <div className="flex flex-row space-x-1">
-                            <Form
-                              onFinish={() => sendInvitation()}
-                              className="flex flex-row space-x-1"
-                            >
-                              <div>
-                                <Form.Item name="ivitees" required>
-                                  <Select
-                                    showSearch
-                                    showArrow
-                                    onChange={(value) =>
-                                      setSelectionComitee(value)
-                                    }
-                                    style={{ width: "400px" }}
-                                    mode="multiple"
-                                    options={users.map((user) => {
-                                      return {
-                                        label: user?.email,
-                                        value: user?.email,
-                                      };
-                                    })}
-                                  />
-                                </Form.Item>
-                              </div>
-                              <div>
-                                <Form.Item>
-                                  <Button
-                                    htmlType="submit"
-                                    disabled={selectionComitee?.length < 1}
-                                    icon={
-                                      <PaperAirplaneIcon className="h-5 w-5" />
-                                    }
-                                  />
-                                </Form.Item>
-                              </div>
-                            </Form>
+                            <div className="flex flex-row space-x-1">
+                              <Form
+                                onFinish={() => sendInvitation()}
+                                className="flex flex-row space-x-1"
+                              >
+                                <div>
+                                  <Form.Item name="ivitees" required>
+                                    <Select
+                                      showSearch
+                                      showArrow
+                                      onChange={(value) =>
+                                        setSelectionComitee(value)
+                                      }
+                                      style={{ width: "400px" }}
+                                      mode="multiple"
+                                      options={users.map((user) => {
+                                        return {
+                                          label: user?.email,
+                                          value: user?.email,
+                                        };
+                                      })}
+                                    />
+                                  </Form.Item>
+                                </div>
+                                <div>
+                                  <Form.Item>
+                                    <Button
+                                      htmlType="submit"
+                                      disabled={selectionComitee?.length < 1}
+                                      icon={
+                                        <PaperAirplaneIcon className="h-5 w-5" />
+                                      }
+                                    />
+                                  </Form.Item>
+                                </div>
+                              </Form>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
+                      )}
                     <Divider></Divider>
                     <div className="text-lg ml-3">Bids List</div>
                     <div>
@@ -2927,9 +2928,34 @@ const TenderDetails = ({
                                               <div className="text-xs text-gray-600">
                                                 {item?.createdBy?.companyName}
                                               </div>
-                                              <a href="#">
-                                                <FileTextOutlined />{" "}
-                                              </a>
+
+                                              <div className="flex flex-col">
+                                                <Link
+                                                  href={`${url}/file/bidDocs/${item?.proposalDocId}.pdf`}
+                                                  target="_blank"
+                                                >
+                                                  <Typography.Link className="flex flex-row items-center space-x-2">
+                                                    <div>Proposal</div>{" "}
+                                                    <div>
+                                                      <PaperClipIcon className="h-4 w-4" />
+                                                    </div>
+                                                  </Typography.Link>
+                                                </Link>
+
+                                                <Link
+                                                  href={`${url}/file/bidDocs/${item?.otherDocId}.pdf`}
+                                                  target="_blank"
+                                                >
+                                                  <Typography.Link className="flex flex-row items-center space-x-2">
+                                                    <div>
+                                                      Other supporting doc
+                                                    </div>{" "}
+                                                    <div>
+                                                      <PaperClipIcon className="h-4 w-4" />
+                                                    </div>
+                                                  </Typography.Link>
+                                                </Link>
+                                              </div>
                                             </div>
 
                                             <div className="">
@@ -3156,9 +3182,9 @@ const TenderDetails = ({
                                 </div>
 
                                 <div className="self-center">
-                                <div className="text-xs text-gray-400">
-                                      Bank Info
-                                    </div>
+                                  <div className="text-xs text-gray-400">
+                                    Bank Info
+                                  </div>
                                   <div className="flex flex-col">
                                     {/* <div className="text-xs text-gray-400">
                                       Bank Name:
@@ -3234,7 +3260,7 @@ const TenderDetails = ({
                                       <a
                                         href={`${url}/file/bidDocs/${item?.proposalDocId}.pdf`}
                                         className="text-xs"
-                                        target='_blank'
+                                        target="_blank"
                                       >
                                         Proposal{" "}
                                         <PaperClipIcon className="h-3 w-3" />
@@ -3251,7 +3277,7 @@ const TenderDetails = ({
                                       <a
                                         href={`${url}/file/bidDocs/${item?.otherDocId}.pdf`}
                                         className="text-xs"
-                                        target='_blank'
+                                        target="_blank"
                                       >
                                         Other Doc{" "}
                                         <PaperClipIcon className="h-3 w-3" />
