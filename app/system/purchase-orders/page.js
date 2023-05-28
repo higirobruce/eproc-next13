@@ -829,18 +829,20 @@ export default function PurchaseOrders() {
                           Actions
                         </Dropdown.Button> */}
 
-                          <Button
-                            disabled={
-                              user?.userType === "VENDOR" &&
-                              !documentFullySignedInternally(po)
-                            }
-                            onClick={() => {
-                              setPO(po);
-                              setOpenViewPO(true);
-                            }}
-                          >
-                            View Document
-                          </Button>
+                          {user?.userType !== "VENDOR" && (
+                            <Button
+                              disabled={
+                                user?.userType === "VENDOR" &&
+                                !documentFullySignedInternally(po)
+                              }
+                              onClick={() => {
+                                setPO(po);
+                                setOpenViewPO(true);
+                              }}
+                            >
+                              View Document
+                            </Button>
+                          )}
 
                           {documentFullySigned(po) && (
                             <div>
