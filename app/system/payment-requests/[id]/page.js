@@ -14,6 +14,7 @@ import {
   Radio,
   Select,
   Steps,
+  Switch,
   Tag,
   Timeline,
   Typography,
@@ -26,6 +27,8 @@ import {
   CloseCircleOutlined,
   CloseOutlined,
   DislikeOutlined,
+  EditOutlined,
+  EyeOutlined,
   LoadingOutlined,
   PaperClipOutlined,
   PlusOutlined,
@@ -84,6 +87,25 @@ async function getApprovers() {
   return res.json();
 }
 
+async function getFile(path) {
+  const res = await fetch(path, {
+    method: "GET",
+    headers: {
+      Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    // This will activate the closest `error.js` Error Boundary
+
+    return null;
+    // throw new Error("Failed to fetch data");
+  }
+
+  return res.blob();
+}
+
 export default function PaymentRequest({ params }) {
   let user = JSON.parse(localStorage.getItem("user"));
   let [paymentRequest, setPaymentRequest] = useState(null);
@@ -98,6 +120,8 @@ export default function PaymentRequest({ params }) {
   let [level1Approvers, setLevel1Approvers] = useState([]);
   let [level1Approver, setLevel1Approver] = useState(null);
 
+  let [editRequest, setEditRequest] = useState(false);
+
   const [open, setOpen] = useState(false);
   const [openConfirmDeliv, setOpenConfirmDeliv] = useState([]);
   const [openApprove, setOpenApprove] = useState(false);
@@ -108,10 +132,29 @@ export default function PaymentRequest({ params }) {
 
   const [messageApi, contextHolder] = message.useMessage();
   const [confirmRejectLoading, setConfirmRejectLoading] = useState(false);
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     getPaymentRequestDetails(params.id).then((res) => {
       setPaymentRequest(res);
+      let _files = [...files]
+
+      let _paymentRequest = res
+      _paymentRequest?.docIds?.map((doc, i) => {
+        let uid = `rc-upload-${moment().milliseconds()}-${i}`;
+        let _url = `${url}/file/paymentRequests/${doc}`;
+        let status = 'done'
+        let name = `Invoice ${i+1}.pdf`
+        
+        _files.push({
+          uid,
+          url: _url,
+          status,
+          name
+        })
+        setFiles(_files)
+      });
+
       let statusCode = getRequestStatusCode(res?.status);
       setCurrentCode(statusCode);
     });
@@ -137,6 +180,8 @@ export default function PaymentRequest({ params }) {
     console.log(files);
   }, [files]);
 
+  
+
   function getPoTotalVal() {
     let t = 0;
     let tax = 0;
@@ -152,10 +197,12 @@ export default function PaymentRequest({ params }) {
     };
   }
 
-  const handleUpload = () => {
+  const handleUpload = (action) => {
+
     if (files?.length < 1) {
       messageApi.error("Please add at least one doc.");
     } else {
+      setSaving(true)
       let docIds = [];
       files.forEach((fileToSave, rowIndex) => {
         const formData = new FormData();
@@ -179,14 +226,18 @@ export default function PaymentRequest({ params }) {
             docIds.push(_filenames[0]);
 
             if (rowIndex === files.length - 1) {
-              sendProofForRequest(docIds);
+
+              action=='paymentProof' && sendProofForRequest(docIds);
+              action=='update' && updateRequest(docIds)
             }
           })
           .catch((err) => {
             console.log(err);
             messageApi.error("upload failed.");
           })
-          .finally(() => {});
+          .finally(() => {
+            setSaving(false)
+          });
       });
     }
   };
@@ -239,8 +290,9 @@ export default function PaymentRequest({ params }) {
     if (code === 0) return "pending-review";
     else if (code === 1) return "reviewed";
     else if (code === 2) return "approved (hod)";
-    else if (code === 3) return "approved (hof)";
-    else if (code === 4) return "declined";
+    else if (code === 3) return "approved";
+    else if (code === 4) return "paid";
+    else if (code === 5) return "declined";
     else return "pending-review";
   }
 
@@ -250,7 +302,8 @@ export default function PaymentRequest({ params }) {
     else if (status === "reviewed") return 1;
     else if (status === "approved (hod)") return 2;
     else if (status === "approved") return 3;
-    else if (status === "declined") return 4;
+    else if (status === "paid") return 4;
+    else if (status === "declined") return 5;
     else return -1;
   }
 
@@ -264,6 +317,35 @@ export default function PaymentRequest({ params }) {
     paymentRequest.reviewedBy = user?._id;
     paymentRequest.reviewedAt = moment();
     paymentRequest.status = "reviewed";
+    fetch(`${url}/paymentRequests/${paymentRequest?._id}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        updates: paymentRequest,
+      }),
+      headers: {
+        Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => {
+        if (res.ok) {
+          return res.json();
+        }
+      })
+      .then((res) => {
+        refresh();
+      });
+  }
+
+  function updateRequest(docIds) {
+    paymentRequest.docIds = docIds;
+    paymentRequest.status = 'pending-review'
+    paymentRequest.approver = null
+    paymentRequest.reviewedAt = null
+    paymentRequest.hod_approvalDate = null
+    paymentRequest.hof_approvalDate = null
+    paymentRequest.rejectionDate= null
+    paymentRequest.reasonForRejection = null
     fetch(`${url}/paymentRequests/${paymentRequest?._id}`, {
       method: "PUT",
       body: JSON.stringify({
@@ -312,9 +394,9 @@ export default function PaymentRequest({ params }) {
   }
 
   function declineRequest() {
-    paymentRequest.status = 'declined';
+    paymentRequest.status = "declined";
     paymentRequest.rejectionDate = moment();
-    paymentRequest.reasonForRejection = reason
+    paymentRequest.reasonForRejection = reason;
     fetch(`${url}/paymentRequests/${paymentRequest?._id}`, {
       method: "PUT",
       body: JSON.stringify({
@@ -336,9 +418,8 @@ export default function PaymentRequest({ params }) {
   }
 
   function sendProofForRequest(docIds) {
-   
-    paymentRequest.status = 'paid';
-    paymentRequest.paymentProofDocs = docIds
+    paymentRequest.status = "paid";
+    paymentRequest.paymentProofDocs = docIds;
     fetch(`${url}/paymentRequests/${paymentRequest?._id}`, {
       method: "PUT",
       body: JSON.stringify({
@@ -382,22 +463,35 @@ export default function PaymentRequest({ params }) {
       className="flex flex-col mx-10 py-5 flex-1 space-y-3 h-full"
     >
       <div className="flex flex-row justify-between items-center">
-        <div className="flex flex-row space-x-10 items-center">
-          <div>
-            <Button
-              icon={<ArrowLeftOutlined />}
-              type="primary"
-              onClick={() => {
-                router.back();
-              }}
-            >
-              Back
-            </Button>
-          </div>
-          <div className="text-lg font-semibold">
-            Payment request {paymentRequest?.number}
+        <div className="flex flex-row justify-between items-center">
+          <div className="flex flex-row space-x-10 items-center">
+            <div>
+              <Button
+                icon={<ArrowLeftOutlined />}
+                type="primary"
+                onClick={() => {
+                  router.back();
+                }}
+              >
+                Back
+              </Button>
+            </div>
+            
+            <div className="text-lg font-semibold">
+              Payment request {paymentRequest?.number}
+            </div>
           </div>
         </div>
+        {(paymentRequest?.approver?._id === user?._id ||
+          paymentRequest?.createdBy?._id === user?._id) &&
+          !paymentRequest?.status.includes('approved') && (
+            <Switch
+              checked={editRequest}
+              checkedChildren={<EditOutlined />}
+              unCheckedChildren={<EyeOutlined />}
+              onChange={(e) => setEditRequest(e)}
+            />
+          )}
       </div>
 
       <div className="grid md:grid-cols-5 gap-1">
@@ -414,9 +508,12 @@ export default function PaymentRequest({ params }) {
                   ? "yellow"
                   : paymentRequest?.status.includes("approved (")
                   ? "orange"
-                  : paymentRequest?.status == "approved" || paymentRequest?.status == "paid"
+                  : paymentRequest?.status == "approved" ||
+                    paymentRequest?.status == "paid"
                   ? "green"
-                  : paymentRequest?.status == "reviewed" ? 'yellow' : 'red'
+                  : paymentRequest?.status == "reviewed"
+                  ? "yellow"
+                  : "red"
               }
             >
               {paymentRequest?.status}
@@ -426,44 +523,111 @@ export default function PaymentRequest({ params }) {
             {/* Request Title */}
             <div className="flex flex-col space-y-2">
               <div className="text-xs text-gray-400">Title</div>
-              <div className="text-xs">{paymentRequest?.title}</div>
+              {!editRequest && (
+                <div className="text-xs">{paymentRequest?.title}</div>
+              )}
+              {editRequest && (
+                <div className="mr-10">
+                  <Input
+                    size="small"
+                    name="title"
+                    className="text-xs"
+                    placeholder={paymentRequest?.title}
+                    onChange={(e) => {
+                      let _p = { ...paymentRequest };
+                      _p.title = e.target.value;
+                      setPaymentRequest(_p);
+                    }}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Request Comment/addtional note */}
             <div className="flex flex-col  space-y-2 ">
               <div className="text-xs text-gray-400">Comment</div>
-              <div className="text-xs">{paymentRequest?.description}</div>
+              {!editRequest && (
+                <div className="text-xs">{paymentRequest?.description}</div>
+              )}
+              {editRequest && (
+                <div className="mr-10">
+                  <Input.TextArea
+                    size="small"
+                    name="title"
+                    className="text-xs"
+                    placeholder={paymentRequest?.description}
+                    onChange={(e) => {
+                      paymentRequest.description = e.target.value;
+                    }}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Request Amount due*/}
             <div className="flex flex-col  space-y-2 ">
               <div className="text-xs text-gray-400">Amount due</div>
-              <div className="text-xs">
-                {paymentRequest?.amount?.toLocaleString()} Rwf
-              </div>
+              {!editRequest && (
+                <div className="text-xs">
+                  {paymentRequest?.amount?.toLocaleString()} Rwf
+                </div>
+              )}
+              {editRequest && (
+                <div className="mr-10">
+                  <InputNumber
+                    size="small"
+                    name="title"
+                    className="text-xs w-full"
+                    placeholder={paymentRequest?.amount}
+                    onChange={(e) => {
+                      paymentRequest.amount = e;
+                    }}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Request Attached Invoice*/}
             <div className="flex flex-col  space-y-2 ">
               <div className="text-xs text-gray-400">Attached Invoice(s)</div>
-              <div className="grid grid-cols-2 gap-y-2">
-                {paymentRequest?.docIds?.map((doc, i) => {
-                  return (
-                    <Link
-                      href={`${url}/file/paymentRequests/${doc}`}
-                      target="_blank"
-                    >
-                      <div className="text-xs">
-                        <div className="flex flex-row space-x-1">
-                          {" "}
-                          <PaperClipOutlined /> Invoice {i + 1}
+              {!editRequest && (
+                <div className="grid grid-cols-2 gap-y-2">
+                  {paymentRequest?.docIds?.map((doc, i) => {
+                    return (
+                      <Link
+                        href={`${url}/file/paymentRequests/${doc}`}
+                        target="_blank"
+                      >
+                        <div className="text-xs">
+                          <div className="flex flex-row space-x-1">
+                            {" "}
+                            <PaperClipOutlined /> Invoice {i + 1}
+                          </div>
                         </div>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+
+              {editRequest && (
+                <UploadOtherFiles files={files} setFiles={setFiles} />
+              )}
             </div>
+
+            {editRequest && (
+              <div>
+                <Button
+                  loading={saving}
+                  icon={<SaveOutlined />}
+                  type="primary"
+                  onClick={() => {
+                    setEditRequest(false);
+                    handleUpload('update');
+                  }}
+                >Update</Button>
+              </div>
+            )}
           </div>
 
           {/* Approval flow */}
@@ -509,7 +673,7 @@ export default function PaymentRequest({ params }) {
                     subTitle: currentCode > 1 && (
                       <div className="flex flex-row items-center space-x-1 text-xs font-semibold">
                         <div>
-                          {currentCode === 4 &&
+                          {currentCode === 5 &&
                             !paymentRequest?.hod_approvalDate && (
                               <CloseOutlined className="h-5 w-5 text-red-500" />
                             )}
@@ -519,7 +683,7 @@ export default function PaymentRequest({ params }) {
                             )}
                         </div>
                         <div>
-                          {currentCode === 4 &&
+                          {currentCode === 5 &&
                             !paymentRequest?.hod_approvalDate &&
                             `Declined ` +
                               moment(paymentRequest?.rejectionDate).fromNow()}
@@ -553,6 +717,7 @@ export default function PaymentRequest({ params }) {
                                 approveRequest(getRequestStatus(2));
                                 setOpenApprove(false);
                               }}
+                              
                               // okButtonProps={{
                               //   loading: confirmRejectLoading,
                               // }}
@@ -627,7 +792,7 @@ export default function PaymentRequest({ params }) {
                       paymentRequest?.hod_approvalDate && (
                         <div className="flex flex-row items-center space-x-1 text-xs font-semibold">
                           <div>
-                            {currentCode === 4 &&
+                            {currentCode === 5 &&
                               !paymentRequest?.hof_approvalDate && (
                                 <CloseOutlined className="h-5 w-5 text-red-500" />
                               )}
@@ -637,10 +802,10 @@ export default function PaymentRequest({ params }) {
                               )}
                           </div>
                           <div>
-                            {currentCode === 4 &&
+                            {currentCode === 5 &&
                               !paymentRequest?.hof_approvalDate &&
                               `Declined ` +
-                                moment(paymentRequest?.rejectionDate).fromNow()} 
+                                moment(paymentRequest?.rejectionDate).fromNow()}
                             {currentCode > 2 &&
                               paymentRequest?.hof_approvalDate &&
                               `Approved ` +
@@ -740,14 +905,12 @@ export default function PaymentRequest({ params }) {
                   },
                 ]}
               />
-              {paymentRequest?.reasonForRejection && 
-              
-              <div className="bg-red-50 p-2 rounded-md">
-                {paymentRequest?.reasonForRejection}
-              </div>
-              }
+              {paymentRequest?.reasonForRejection && (
+                <div className="bg-red-50 p-2 rounded-md">
+                  {paymentRequest?.reasonForRejection}
+                </div>
+              )}
             </div>
-            
           )}
 
           {!paymentRequest?.approver && (
@@ -834,24 +997,33 @@ export default function PaymentRequest({ params }) {
               />
 
               <div>
-                <Button onClick={()=>handleUpload()} type="primary" disabled={!files || files.length==0}>Submit</Button>
+                <Button
+                  loading={saving}
+                  onClick={() => handleUpload(paymentProof)}
+                  type="primary"
+                  disabled={!files || files.length == 0}
+                >
+                  Submit
+                </Button>
               </div>
             </>
           )}
-          {paymentRequest?.status !== "approved" && paymentRequest?.status !== 'paid' && (
-            <div className="text-sm text-gray-600 p-3 bg-gray-50 rounded-md flex flex-col justify-center items-center">
-              <LockClosedIcon className="h-10 w-10 text-blue-400" />
-              <p>
-                This request needs to be approved for the payment process to
-                start.
-              </p>
-            </div>
-          )}
+          {paymentRequest?.status !== "approved" &&
+            paymentRequest?.status !== "paid" && (
+              <div className="text-sm text-gray-600 p-3 bg-gray-50 rounded-md flex flex-col justify-center items-center">
+                <LockClosedIcon className="h-10 w-10 text-blue-400" />
+                <p>
+                  This request needs to be approved for the payment process to
+                  start.
+                </p>
+              </div>
+            )}
 
-          {
-            paymentRequest?.status === 'paid' &&
+          {paymentRequest?.status === "paid" && (
             <div className="flex flex-col  space-y-2 ">
-              <div className="text-xs text-gray-400">Attached Payment proof(s)</div>
+              <div className="text-xs text-gray-400">
+                Attached Payment proof(s)
+              </div>
               <div className="grid grid-cols-2 gap-y-2">
                 {paymentRequest?.paymentProofDocs?.map((doc, i) => {
                   return (
@@ -870,7 +1042,7 @@ export default function PaymentRequest({ params }) {
                 })}
               </div>
             </div>
-          }
+          )}
         </div>
 
         <div className="flex flex-col rounded space-y-5 bg-white px-4 pt-2 shadow ">
@@ -899,7 +1071,8 @@ export default function PaymentRequest({ params }) {
                     ? "blue"
                     : "gray",
                 dot:
-                  ((paymentRequest?.status == "approved" || paymentRequest?.status == "paid") && (
+                  ((paymentRequest?.status == "approved" ||
+                    paymentRequest?.status == "paid") && (
                     <CheckCircleOutlined className=" text-green-500" />
                   )) ||
                   ((paymentRequest?.status == "reviewed" ||
