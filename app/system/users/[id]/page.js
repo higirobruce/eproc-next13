@@ -150,6 +150,7 @@ export default function page({ params }) {
   function setCanView(canView, module) {
     let newUser = { ...row };
     let permissionLable = "canView" + module;
+    if(!newUser.permissions) newUser.permissions={};
     newUser.permissions[permissionLable] = canView;
 
     fetch(`${url}/users/${row?._id}`, {
