@@ -2516,7 +2516,6 @@ const TenderDetails = ({
                       </div>
                     </Popconfirm>
                   </div>
-
                   <div>
                     <div
                       onClick={()=>setExtending(false)}
