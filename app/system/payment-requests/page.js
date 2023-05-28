@@ -187,6 +187,10 @@ export default function UserRequests() {
                       label: "Approved",
                     },
                     {
+                      value: "paid",
+                      label: "Paid",
+                    },
+                    {
                       value: "declined",
                       label: "Declined",
                     },

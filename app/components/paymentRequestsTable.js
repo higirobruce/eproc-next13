@@ -154,6 +154,8 @@ const PaymentRequestsTable = ({
 
   function getHighLevelStatus(status) {
     if (status.includes("Approved (")) return "Pending-approval";
+    else if (status === "Pending-approval" || status === "Reviewed")
+      return "Pending-approval";
     else return status;
   }
 
@@ -162,10 +164,9 @@ const PaymentRequestsTable = ({
   };
 
   const getTagColor = (status) => {
-    if (status === "Pending-approval") return "yellow";
+    if (status === "Pending-approval" || status === "Reviewed") return "yellow";
     else if (status === "Pending-review") return "yellow";
-    else if (status === "Approved" || status=='Paid') return "green";
-    else if (status === "Reviewed") return "blue";
+    else if (status === "Approved" || status == "Paid") return "green";
     else if (status === "Declined") return "red";
   };
 
@@ -239,7 +240,8 @@ const PaymentRequestsTable = ({
     {
       title: "Initiator",
       key: "initiator",
-      sorter: (a, b) => a?.createdBy?.firstName?.localeCompare(b?.createdBy?.firstName),
+      sorter: (a, b) =>
+        a?.createdBy?.firstName?.localeCompare(b?.createdBy?.firstName),
       render: (_, record) => (
         <>
           <Typography.Text>{record?.createdBy?.firstName}</Typography.Text>
@@ -264,7 +266,14 @@ const PaymentRequestsTable = ({
     {
       title: "Status",
       key: "status",
-      sorter: (a, b) => a?.status?.localeCompare(b?.status),
+      sorter: (a, b) =>
+        getHighLevelStatus(
+          a?.status.charAt(0).toUpperCase() + a?.status.slice(1)
+        ).localeCompare(
+          getHighLevelStatus(
+            b?.status.charAt(0).toUpperCase() + b?.status.slice(1)
+          )
+        ),
       render: (_, record) => (
         <>
           <Badge
