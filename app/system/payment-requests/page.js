@@ -61,7 +61,7 @@ export default function UserRequests() {
 
   useEffect(() => {
     setDataLoaded(false);
-    let requestUrl = onlyMine
+    let requestUrl = onlyMine || user?.userType==='VENDOR'
       ? `${url}/paymentRequests/byStatus/${searchStatus}/${user?._id}`
       : `${url}/paymentRequests/byStatus/${searchStatus}/${null}`;
     fetch(requestUrl, {
@@ -149,8 +149,6 @@ export default function UserRequests() {
     setUpdatingId("");
   }, [dataset]);
 
-
-
   return !rowData ? (
     <>
       {contextHolder}
@@ -159,15 +157,16 @@ export default function UserRequests() {
           <Row className="flex flex-col bg-white px-10 py-3 shadow space-y-2">
             <div className="flex flex-row items-center justify-between">
               <div className="text-xl font-semibold">Payment Requests</div>
-              <div className="flex flex-row items-center space-x-1">
+              {user?.userType !== 'VENDOR' && <div className="flex flex-row items-center space-x-1">
                 <div>View my requests only</div>
-                <Checkbox
+                {<Checkbox
                   checked={onlyMine}
                   onChange={(e) => {
                     setOnlyMine(e.target.checked);
                   }}
-                />
-              </div>
+                />}
+              </div>}
+              
             </div>
             <Row className="flex flex-row justify-between items-center space-x-4">
               <div className="flex-1">
@@ -214,7 +213,17 @@ export default function UserRequests() {
                 />
               </div>
 
-             
+              {user?.userType !== "VENDOR" && (
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={() => {
+                    router.push("/system/payment-requests/new");
+                  }}
+                >
+                  New Payment request
+                </Button>
+              )}
             </Row>
           </Row>
           {/* <RequestStats totalRequests={dataset?.length}/> */}

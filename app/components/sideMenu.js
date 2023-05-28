@@ -129,6 +129,11 @@ const SideMenu = ({ setScreen, screen, user }) => {
           key: "system/purchase-orders",
           icon: <OrderedListOutlined />,
         },
+        {
+          label: "My Payment requests",
+          key: "system/payment-requests",
+          icon: <DollarOutlined />,
+        }
         // {
         //   key: "logout",
         //   label:"Logout",

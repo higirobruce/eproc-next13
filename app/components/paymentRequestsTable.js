@@ -205,7 +205,7 @@ const PaymentRequestsTable = ({
       render: (_, record) => (
         <>
           <div
-            className="font-semibold cursor-pointer space-x-1 flex flex-row items-center text-blue-500 hover:underline"
+            className=""
             onClick={() => {
               // handleSetRow(record);
               router.push(
@@ -213,10 +213,14 @@ const PaymentRequestsTable = ({
               );
             }}
           >
-            <div>
-              <FileTextOutlined className="text-xs" />
-            </div>
-            <div>{record?.purchaseOrder?.number}</div>
+            {record?.purchaseOrder && (
+              <div className="font-semibold cursor-pointer space-x-1 flex flex-row items-center text-blue-500 hover:underline">
+                <div>
+                  <FileTextOutlined className="text-xs" />
+                </div>
+                <div>{record?.purchaseOrder?.number}</div>
+              </div>
+            )}
           </div>
         </>
       ),
@@ -244,7 +248,7 @@ const PaymentRequestsTable = ({
         a?.createdBy?.firstName?.localeCompare(b?.createdBy?.firstName),
       render: (_, record) => (
         <>
-          <Typography.Text>{record?.createdBy?.firstName}</Typography.Text>
+          <Typography.Text>{record?.createdBy?.userType!=='VENDOR'? record?.createdBy?.firstName: record?.createdBy?.companyName}</Typography.Text>
         </>
       ),
     },
