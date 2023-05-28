@@ -83,6 +83,25 @@ export default function page({ params }) {
       setRow(res);
       console.log(res);
     });
+
+    fetch(`${url}/dpts`, {
+      method: "GET",
+      headers: {
+        Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        setDpts(res);
+        console.log(res)
+      })
+      .catch((err) => {
+        messageApi.open({
+          type: "error",
+          content: "Connection Error!",
+        });
+      });
   }, []);
 
   function loadUsersRequests() {
