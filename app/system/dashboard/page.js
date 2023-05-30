@@ -49,13 +49,13 @@ export default function page() {
           .then((res) => res.json())
           .then((res) => {
             // alert(JSON.stringify(res))
-            setAvgBids(res[0]?.avg);
+            setAvgBids(Math.round(res[0]?.avg*100)/100);
           });
         loadTendersStats()
           .then((res) => res.json())
           .then((res) => {
-            setOpenTenders(Math.round((res?.open / res?.total) * 100));
-            setClosedTenders(Math.round((res?.closed / res?.total) * 100));
+            setOpenTenders(Math.round((res?.open / res?.total) * 100)/100);
+            setClosedTenders(Math.round((res?.closed / res?.total) * 100)/100);
           });
       })
       .catch((err) => {
