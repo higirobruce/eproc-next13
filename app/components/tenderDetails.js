@@ -2485,18 +2485,21 @@ const TenderDetails = ({
                 />
               )}
 
-              {user?.permissions?.canEditTenders && !extending && (
-                <div>
-                  <Tooltip title="Extend submission deadline">
-                    <div
-                      onClick={extendSubmissionDadeline}
-                      className="p-2 rounded ring-1 ring-red-300 shadow-md flex items-center text-red-500 justify-center cursor-pointer active:shadow-sm active:text-red-300"
-                    >
-                      <CalendarDaysIcon className="h-4 w-4  " />
-                    </div>
-                  </Tooltip>
-                </div>
-              )}
+              {user?.permissions?.canEditTenders &&
+                !extending &&
+                data?.status !== "bidSelected" &&
+                data?.status !== "bidAwarded" && (
+                  <div>
+                    <Tooltip title="Extend submission deadline">
+                      <div
+                        onClick={extendSubmissionDadeline}
+                        className="p-2 rounded ring-1 ring-red-300 shadow-md flex items-center text-red-500 justify-center cursor-pointer active:shadow-sm active:text-red-300"
+                      >
+                        <CalendarDaysIcon className="h-4 w-4  " />
+                      </div>
+                    </Tooltip>
+                  </div>
+                )}
 
               {user?.permissions?.canEditTenders && extending && (
                 <div className="flex flex-row space-x-1">
@@ -2518,7 +2521,7 @@ const TenderDetails = ({
                   </div>
                   <div>
                     <div
-                      onClick={()=>setExtending(false)}
+                      onClick={() => setExtending(false)}
                       className="p-2 rounded ring-1 ring-red-300 shadow-md flex items-center text-red-500 justify-center cursor-pointer active:shadow-sm active:text-red-300"
                     >
                       <CloseOutlined className="h-4 w-4  " />
@@ -2906,6 +2909,7 @@ const TenderDetails = ({
                         setPreviewAttachment={setPreviewAttachment}
                         // attachmentId={attachmentId}
                         setAttachmentId={setAttachmentId}
+                        tenderData={data}
                       />
                     </div>
                   </div>
@@ -3039,6 +3043,7 @@ const TenderDetails = ({
                                                   <Form.Item>
                                                     <Button
                                                       // size="small"
+                                                      disabled={!user?.permissions?.canCreateContracts}
                                                       type="primary"
                                                       icon={
                                                         <FileDoneOutlined />

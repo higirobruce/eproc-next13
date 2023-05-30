@@ -49,6 +49,7 @@ const BidList = ({
   user,
   setPreviewAttachment,
   setAttachmentId,
+  tenderData
 }) => {
   let router = useRouter();
   const [data, setData] = useState(null);
@@ -247,7 +248,7 @@ const BidList = ({
                         </Button>
                       )}
 
-                      {item?.status === "selected" && (
+                      {item?.status === "selected" && tenderData?.evaluationReportId && (
                         <>
                           <Button
                             size="small"

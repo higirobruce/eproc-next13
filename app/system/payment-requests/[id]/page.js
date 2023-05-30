@@ -116,6 +116,7 @@ export default function PaymentRequest({ params }) {
   let [amount, setAmout] = useState(null);
   let [docId, setDocId] = useState(null);
   let [files, setFiles] = useState([]);
+  let [filesProof, setFilesProof] = useState([]);
   let [showAddApproverForm, setShowAddApproverForm] = useState(false);
   let [level1Approvers, setLevel1Approvers] = useState([]);
   let [level1Approver, setLevel1Approver] = useState(null);
@@ -132,27 +133,27 @@ export default function PaymentRequest({ params }) {
 
   const [messageApi, contextHolder] = message.useMessage();
   const [confirmRejectLoading, setConfirmRejectLoading] = useState(false);
-  const [saving, setSaving] = useState(false)
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     getPaymentRequestDetails(params.id).then((res) => {
       setPaymentRequest(res);
-      let _files = [...files]
+      let _files = [...files];
 
-      let _paymentRequest = res
+      let _paymentRequest = res;
       _paymentRequest?.docIds?.map((doc, i) => {
         let uid = `rc-upload-${moment().milliseconds()}-${i}`;
         let _url = `${url}/file/paymentRequests/${doc}`;
-        let status = 'done'
-        let name = `Invoice ${i+1}.pdf`
-        
+        let status = "done";
+        let name = `Invoice ${i + 1}.pdf`;
+
         _files.push({
           uid,
           url: _url,
           status,
-          name
-        })
-        setFiles(_files)
+          name,
+        });
+        setFiles(_files);
       });
 
       let statusCode = getRequestStatusCode(res?.status);
@@ -180,8 +181,6 @@ export default function PaymentRequest({ params }) {
     console.log(files);
   }, [files]);
 
-  
-
   function getPoTotalVal() {
     let t = 0;
     let tax = 0;
@@ -198,13 +197,16 @@ export default function PaymentRequest({ params }) {
   }
 
   const handleUpload = (action) => {
-
     if (files?.length < 1) {
       messageApi.error("Please add at least one doc.");
     } else {
-      setSaving(true)
+      setSaving(true);
       let docIds = [];
-      files.forEach((fileToSave, rowIndex) => {
+      let _files = [];
+      if (action === "paymentProof") _files = [...filesProof];
+      if (action === "update") _files = [...files];
+
+      _files.forEach((fileToSave, rowIndex) => {
         const formData = new FormData();
         formData.append("files[]", fileToSave);
 
@@ -226,9 +228,8 @@ export default function PaymentRequest({ params }) {
             docIds.push(_filenames[0]);
 
             if (rowIndex === files.length - 1) {
-
-              action=='paymentProof' && sendProofForRequest(docIds);
-              action=='update' && updateRequest(docIds)
+              action == "paymentProof" && sendProofForRequest(docIds);
+              action == "update" && updateRequest(docIds);
             }
           })
           .catch((err) => {
@@ -236,7 +237,7 @@ export default function PaymentRequest({ params }) {
             messageApi.error("upload failed.");
           })
           .finally(() => {
-            setSaving(false)
+            setSaving(false);
           });
       });
     }
@@ -339,13 +340,13 @@ export default function PaymentRequest({ params }) {
 
   function updateRequest(docIds) {
     paymentRequest.docIds = docIds;
-    paymentRequest.status = 'pending-review'
-    paymentRequest.approver = null
-    paymentRequest.reviewedAt = null
-    paymentRequest.hod_approvalDate = null
-    paymentRequest.hof_approvalDate = null
-    paymentRequest.rejectionDate= null
-    paymentRequest.reasonForRejection = null
+    paymentRequest.status = "pending-review";
+    paymentRequest.approver = null;
+    paymentRequest.reviewedAt = null;
+    paymentRequest.hod_approvalDate = null;
+    paymentRequest.hof_approvalDate = null;
+    paymentRequest.rejectionDate = null;
+    paymentRequest.reasonForRejection = null;
     fetch(`${url}/paymentRequests/${paymentRequest?._id}`, {
       method: "PUT",
       body: JSON.stringify({
@@ -446,6 +447,7 @@ export default function PaymentRequest({ params }) {
       let statusCode = getRequestStatusCode(res?.status);
       setCurrentCode(statusCode);
       setShowAddApproverForm(false);
+      setLevel1Approver(null);
     });
   }
 
@@ -476,15 +478,14 @@ export default function PaymentRequest({ params }) {
                 Back
               </Button>
             </div>
-            
+
             <div className="text-lg font-semibold">
               Payment request {paymentRequest?.number}
             </div>
           </div>
         </div>
-        {(paymentRequest?.approver?._id === user?._id ||
-          paymentRequest?.createdBy?._id === user?._id) &&
-          !paymentRequest?.status.includes('approved') && (
+        {(paymentRequest?.approver?._id === user?._id ) &&
+          !paymentRequest?.status.includes("approved") && (
             <Switch
               checked={editRequest}
               checkedChildren={<EditOutlined />}
@@ -623,9 +624,11 @@ export default function PaymentRequest({ params }) {
                   type="primary"
                   onClick={() => {
                     setEditRequest(false);
-                    handleUpload('update');
+                    handleUpload("update");
                   }}
-                >Update</Button>
+                >
+                  Update
+                </Button>
               </div>
             )}
           </div>
@@ -717,7 +720,6 @@ export default function PaymentRequest({ params }) {
                                 approveRequest(getRequestStatus(2));
                                 setOpenApprove(false);
                               }}
-                              
                               // okButtonProps={{
                               //   loading: confirmRejectLoading,
                               // }}
@@ -913,7 +915,7 @@ export default function PaymentRequest({ params }) {
             </div>
           )}
 
-          {!paymentRequest?.approver && (
+          {!paymentRequest?.approver && user?.userType!=='VENDOR' && user?.permissions?.canEditRequests && (
             <div className="flex flex-col space-y-2">
               <div className="text-xs text-gray-500">
                 {showAddApproverForm ? "" : "No approver selected yet"}
@@ -922,7 +924,10 @@ export default function PaymentRequest({ params }) {
                 <div className="flex flex-row items-center space-x-1">
                   <Button
                     type="primary"
-                    onClick={() => setShowAddApproverForm(!showAddApproverForm)}
+                    onClick={() => {
+                      setShowAddApproverForm(!showAddApproverForm);
+                      setLevel1Approver(null);
+                    }}
                   >
                     Add approver
                   </Button>
@@ -931,7 +936,10 @@ export default function PaymentRequest({ params }) {
               {showAddApproverForm && (
                 <div className="flex flex-row items-center space-x-1">
                   <div
-                    onClick={() => setShowAddApproverForm(!showAddApproverForm)}
+                    onClick={() => {
+                      setShowAddApproverForm(!showAddApproverForm);
+                      setLevel1Approver(null);
+                    }}
                   >
                     <CloseCircleOutlined className="text-red-500" />
                   </div>
@@ -970,7 +978,11 @@ export default function PaymentRequest({ params }) {
                 </Form.Item>
 
                 <Form.Item>
-                  <Button onClick={sendReview} type="primary">
+                  <Button
+                    onClick={sendReview}
+                    type="primary"
+                    disabled={!level1Approver}
+                  >
                     Submit
                   </Button>
                 </Form.Item>
@@ -991,17 +1003,17 @@ export default function PaymentRequest({ params }) {
           {paymentRequest?.status === "approved" && (
             <>
               <UploadOtherFiles
-                files={files}
-                setFiles={setFiles}
+                files={filesProof}
+                setFiles={setFilesProof}
                 label="Select Payment proof"
               />
 
               <div>
                 <Button
                   loading={saving}
-                  onClick={() => handleUpload(paymentProof)}
+                  onClick={() => handleUpload("paymentProof")}
                   type="primary"
-                  disabled={!files || files.length == 0}
+                  disabled={!filesProof || filesProof.length == 0}
                 >
                   Submit
                 </Button>
