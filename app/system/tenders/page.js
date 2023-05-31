@@ -48,11 +48,13 @@ export default function Tenders() {
   let [totalTenders, setTotalTenders] = useState(0);
   let [totalBids, setTotalBids] = useState(0);
   let [doneCreatingContract, setDoneCreatingContract] = useState(false);
+  let [services, setServices] = useState([]);
 
   let [searchStatus, setSearchStatus] = useState("all");
-  let [searchText, setSearchText] = useState("");
+  let [searchText, setSearchText] = useState(null);
 
   useEffect(() => {
+
     loadTenders()
       .then((res) => res.json())
       .then((res) => {
@@ -66,7 +68,7 @@ export default function Tenders() {
           content: "Something happened! Please try again.",
         });
       });
-  }, [user]);
+  }, []);
 
   function refresh() {
     setDataLoaded(false);
@@ -111,9 +113,10 @@ export default function Tenders() {
       });
   }
 
+
   useEffect(() => {
     setUpdatingId("");
-    loadStats();
+    // loadStats();
   }, [dataset]);
 
   useEffect(() => {
@@ -219,35 +222,35 @@ export default function Tenders() {
       });
   };
 
-  function loadStats() {
-    fetch(`${url}/tenders/stats`, {
-      method: "GET",
-      headers: {
-        Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        setTotalTenders(res?.total);
-        // setOpen(res?.open)
-        // setClosed(res?.closed)
-      });
+  // function loadStats() {
+  //   fetch(`${url}/tenders/stats`, {
+  //     method: "GET",
+  //     headers: {
+  //       Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+  //       "Content-Type": "application/json",
+  //     },
+  //   })
+  //     .then((res) => res.json())
+  //     .then((res) => {
+  //       setTotalTenders(res?.total);
+  //       // setOpen(res?.open)
+  //       // setClosed(res?.closed)
+  //     });
 
-    fetch(`${url}/submissions`, {
-      method: "GET",
-      headers: {
-        Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        setTotalBids(res?.length);
-        // setOpen(res?.open)
-        // setClosed(res?.closed)
-      });
-  }
+  //   fetch(`${url}/submissions`, {
+  //     method: "GET",
+  //     headers: {
+  //       Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+  //       "Content-Type": "application/json",
+  //     },
+  //   })
+  //     .then((res) => res.json())
+  //     .then((res) => {
+  //       setTotalBids(res?.length);
+  //       // setOpen(res?.open)
+  //       // setClosed(res?.closed)
+  //     });
+  // }
 
   function handleSetRow(row) {
     setLoadingRowData(true);
