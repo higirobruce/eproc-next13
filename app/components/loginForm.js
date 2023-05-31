@@ -133,7 +133,7 @@ const LoginForm = () => {
   const resetPassword = (values) => {
     setSubmitting(true);
 
-    fetch(`${url}/users/reset/${values.email}`, {
+    fetch(`${url}/users/recoverPassword/${values.email}`, {
       method: "PUT",
       headers: {
         Authorization: "Basic " + base64_encode(`${apiUsername}:${apiPassword}`),
