@@ -1046,7 +1046,7 @@ export default function PaymentRequest({ params }) {
                       <div className="text-xs">
                         <div className="flex flex-row space-x-1">
                           {" "}
-                          <PaperClipOutlined /> Invoice {i + 1}
+                          <PaperClipOutlined /> Payment proof {i + 1}
                         </div>
                       </div>
                     </Link>
