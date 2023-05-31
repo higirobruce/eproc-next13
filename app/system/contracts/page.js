@@ -221,19 +221,18 @@ export default function Contracts() {
     })
       .then((res) => res.json())
       .then((res1) => {
-        alert(JSON.stringify(res1));
-        // if (res1.error) {
-        //   messageApi.open({
-        //     type: "error",
-        //     content: res1?.error?.message?.value
-        //       ? res1?.error?.message?.value
-        //       : res1?.message,
-        //   });
-        // } else {
-        //   getContracts();
-        //   setOpenCreatePO(false)
-        //   setCreatingPo(false)
-        // }
+        if (res1.error) {
+          messageApi.open({
+            type: "error",
+            content: res1?.error?.message?.value
+              ? res1?.error?.message?.value
+              : res1?.message,
+          });
+        } else {
+          getContracts();
+          setOpenCreatePO(false)
+          setCreatingPo(false)
+        }
       })
       .catch((err) => {
         console.error(err);

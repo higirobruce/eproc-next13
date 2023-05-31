@@ -54,7 +54,6 @@ export default function Tenders() {
   let [searchText, setSearchText] = useState(null);
 
   useEffect(() => {
-
     loadTenders()
       .then((res) => res.json())
       .then((res) => {
