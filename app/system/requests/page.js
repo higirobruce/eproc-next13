@@ -614,7 +614,7 @@ export default function UserRequests() {
       });
   }
 
-  function createPO(
+  async function createPO(
     vendor,
     tender,
     createdBy,
