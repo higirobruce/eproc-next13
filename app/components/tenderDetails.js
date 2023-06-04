@@ -2787,7 +2787,7 @@ const TenderDetails = ({
                                         handleSendEvalApproval(data, invitees);
                                       }}
                                     >
-                                      I agree the recomendations
+                                      I agree with the recomendations
                                     </Button>
                                     <Button
                                       size="small"
