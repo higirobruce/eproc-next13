@@ -921,7 +921,7 @@ export default function UserRequests() {
             }}
             
             okText="Submit for approval"
-            okButtonProps={{ size: "small" }}
+            okButtonProps={{ size: "small", disabled:confirmLoading }}
             cancelButtonProps={{ size: "small" }}
             width={1200}
             confirmLoading={confirmLoading}
