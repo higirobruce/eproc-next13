@@ -122,7 +122,10 @@ export default function page({ params }) {
           .then((res) => {
             // setSignatories([]);
             // setSections([{ title: "Set section title", body: "" }]);
-            setContract(res);
+            let _c = {...contract};
+            _c.signatories = res?.signatories;
+            _c.status = res?.status
+            setContract(_c);
             setSignatories(res?.signatories);
             setSigning(false);
           });
