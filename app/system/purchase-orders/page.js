@@ -61,7 +61,7 @@ export default function PurchaseOrders() {
     },
   ];
 
-  let [submitting, setSubmitting] = useState(false);
+  let [submitting, setSubmitting] = useState(false)
 
   const [previewAttachment, setPreviewAttachment] = useState(false);
   const [attachmentId, setAttachmentId] = useState("TOR-id.pdf");
@@ -586,7 +586,7 @@ export default function PurchaseOrders() {
 
   return (
     <>
-      {dataLoaded && !submitting ? (
+      {(dataLoaded && !submitting) ? (
         <div className="flex flex-col transition-opacity ease-in-out duration-1000 flex-1 space-y-1 h-full">
           {viewPOMOdal()}
 
@@ -707,7 +707,7 @@ export default function PurchaseOrders() {
                             user?.userType !== "VENDOR" && (
                               <div className="text-gray-600">
                                 <Link
-                                  onClick={() => setSubmitting(true)}
+                                  onClick={()=>setSubmitting(true)}
                                   alt=""
                                   href={`/system/requests/${
                                     po?.tender?.purchaseRequest?._id ||
@@ -832,18 +832,20 @@ export default function PurchaseOrders() {
                           Actions
                         </Dropdown.Button> */}
 
-                          <Button
-                            disabled={
-                              user?.userType === "VENDOR" &&
-                              !documentFullySignedInternally(po)
-                            }
-                            onClick={() => {
-                              setPO(po);
-                              setOpenViewPO(true);
-                            }}
-                          >
-                            View Document
-                          </Button>
+                          {(user?.userType !== "VENDOR" || (user?.userType === "VENDOR" && documentFullySignedInternally(po))) && (
+                            <Button
+                              disabled={
+                                user?.userType === "VENDOR" &&
+                                !documentFullySignedInternally(po)
+                              }
+                              onClick={() => {
+                                setPO(po);
+                                setOpenViewPO(true);
+                              }}
+                            >
+                              View Document
+                            </Button>
+                          )}
 
                           {documentFullySigned(po) && (
                             <div>
@@ -886,12 +888,12 @@ export default function PurchaseOrders() {
                               size="small"
                               // loading={submitting}
                               icon={<DollarOutlined />}
-                              onClick={() => {
-                                setSubmitting(true);
+                              onClick={() =>
+                                {setSubmitting(true)
                                 router.push(
                                   `/system/payment-requests/new/${po?._id}`
-                                );
-                              }}
+                                )}
+                              }
                             >
                               Payment
                             </Button>
