@@ -1608,7 +1608,7 @@ export default function Contracts() {
                               setOpenCreatePO(true);
                             }}
                           >
-                            Creat PO
+                            Create PO
                           </Button>
                         </div>
 

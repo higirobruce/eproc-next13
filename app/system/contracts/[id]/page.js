@@ -115,6 +115,7 @@ export default function page({ params }) {
             pending: contract?.status === "pending-signature",
             paritallySigned: documentFullySignedInternally(contract),
             signed: documentFullySigned(contract),
+            signingIndex: index
           }),
         })
           .then((res) => res.json())
