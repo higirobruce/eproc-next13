@@ -391,8 +391,8 @@ const RequestDetails = ({
   const [attachmentId, setAttachmentId] = useState("TOR-id.pdf");
   const [docId, setDocId] = useState(v4());
   const [vendors, setVendors] = useState([]);
-  let [contractStartDate, setContractStartDate] = useState(moment());
-  let [contractEndDate, setContractEndDate] = useState(moment());
+  let [contractStartDate, setContractStartDate] = useState(null);
+  let [contractEndDate, setContractEndDate] = useState(null);
   let [reqAttachId, setReqAttachId] = useState(v4());
   const [creatingPO, setCreatingPO] = useState(false);
   const [comment, setComment] = useState("");
@@ -2103,6 +2103,14 @@ const RequestDetails = ({
               type: "error",
               content:
                 "Contract can not be submitted. Please fill in the relevant signatories' details!",
+            });
+          } else if (
+            !contractStartDate || !contractEndDate
+          ) {
+            messageApi.open({
+              type: "error",
+              content:
+                "Contract can not be submitted. Please set start and end dates!",
             });
           } else {
             handleCreateContract(

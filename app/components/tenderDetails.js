@@ -136,8 +136,8 @@ const TenderDetails = ({
   let [openCreateContract, setOpenCreateContract] = useState(false);
   let [openViewContract, setOpenViewContract] = useState(false);
   let [selectionComitee, setSelectionComitee] = useState([]);
-  let [contractStartDate, setContractStartDate] = useState(moment());
-  let [contractEndDate, setContractEndDate] = useState(moment());
+  let [contractStartDate, setContractStartDate] = useState(null);
+  let [contractEndDate, setContractEndDate] = useState(null);
 
   let [vendor, setVendor] = useState("");
   let [tendor, setTendor] = useState("");
@@ -1410,6 +1410,14 @@ const TenderDetails = ({
               type: "error",
               content:
                 "Contract can not be submitted. Please fill in the relevant signatories' details!",
+            });
+          } else if (
+            !contractStartDate || !contractEndDate
+          ) {
+            messageApi.open({
+              type: "error",
+              content:
+                "Contract can not be submitted. Please set start and end dates!",
             });
           } else {
             handleCreateContract(
