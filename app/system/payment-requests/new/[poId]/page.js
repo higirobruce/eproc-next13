@@ -47,6 +47,7 @@ export default function NewPaymentRequest({ params }) {
   let [amount, setAmout] = useState(null);
   let [docId, setDocId] = useState(null);
   let [files, setFiles] = useState([]);
+  let [submitting, setSubmitting] = useState(false);
 
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -78,6 +79,7 @@ export default function NewPaymentRequest({ params }) {
   const handleUpload = () => {
     if (files?.length < 1) {
       messageApi.error("Please add at least one doc.");
+      setSubmitting(false);
     } else {
       let docIds = [];
       files.forEach((fileToSave, rowIndex) => {
@@ -115,6 +117,7 @@ export default function NewPaymentRequest({ params }) {
   };
 
   const save = (_fileList) => {
+    setSubmitting(true)
     fetch(`${url}/paymentRequests/`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: "" },
@@ -139,6 +142,9 @@ export default function NewPaymentRequest({ params }) {
       })
       .catch((err) => {
         console.log(err);
+      })
+      .finally(() => {
+        // setSubmitting(false);
       });
   };
 
@@ -156,6 +162,7 @@ export default function NewPaymentRequest({ params }) {
       className="flex flex-col mx-10 transition-opacity ease-in-out duration-1000 py-5 flex-1 space-y-3 h-full"
     >
       <div className="flex flex-row justify-between items-center">
+        {contextHolder}
         <div className="flex flex-row space-x-10 items-center">
           <div>
             <Button
@@ -266,8 +273,11 @@ export default function NewPaymentRequest({ params }) {
               icon={<SaveOutlined />}
               type="primary"
               onClick={() => {
+                setSubmitting(true);
+                form.validateFields();
                 handleUpload();
               }}
+              disabled={submitting}
             >
               Save
             </Button>

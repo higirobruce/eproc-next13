@@ -29,13 +29,17 @@ export default function NewPaymentRequest() {
   let [amount, setAmout] = useState(null);
   let [docId, setDocId] = useState(null);
   let [files, setFiles] = useState([]);
+  let [submitting, setSubmitting] = useState(false);
 
   const [messageApi, contextHolder] = message.useMessage();
 
   const handleUpload = () => {
+    setSubmitting(true);
     if (files?.length < 1) {
       messageApi.error("Please add at least one doc.");
+      setSubmitting(false);
     } else {
+     
       let docIds = [];
       files.forEach((fileToSave, rowIndex) => {
         const formData = new FormData();
@@ -66,12 +70,15 @@ export default function NewPaymentRequest() {
             console.log(err);
             messageApi.error("upload failed.");
           })
-          .finally(() => {});
+          .finally(() => {
+            // setSubmitting(false);
+          });
       });
     }
   };
 
   const save = (_fileList) => {
+    setSubmitting(true)
     fetch(`${url}/paymentRequests/`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: "" },
@@ -96,7 +103,9 @@ export default function NewPaymentRequest() {
       })
       .catch((err) => {
         console.log(err);
-      });
+      }).finally(()=>{
+        // setSubmitting(false)
+      })
   };
 
   return (
@@ -112,6 +121,7 @@ export default function NewPaymentRequest() {
       }}
       className="flex flex-col mx-10 transition-opacity ease-in-out duration-1000 py-5 flex-1 space-y-3 h-full"
     >
+      {contextHolder}
       <div className="flex flex-row justify-between items-center">
         <div className="flex flex-row space-x-10 items-center">
           <div>
@@ -125,9 +135,7 @@ export default function NewPaymentRequest() {
               Back
             </Button>
           </div>
-          <div className="text-lg font-semibold">
-            New Payment Request
-          </div>
+          <div className="text-lg font-semibold">New Payment Request</div>
         </div>
       </div>
 
@@ -223,8 +231,12 @@ export default function NewPaymentRequest() {
               icon={<SaveOutlined />}
               type="primary"
               onClick={() => {
+                setSubmitting(true)
+                form.validateFields()
                 handleUpload();
               }}
+
+              disabled={submitting}
             >
               Save
             </Button>

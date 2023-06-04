@@ -21,6 +21,7 @@ import Link from "next/link";
 
 const PaymentRequestsTable = ({
   dataSet,
+  handleSubmitting,
   handleApproveRequest,
   handleDeclineRequest,
   updatingId,
@@ -185,6 +186,7 @@ const PaymentRequestsTable = ({
             className="font-semibold cursor-pointer space-x-1 flex flex-row items-center text-blue-500 hover:underline"
             onClick={() => {
               // handleSetRow(record);
+              handleSubmitting(true)
               router.push(`/system/payment-requests/${record?._id}`);
             }}
           >
@@ -208,6 +210,7 @@ const PaymentRequestsTable = ({
             className=""
             onClick={() => {
               // handleSetRow(record);
+              handleSubmitting(true)
               router.push(
                 `/system/purchase-orders/${record?.purchaseOrder?._id}`
               );

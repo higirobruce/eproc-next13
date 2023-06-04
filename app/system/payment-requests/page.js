@@ -58,12 +58,14 @@ export default function UserRequests() {
   const [form] = Form.useForm();
   const [onlyMine, setOnlyMine] = useState(true);
   const [sourcingMethod, setSourcingMethod] = useState("");
+  let [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     setDataLoaded(false);
-    let requestUrl = onlyMine || user?.userType==='VENDOR'
-      ? `${url}/paymentRequests/byStatus/${searchStatus}/${user?._id}`
-      : `${url}/paymentRequests/byStatus/${searchStatus}/${null}`;
+    let requestUrl =
+      onlyMine || user?.userType === "VENDOR"
+        ? `${url}/paymentRequests/byStatus/${searchStatus}/${user?._id}`
+        : `${url}/paymentRequests/byStatus/${searchStatus}/${null}`;
     fetch(requestUrl, {
       method: "GET",
       headers: {
@@ -152,21 +154,24 @@ export default function UserRequests() {
   return !rowData ? (
     <>
       {contextHolder}
-      {dataLoaded ? (
+      {dataLoaded && !submitting ? (
         <motion.div className="flex flex-col transition-opacity ease-in-out duration-1000 flex-1 space-y-10 h-full pb-10">
           <Row className="flex flex-col bg-white px-10 py-3 shadow space-y-2">
             <div className="flex flex-row items-center justify-between">
               <div className="text-xl font-semibold">Payment Requests</div>
-              {user?.userType !== 'VENDOR' && <div className="flex flex-row items-center space-x-1">
-                <div>View my requests only</div>
-                {<Checkbox
-                  checked={onlyMine}
-                  onChange={(e) => {
-                    setOnlyMine(e.target.checked);
-                  }}
-                />}
-              </div>}
-              
+              {user?.userType !== "VENDOR" && (
+                <div className="flex flex-row items-center space-x-1">
+                  <div>View my requests only</div>
+                  {
+                    <Checkbox
+                      checked={onlyMine}
+                      onChange={(e) => {
+                        setOnlyMine(e.target.checked);
+                      }}
+                    />
+                  }
+                </div>
+              )}
             </div>
             <Row className="flex flex-row justify-between items-center space-x-4">
               <div className="flex-1">
@@ -218,6 +223,7 @@ export default function UserRequests() {
                   type="primary"
                   icon={<PlusOutlined />}
                   onClick={() => {
+                    setSubmitting(true)
                     router.push("/system/payment-requests/new");
                   }}
                 >
@@ -242,6 +248,7 @@ export default function UserRequests() {
             <PaymentRequestsTable
               // handleSetRow={handleSetRow}
               dataSet={tempDataset}
+              handleSubmitting={setSubmitting}
               // handleApproveRequest={approveRequest}
               // handleDeclineRequest={declineRequest}
               updatingId={updatingId}

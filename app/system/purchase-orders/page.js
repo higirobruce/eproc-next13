@@ -61,6 +61,8 @@ export default function PurchaseOrders() {
     },
   ];
 
+  let [submitting, setSubmitting] = useState(false)
+
   const [previewAttachment, setPreviewAttachment] = useState(false);
   const [attachmentId, setAttachmentId] = useState("TOR-id.pdf");
 
@@ -584,7 +586,7 @@ export default function PurchaseOrders() {
 
   return (
     <>
-      {dataLoaded ? (
+      {(dataLoaded && !submitting) ? (
         <div className="flex flex-col transition-opacity ease-in-out duration-1000 flex-1 space-y-1 h-full">
           {viewPOMOdal()}
 
@@ -705,6 +707,7 @@ export default function PurchaseOrders() {
                             user?.userType !== "VENDOR" && (
                               <div className="text-gray-600">
                                 <Link
+                                  onClick={()=>setSubmitting(true)}
                                   alt=""
                                   href={`/system/requests/${
                                     po?.tender?.purchaseRequest?._id ||
@@ -883,12 +886,13 @@ export default function PurchaseOrders() {
                               type="default"
                               // disabled={!documentFullySigned(po)}
                               size="small"
-                              loading={false}
+                              // loading={submitting}
                               icon={<DollarOutlined />}
                               onClick={() =>
+                                {setSubmitting(true)
                                 router.push(
                                   `/system/payment-requests/new/${po?._id}`
-                                )
+                                )}
                               }
                             >
                               Payment

@@ -900,6 +900,7 @@ export default function UserRequests() {
             centered
             open={open}
             onOk={async () => {
+              
               await form.validateFields();
               if (values && values[0]) {
                 let invalidValues = values?.filter(
@@ -909,6 +910,7 @@ export default function UserRequests() {
                     v?.estimatedUnitCost === ""
                 );
                 if (invalidValues?.length == 0) {
+                  setConfirmLoading(true)
                   handleUpload(files);
                 }
               }
@@ -917,6 +919,7 @@ export default function UserRequests() {
               setOpen(false);
               setValues([]);
             }}
+            
             okText="Submit for approval"
             okButtonProps={{ size: "small" }}
             cancelButtonProps={{ size: "small" }}
