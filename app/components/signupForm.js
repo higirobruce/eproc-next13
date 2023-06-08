@@ -1490,6 +1490,7 @@ const SignupForm = () => {
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
+  let [token, setToken] = useState(null)
   let router = useRouter()
 
   const [messageApi, contextHolder] = message.useMessage();
@@ -1504,7 +1505,7 @@ const SignupForm = () => {
   const [vatCertId, setVatCertId] = useState(null);
   const [rdbSelected, setRDBSelected] = useState(false);
   const [vatSelected, setVatSelected] = useState(false);
-  let token = window.localStorage.getItem('token')
+  
 
   const onFinish = (values) => {
     setSubmitting(true);
@@ -1569,6 +1570,8 @@ const SignupForm = () => {
   const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
   useEffect(() => {
+
+    setToken(localStorage.getItem('token'))
     setRdbCertId(v4());
     setVatCertId(v4());
     setLoaded(true);
