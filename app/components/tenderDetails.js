@@ -3073,6 +3073,40 @@ const TenderDetails = ({
                                                         <FileDoneOutlined />
                                                       }
                                                       onClick={() => {
+                                                        let _signatories = [
+                                                          {
+                                                            onBehalfOf:
+                                                              "Irembo Ltd",
+                                                            title:
+                                                              "Procurement Manager",
+                                                            names: "",
+                                                            email: "",
+                                                          },
+                                                          {
+                                                            onBehalfOf:
+                                                              "Irembo Ltd",
+                                                            title:
+                                                              "Finance Manager",
+                                                            names: "",
+                                                            email: "",
+                                                          },
+
+                                                          {
+                                                            onBehalfOf:
+                                                              item?.createdBy
+                                                                ?.companyName,
+                                                            title:
+                                                              item?.createdBy
+                                                                ?.title,
+                                                            names:
+                                                              item?.createdBy
+                                                                ?.contactPersonNames,
+                                                            email:
+                                                              item?.createdBy
+                                                                ?.email,
+                                                          },
+                                                        ];
+                                                        setSignatories(_signatories)
                                                         setOpenCreateContract(
                                                           true
                                                         );

@@ -280,6 +280,7 @@ export default function Contracts() {
   }
 
   function createPOMOdal() {
+    console.log(items)
     return (
       <Modal
         title="New Purchase Order"
@@ -290,7 +291,6 @@ export default function Contracts() {
           setCreatingPo(true);
           let assetItems = [];
           let nonAssetItems = [];
-
           items
             .filter((i) => i.itemType === "asset")
             .map((i, index) => {
@@ -312,6 +312,7 @@ export default function Contracts() {
                 Quantity: i.quantity,
                 UnitPrice: i.estimatedUnitCost,
                 VatGroup: i.taxGroup ? i.taxGroup : "X1",
+                ItemDescription: i.title
               });
             });
 
@@ -380,6 +381,7 @@ export default function Contracts() {
             });
             setCreatingPo(false);
           } else {
+
             await handleCreatePO(
               contract?.vendor?._id,
               contract?.tender?._id,
@@ -393,7 +395,7 @@ export default function Contracts() {
               signatories
             );
             setCreatingPo(false);
-            // setOpenCreatePO(false);
+            setOpenCreatePO(false);
           }
         }}
         okText="Save and Submit"
