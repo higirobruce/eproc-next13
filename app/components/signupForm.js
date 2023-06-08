@@ -1504,7 +1504,7 @@ const SignupForm = () => {
   const [vatCertId, setVatCertId] = useState(null);
   const [rdbSelected, setRDBSelected] = useState(false);
   const [vatSelected, setVatSelected] = useState(false);
-  let token = localStorage.getItem('token')
+  let token = window.localStorage.getItem('token')
 
   const onFinish = (values) => {
     setSubmitting(true);
