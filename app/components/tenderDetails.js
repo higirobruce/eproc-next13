@@ -109,6 +109,7 @@ const TenderDetails = ({
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
+  let token = localStorage.getItem('token')
   const [messageApi, contextHolder] = message.useMessage();
   const [size, setSize] = useState("small");
   const [currentCode, setCurrentCode] = useState(-1);
@@ -395,6 +396,7 @@ const TenderDetails = ({
       method: "POST",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -433,6 +435,7 @@ const TenderDetails = ({
       method: "PUT",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -462,6 +465,7 @@ const TenderDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -481,6 +485,7 @@ const TenderDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -513,6 +518,7 @@ const TenderDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -532,6 +538,7 @@ const TenderDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -548,6 +555,7 @@ const TenderDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -565,6 +573,7 @@ const TenderDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -635,6 +644,7 @@ const TenderDetails = ({
       method: "POST",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -653,6 +663,7 @@ const TenderDetails = ({
       method: "POST",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -2404,6 +2415,7 @@ const TenderDetails = ({
       method: "PUT",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ newTender }),
@@ -2590,6 +2602,7 @@ const TenderDetails = ({
           method: "PUT",
           headers: {
             Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+            token: token,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
@@ -2635,6 +2648,7 @@ const TenderDetails = ({
           method: "PUT",
           headers: {
             Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+            token: token,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({

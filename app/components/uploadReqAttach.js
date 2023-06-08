@@ -8,6 +8,7 @@ function UploadReqAttach({ label, uuid, fileList, setFileList, setAttachSelected
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
+  let token = localStorage.getItem('token')
 
   const props = {
     
@@ -29,6 +30,7 @@ function UploadReqAttach({ label, uuid, fileList, setFileList, setAttachSelected
     action: `${url}/uploads/reqAttachments?id=${uuid}`,
     headers: {
       Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+      token: token,
       "Content-Type": "application/json",
     },
     listType: "document",

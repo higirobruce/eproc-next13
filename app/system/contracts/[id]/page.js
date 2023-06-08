@@ -55,9 +55,11 @@ let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
 async function getContractDetails(id) {
+  let token = localStorage.getItem('token')
   const res = await fetch(`${url}/contracts/${id}`, {
     headers: {
       Authorization: "Basic " + `${encode(`${apiUsername}:${apiPassword}`)}`,
+      token: token,
       "Content-Type": "application/json",
     },
   });
@@ -74,6 +76,7 @@ async function getContractDetails(id) {
 
 export default function page({ params }) {
   let user = JSON.parse(localStorage.getItem("user"));
+  let token = localStorage.getItem('token')
   let [contract, setContract] = useState({})
 
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
@@ -108,6 +111,7 @@ export default function page({ params }) {
           method: "PUT",
           headers: {
             Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+            token: token,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({

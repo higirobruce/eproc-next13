@@ -74,6 +74,7 @@ export default function UserRequests() {
   const [onlyMine, setOnlyMine] = useState(true);
   const [sourcingMethod, setSourcingMethod] = useState("");
   let [files, setFiles] = useState([]);
+  let token = localStorage.getItem('token')
 
   useEffect(() => {
     // loadRequests()
@@ -93,6 +94,7 @@ export default function UserRequests() {
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -111,6 +113,7 @@ export default function UserRequests() {
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -144,6 +147,7 @@ export default function UserRequests() {
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -162,6 +166,7 @@ export default function UserRequests() {
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -233,6 +238,7 @@ export default function UserRequests() {
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     });
@@ -256,6 +262,7 @@ export default function UserRequests() {
         method: "POST",
         headers: {
           Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+          token: token,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -317,6 +324,7 @@ export default function UserRequests() {
       method: "POST",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -355,6 +363,7 @@ export default function UserRequests() {
       }),
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -392,6 +401,7 @@ export default function UserRequests() {
       method: "PUT",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -435,6 +445,7 @@ export default function UserRequests() {
       method: "PUT",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -475,6 +486,7 @@ export default function UserRequests() {
       method: "PUT",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -518,6 +530,7 @@ export default function UserRequests() {
       method: "POST",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(tenderData),
@@ -547,6 +560,7 @@ export default function UserRequests() {
       }),
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -586,6 +600,7 @@ export default function UserRequests() {
       }),
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -629,6 +644,7 @@ export default function UserRequests() {
       method: "POST",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -684,6 +700,7 @@ export default function UserRequests() {
       method: "POST",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -739,6 +756,7 @@ export default function UserRequests() {
             body: formData,
             headers: {
               Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+              token: token,
               // "Content-Type": "multipart/form-data",
             },
           })
@@ -768,38 +786,7 @@ export default function UserRequests() {
     }
   };
 
-  // function createPO(vendor, tender, createdBy, sections, items) {
-  //   fetch(`${url}/purchaseOrders/`, {
-  //     method: "POST",
-  //     headers: {
-  //       Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify({
-  //       vendor,
-  //       tender,
-  //       createdBy,
-  //       sections,
-  //       items,
-  //       request: rowData?._id,
-  //     }),
-  //   })
-  //     .then((res) => res.json())
-  //     .then((res1) => {
-  //       updateStatus(rowData._id, "po created");
-  //       messageApi.open({
-  //         type: "success",
-  //         content: "PO created!",
-  //       });
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //       messageApi.open({
-  //         type: "error",
-  //         content: "Something happened! Please try again.",
-  //       });
-  //     });
-  // }
+  
 
   return !rowData ? (
     <>

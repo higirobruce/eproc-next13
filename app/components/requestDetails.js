@@ -362,6 +362,7 @@ const RequestDetails = ({
   let [reason, setReason] = useState("");
   const [messageApi, contextHolder] = message.useMessage();
   let user = JSON.parse(localStorage.getItem("user"));
+  let token = localStorage.getItem("token")
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
@@ -516,6 +517,7 @@ const RequestDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -586,6 +588,7 @@ const RequestDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -636,6 +639,7 @@ const RequestDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -765,6 +769,7 @@ const RequestDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -780,6 +785,7 @@ const RequestDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -798,6 +804,7 @@ const RequestDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -816,6 +823,7 @@ const RequestDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -834,6 +842,7 @@ const RequestDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -2476,6 +2485,7 @@ const RequestDetails = ({
       }),
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -2522,7 +2532,7 @@ const RequestDetails = ({
                                 />
                               }
                               onConfirm={() => {
-                                changeStatus(4);
+                                changeStatus(5);
                                 setOpenWithdraw(false);
                               }}
                               // okButtonProps={{

@@ -17,9 +17,11 @@ let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
 async function geRequestDetails(id) {
+  let token = localStorage.getItem('token')
   const res = await fetch(`${url}/requests/${id}`, {
     headers: {
       Authorization: "Basic " + `${encode(`${apiUsername}:${apiPassword}`)}`,
+      token: token,
       "Content-Type": "application/json",
     },
   });
@@ -44,6 +46,7 @@ export default function page({ params }) {
   const [editRequest, setEditRequest] = useState(false);
   const [sourcingMethod, setSourcingMethod] = useState("");
 
+  let token = localStorage.getItem('token')
   let [rowData, setRowData] = useState(null);
 
   useEffect(() => {
@@ -58,6 +61,7 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -84,6 +88,7 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -108,6 +113,7 @@ export default function page({ params }) {
       method: "POST",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(tenderData),
@@ -137,6 +143,7 @@ export default function page({ params }) {
       }),
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -166,6 +173,7 @@ export default function page({ params }) {
       }),
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -190,6 +198,7 @@ export default function page({ params }) {
       method: "POST",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -245,6 +254,7 @@ export default function page({ params }) {
       method: "POST",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -288,6 +298,7 @@ export default function page({ params }) {
       }),
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -304,6 +315,7 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({

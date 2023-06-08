@@ -30,6 +30,7 @@ import { motion } from "framer-motion";
 
 export default function Tenders() {
   let user = JSON.parse(localStorage.getItem("user"));
+  let token = localStorage.getItem('token');
   const [dataLoaded, setDataLoaded] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
@@ -95,6 +96,7 @@ export default function Tenders() {
         headers: {
           Authorization:
             "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+            token: token,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -107,6 +109,7 @@ export default function Tenders() {
         headers: {
           Authorization:
             "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+            token: token,
           "Content-Type": "application/json",
         },
       });
@@ -144,6 +147,7 @@ export default function Tenders() {
         headers: {
           Authorization:
             "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+            token: token,
           "Content-Type": "application/json",
         },
       })
@@ -188,6 +192,7 @@ export default function Tenders() {
       method: "POST",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({

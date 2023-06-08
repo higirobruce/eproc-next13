@@ -43,6 +43,7 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({

@@ -39,6 +39,7 @@ import { useRouter } from "next/navigation";
 
 export default function PurchaseOrders() {
   let user = JSON.parse(localStorage.getItem("user"));
+  let token = localStorage.getItem('token');
   let router = useRouter();
   const [dataLoaded, setDataLoaded] = useState(false);
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
@@ -144,6 +145,7 @@ export default function PurchaseOrders() {
         headers: {
           Authorization:
             "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+            token: token,
           "Content-Type": "application/json",
         },
       })
@@ -162,6 +164,7 @@ export default function PurchaseOrders() {
         headers: {
           Authorization:
             "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+            token: token,
           "Content-Type": "application/json",
         },
       })
@@ -457,7 +460,8 @@ export default function PurchaseOrders() {
           headers: {
             Authorization:
               "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
-            "Content-Type": "application/json",
+            token: token,
+              "Content-Type": "application/json",
           },
           body: JSON.stringify({
             newPo: po,
@@ -517,6 +521,7 @@ export default function PurchaseOrders() {
       }),
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })

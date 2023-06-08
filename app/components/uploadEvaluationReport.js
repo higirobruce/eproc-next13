@@ -8,6 +8,7 @@ function UploadEvaluationReport({ label, uuid}) {
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
+  let token = JSON.stringify(localStorage.getItem("token"))
 
   const props = {
     
@@ -26,6 +27,7 @@ function UploadEvaluationReport({ label, uuid}) {
     action: `${url}/uploads/evaluationReports?id=${uuid}`,
     headers: {
       Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+      token:token,
       "Content-Type": "application/json",
     },
     listType: "document",

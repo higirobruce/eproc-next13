@@ -20,9 +20,11 @@ let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
 async function getPoDetails(id) {
+  let token = localStorage.getItem('token')
   const res = await fetch(`${url}/purchaseOrders/${id}`, {
     headers: {
       Authorization: "Basic " + `${encode(`${apiUsername}:${apiPassword}`)}`,
+      token: token,
       "Content-Type": "application/json",
     },
   });
@@ -39,6 +41,7 @@ async function getPoDetails(id) {
 
 export default function NewPaymentRequest({ params }) {
   let user = JSON.parse(localStorage.getItem("user"));
+  let token = localStorage.getItem('token')
   let [po, setPo] = useState(null);
   let router = useRouter();
   let [form] = Form.useForm();
@@ -92,6 +95,7 @@ export default function NewPaymentRequest({ params }) {
           body: formData,
           headers: {
             Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+            token: token
             // "Content-Type": "multipart/form-data",
           },
         })
@@ -120,7 +124,7 @@ export default function NewPaymentRequest({ params }) {
     setSubmitting(true)
     fetch(`${url}/paymentRequests/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: "" },
+      headers: { "Content-Type": "application/json", Authorization: "", token:token },
       body: JSON.stringify({
         title,
         description,

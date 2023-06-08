@@ -8,6 +8,7 @@ function UploadRDCerts({ label, uuid, setSelected, setId}) {
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
+  let token = localStorage.getItem('token')
 
   const props = {
     beforeUpload: (file) => {
@@ -24,6 +25,7 @@ function UploadRDCerts({ label, uuid, setSelected, setId}) {
     action: `${url}/uploads/rdbCerts?id=${uuid}`,
     headers: {
       Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+      token: token,
       "Content-Type": "application/json",
     },
     listType: "document",

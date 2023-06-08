@@ -59,6 +59,7 @@ export default function UserRequests() {
   const [onlyMine, setOnlyMine] = useState(true);
   const [sourcingMethod, setSourcingMethod] = useState("");
   let [submitting, setSubmitting] = useState(false);
+  let token = localStorage.getItem('token')
 
   useEffect(() => {
     setDataLoaded(false);
@@ -70,6 +71,7 @@ export default function UserRequests() {
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -142,6 +144,7 @@ export default function UserRequests() {
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     });

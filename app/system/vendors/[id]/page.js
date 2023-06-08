@@ -48,10 +48,12 @@ let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
 async function getVendorDetails(id) {
+  let token = localStorage.getItem('token')
   const res = await fetch(`${url}/users/vendors/byId/${id}`, {
     headers: {
       Authorization: "Basic " + `${encode(`${apiUsername}:${apiPassword}`)}`,
       "Content-Type": "application/json",
+      token: token,
     },
   });
 
@@ -67,6 +69,7 @@ async function getVendorDetails(id) {
 
 export default function page({ params }) {
   let user = JSON.parse(localStorage.getItem("user"));
+  let token = localStorage.getItem('token');
   let router = useRouter();
   const [passwordForm] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
@@ -87,7 +90,6 @@ export default function page({ params }) {
 
   useEffect(() => {
     getVendorDetails(params?.id).then((res) => {
-      
       setRowData(res[0]?.vendor);
     });
 
@@ -95,6 +97,7 @@ export default function page({ params }) {
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -112,27 +115,28 @@ export default function page({ params }) {
 
   function approveUser(id) {
     setUpdatingId(id);
-    console.log(id)
+    console.log(id);
     fetch(`${url}/users/approve/${id}`, {
       method: "POST",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
       .then((res) => res.json())
       .then((res) => {
         if (res.error) {
-          console.log(res)
+          console.log(res);
           setUpdatingId(null);
           messageApi.open({
             type: "error",
             content: res.message,
           });
         } else {
-          console.log(res)
+          console.log(res);
           res.avgRate = rowData.avgRate;
-          res.status = 'approved'
+          res.status = "approved";
           setRowData(res);
           setUpdatingId(null);
           messageApi.open({
@@ -142,7 +146,7 @@ export default function page({ params }) {
         }
       })
       .catch((err) => {
-        console.log(err)
+        console.log(err);
         messageApi.open({
           type: "error",
           content: "Something happened! Please try again.",
@@ -156,12 +160,13 @@ export default function page({ params }) {
       method: "POST",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
       .then((res) => res.json())
       .then((res) => {
-        console.log(res)
+        console.log(res);
         res.avgRate = rowData.avgRate;
         setRowData(res);
         setUpdatingId(null);
@@ -181,6 +186,7 @@ export default function page({ params }) {
       method: "POST",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -214,6 +220,7 @@ export default function page({ params }) {
       method: "POST",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -235,6 +242,7 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -261,6 +269,7 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })

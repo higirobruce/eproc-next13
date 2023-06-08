@@ -55,6 +55,7 @@ async function getUserDetails(id) {
 
 export default function page({ params }) {
   let user = JSON.parse(localStorage.getItem("user"));
+  let token = localStorage.getItem('token');
   let router = useRouter();
   const [dataLoaded, setDataLoaded] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
@@ -88,13 +89,15 @@ export default function page({ params }) {
       method: "GET",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
+
         "Content-Type": "application/json",
       },
     })
       .then((res) => res.json())
       .then((res) => {
         setDpts(res);
-        console.log(res)
+        console.log(res);
       })
       .catch((err) => {
         messageApi.open({
@@ -109,6 +112,7 @@ export default function page({ params }) {
       method: "GET",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -130,6 +134,7 @@ export default function page({ params }) {
       method: "GET",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -150,13 +155,14 @@ export default function page({ params }) {
   function setCanView(canView, module) {
     let newUser = { ...row };
     let permissionLable = "canView" + module;
-    if(!newUser.permissions) newUser.permissions={};
+    if (!newUser.permissions) newUser.permissions = {};
     newUser.permissions[permissionLable] = canView;
 
     fetch(`${url}/users/${row?._id}`, {
       method: "PUT",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ newUser }),
@@ -176,6 +182,7 @@ export default function page({ params }) {
       method: "GET",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -200,6 +207,7 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ newUser }),
@@ -225,6 +233,7 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ newUser }),
@@ -250,6 +259,7 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ newUser }),
@@ -275,6 +285,7 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ newUser }),
@@ -305,6 +316,7 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ newUser }),
@@ -330,6 +342,7 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ newUser }),
@@ -363,6 +376,7 @@ export default function page({ params }) {
       method: "POST",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(newUser),
@@ -385,6 +399,7 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -415,6 +430,7 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })

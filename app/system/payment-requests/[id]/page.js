@@ -50,10 +50,13 @@ let url = process.env.NEXT_PUBLIC_BKEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
+
 async function getPaymentRequestDetails(id) {
+  let token = localStorage.getItem('token')
   const res = await fetch(`${url}/paymentRequests/${id}`, {
     headers: {
       Authorization: "Basic " + `${encode(`${apiUsername}:${apiPassword}`)}`,
+      token: token,
       "Content-Type": "application/json",
     },
   });
@@ -69,10 +72,13 @@ async function getPaymentRequestDetails(id) {
 }
 
 async function getApprovers() {
+  let token = localStorage.getItem('token')
   const res = await fetch(`${url}/users/level1Approvers`, {
     method: "GET",
     headers: {
       Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+      
+      token: token,
       "Content-Type": "application/json",
     },
   });
@@ -88,10 +94,13 @@ async function getApprovers() {
 }
 
 async function getFile(path) {
+  let token = localStorage.getItem('token')
   const res = await fetch(path, {
     method: "GET",
     headers: {
       Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+     
+      token: token,
       "Content-Type": "application/json",
     },
   });
@@ -108,6 +117,7 @@ async function getFile(path) {
 
 export default function PaymentRequest({ params }) {
   let user = JSON.parse(localStorage.getItem("user"));
+  let token = localStorage.getItem('token')
   let [paymentRequest, setPaymentRequest] = useState(null);
   let router = useRouter();
   let [form] = Form.useForm();
@@ -216,6 +226,7 @@ export default function PaymentRequest({ params }) {
           body: formData,
           headers: {
             Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+            token: token,
             // "Content-Type": "multipart/form-data",
           },
         })
@@ -246,7 +257,7 @@ export default function PaymentRequest({ params }) {
   const save = (_fileList) => {
     fetch(`${url}/paymentRequests/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: "" },
+      headers: { "Content-Type": "application/json", Authorization: "",token: token },
       body: JSON.stringify({
         title,
         description,
@@ -325,6 +336,7 @@ export default function PaymentRequest({ params }) {
       }),
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -354,6 +366,7 @@ export default function PaymentRequest({ params }) {
       }),
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -381,6 +394,7 @@ export default function PaymentRequest({ params }) {
       }),
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -405,6 +419,7 @@ export default function PaymentRequest({ params }) {
       }),
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -428,6 +443,7 @@ export default function PaymentRequest({ params }) {
       }),
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })

@@ -1504,6 +1504,7 @@ const SignupForm = () => {
   const [vatCertId, setVatCertId] = useState(null);
   const [rdbSelected, setRDBSelected] = useState(false);
   const [vatSelected, setVatSelected] = useState(false);
+  let token = localStorage.getItem('token')
 
   const onFinish = (values) => {
     setSubmitting(true);
@@ -1512,6 +1513,7 @@ const SignupForm = () => {
       method: "POST",
       headers: {
         Authorization: "Basic " + base64_encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -1546,6 +1548,7 @@ const SignupForm = () => {
             type: "success",
             content: "Successfully registered!",
           });
+          router.push('/auth')
         } else {
           messageApi.open({
             type: "error",
@@ -1573,6 +1576,7 @@ const SignupForm = () => {
       method: "GET",
       headers: {
         Authorization: "Basic " + base64_encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -1591,6 +1595,7 @@ const SignupForm = () => {
       method: "GET",
       headers: {
         Authorization: "Basic " + base64_encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
