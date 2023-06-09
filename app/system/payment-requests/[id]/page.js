@@ -329,6 +329,7 @@ export default function PaymentRequest({ params }) {
     paymentRequest.reviewedBy = user?._id;
     paymentRequest.reviewedAt = moment();
     paymentRequest.status = "reviewed";
+    paymentRequest.notifyApprover = true;
     fetch(`${url}/paymentRequests/${paymentRequest?._id}`, {
       method: "PUT",
       body: JSON.stringify({
