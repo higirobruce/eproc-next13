@@ -872,7 +872,7 @@ export default function PurchaseOrders() {
                                 icon={<PlaySquareOutlined />}
                                 onClick={() => handleStartDelivery(po)}
                               >
-                                Start delivering
+                                Mark Delivery starts
                               </Button>
                             )}
 

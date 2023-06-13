@@ -447,6 +447,32 @@ export default function Users() {
       });
   }
 
+  function setCanApproveAsLegal(can) {
+    let newUser = { ...row };
+    let permissionLable = "canApproveAsLegal";
+    newUser.permissions[permissionLable] = can;
+
+    fetch(`${url}/users/${row?._id}`, {
+      method: "PUT",
+      headers: {
+        Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ newUser }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        loadUsers();
+      })
+      .catch((err) => {
+        messageApi.open({
+          type: "error",
+          content: "Something happened! Please try again.",
+        });
+      });
+  }
+
   function setCanApprove(canApprove, module) {
     let newUser = { ...row };
     let permissionLable = "canApprove" + module;
@@ -1073,6 +1099,16 @@ export default function Users() {
                       <Checkbox
                         defaultChecked={row?.permissions?.canApproveAsPM}
                         onChange={(e) => setCanApproveAsPM(e.target.checked)}
+                      />
+                    </Form.Item>
+
+                    <Form.Item
+                      name="canApproveAsLegal"
+                      label="Can approve as a Legal Officer"
+                    >
+                      <Checkbox
+                        defaultChecked={row?.permissions?.canApproveAsLegal}
+                        onChange={(e) => setCanApproveAsLegal(e.target.checked)}
                       />
                     </Form.Item>
                   </Form>

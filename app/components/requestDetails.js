@@ -362,7 +362,7 @@ const RequestDetails = ({
   let [reason, setReason] = useState("");
   const [messageApi, contextHolder] = message.useMessage();
   let user = JSON.parse(localStorage.getItem("user"));
-  let token = localStorage.getItem("token")
+  let token = localStorage.getItem("token");
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
@@ -501,6 +501,7 @@ const RequestDetails = ({
   ];
 
   let [servCategories, setServCategories] = useState([]);
+  let [budgetLines, setBudgetLines] = useState([]);
   useEffect(() => {
     refresh();
     let _openConfirmDeliv = [...openConfirmDeliv];
@@ -524,6 +525,25 @@ const RequestDetails = ({
       .then((res) => res.json())
       .then((res) => {
         setServCategories(res);
+      })
+      .catch((err) => {
+        messageApi.open({
+          type: "error",
+          content: "Connection Error!",
+        });
+      });
+
+    fetch(`${url}/budgetLines`, {
+      method: "GET",
+      headers: {
+        Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        setBudgetLines(res);
       })
       .catch((err) => {
         messageApi.open({
@@ -2113,9 +2133,7 @@ const RequestDetails = ({
               content:
                 "Contract can not be submitted. Please fill in the relevant signatories' details!",
             });
-          } else if (
-            !contractStartDate || !contractEndDate
-          ) {
+          } else if (!contractStartDate || !contractEndDate) {
             messageApi.open({
               type: "error",
               content:
@@ -2731,9 +2749,75 @@ const RequestDetails = ({
                           <div className="text-xs ml-3 text-gray-400">
                             Budget Line:
                           </div>
-                          <div className="text-sm font-semibold ml-3 text-gray-600">
-                            {data?.budgetLine?.description}
-                          </div>
+                          {!edit && (
+                            <div className="text-sm font-semibold ml-3 text-gray-600">
+                              {data?.budgetLine?.description}
+                            </div>
+                          )}
+
+                          {edit && (
+                            // <Select
+                            //   // mode="multiple"
+                            //   // allowClear
+                            //   className="ml-3"
+                            //   defaultValue={data?.budgetLine}
+                            //   style={{ width: "100%" }}
+                            //   placeholder="Please select"
+                            //   onChange={(value) => {
+                            //     let r = { ...data };
+                            //     r.budgetLine = value;
+                            //     handleUpdateRequest(r);
+                            //   }}
+                            // >
+                            //   {servCategories?.map((s) => {
+                            //     return (
+                            //       <Select.Option
+                            //         key={s._id}
+                            //         value={s.description}
+                            //       >
+                            //         {s.description}
+                            //       </Select.Option>
+                            //     );
+                            //   })}
+                            // </Select>
+
+                            <Select
+                              // defaultValue={budgetLine}
+                              className="ml-3"
+                              placeholder="Select service category"
+                              showSearch
+                              defaultValue={data?.budgetLine?._id}
+                              onChange={(value, option) => {
+                                let r = { ...data };
+                                r.budgetLine = value;
+                                handleUpdateRequest(r);
+                              }}
+                              // filterSort={(optionA, optionB) =>
+                              //   (optionA?.label ?? "")
+                              //     .toLowerCase()
+                              //     .localeCompare(
+                              //       (optionB?.label ?? "").toLowerCase()
+                              //     )
+                              // }
+                              filterOption={(inputValue, option) => {
+                                return option.label
+                                  .toLowerCase()
+                                  .includes(inputValue.toLowerCase());
+                              }}
+                              options={budgetLines.map((s) => {
+                                return {
+                                  label: s.description.toUpperCase(),
+                                  options: s.budgetlines.map((sub) => {
+                                    return {
+                                      label: sub.description,
+                                      value: sub._id,
+                                      title: sub.description,
+                                    };
+                                  }),
+                                };
+                              })}
+                            ></Select>
+                          )}
                         </div>
 
                         {/* Description */}
