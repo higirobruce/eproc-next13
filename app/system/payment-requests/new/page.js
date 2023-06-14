@@ -21,7 +21,7 @@ let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
 export default function NewPaymentRequest() {
   let user = JSON.parse(localStorage.getItem("user"));
-  let token = localStorage.getItem('token')
+  let token = localStorage.getItem("token");
   let [po, setPo] = useState(null);
   let router = useRouter();
   let [form] = Form.useForm();
@@ -31,8 +31,32 @@ export default function NewPaymentRequest() {
   let [docId, setDocId] = useState(null);
   let [files, setFiles] = useState([]);
   let [submitting, setSubmitting] = useState(false);
+  let [budgetLines, setBudgetLines] = useState([]);
+  let [budgetLine, setBudgetLine] = useState(null);
+  let [budgeted, setBudgeted] = useState(false)
 
   const [messageApi, contextHolder] = message.useMessage();
+
+  useEffect(() => {
+    fetch(`${url}/budgetLines`, {
+      method: "GET",
+      headers: {
+        Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        setBudgetLines(res);
+      })
+      .catch((err) => {
+        messageApi.open({
+          type: "error",
+          content: "Connection Error!",
+        });
+      });
+  }, []);
 
   const handleUpload = () => {
     setSubmitting(true);
@@ -40,7 +64,6 @@ export default function NewPaymentRequest() {
       messageApi.error("Please add at least one doc.");
       setSubmitting(false);
     } else {
-     
       let docIds = [];
       files.forEach((fileToSave, rowIndex) => {
         const formData = new FormData();
@@ -80,15 +103,21 @@ export default function NewPaymentRequest() {
   };
 
   const save = (_fileList) => {
-    setSubmitting(true)
+    setSubmitting(true);
     fetch(`${url}/paymentRequests/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: "", token:token },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "",
+        token: token,
+      },
       body: JSON.stringify({
         title,
         description,
         amount,
         createdBy: user?._id,
+        budgeted,
+        budgetLine,
         // purchaseOrder: params?.poId,
         docIds: _fileList,
       }),
@@ -105,9 +134,10 @@ export default function NewPaymentRequest() {
       })
       .catch((err) => {
         console.log(err);
-      }).finally(()=>{
-        // setSubmitting(false)
       })
+      .finally(() => {
+        // setSubmitting(false)
+      });
   };
 
   return (
@@ -199,6 +229,8 @@ export default function NewPaymentRequest() {
                 </div>
               </div>
 
+
+              {/* Form grid 2 */}
               <div>
                 {/* Amount */}
                 <div>
@@ -227,17 +259,102 @@ export default function NewPaymentRequest() {
                   <UploadPaymentReq files={files} setFiles={setFiles} />
                 </div>
               </div>
+
+              {/* Form grid 3 */}
+              <div>
+                  {/* Budgeted */}
+                  <div>
+                    <div>Budgeted?</div>
+                    <div>
+                      <Form.Item
+                        name="budgeted"
+                        valuePropName="checked"
+                        // wrapperCol={{ offset: 8, span: 16 }}
+                      >
+                        <Radio.Group
+                          onChange={(e) => {
+                            setBudgeted(e.target.value);
+                            if (e.target.value === false) setBudgetLine(null);
+                          }}
+                          value={budgeted}
+                        >
+                          <Radio value={true}>Yes</Radio>
+                          <Radio value={false}>No</Radio>
+                        </Radio.Group>
+                      </Form.Item>
+                    </div>
+                  </div>
+
+                  {/* Budget Lines */}
+                  {budgeted && (
+                    // <Form.Item label="Budget Line" name="budgetLine">
+                    //   <Input
+                    //     onChange={(e) => {
+                    //       setBudgetLine(e.target.value);
+                    //     }}
+                    //     placeholder=""
+                    //   />
+                    // </Form.Item>
+
+                    <div>
+                      <div>Budget Line</div>
+                      <div>
+                        <Form.Item
+                          name="budgetLine"
+                          rules={[
+                            {
+                              required: budgeted,
+                              message: "Budget Line is required",
+                            },
+                          ]}
+                        >
+                          <Select
+                            // defaultValue={budgetLine}
+                            placeholder="Select service category"
+                            showSearch
+                            onChange={(value, option) => {
+                              setBudgetLine(value);
+                            }}
+                            // filterSort={(optionA, optionB) =>
+                            //   (optionA?.label ?? "")
+                            //     .toLowerCase()
+                            //     .localeCompare(
+                            //       (optionB?.label ?? "").toLowerCase()
+                            //     )
+                            // }
+                            filterOption={(inputValue, option) => {
+                              return option.label
+                                .toLowerCase()
+                                .includes(inputValue.toLowerCase());
+                            }}
+                            options={budgetLines.map((s) => {
+                              return {
+                                label: s.description.toUpperCase(),
+                                options: s.budgetlines.map((sub) => {
+                                  return {
+                                    label: sub.description,
+                                    value: sub._id,
+                                    title: sub.description,
+                                  };
+                                }),
+                              };
+                            })}
+                          ></Select>
+                        </Form.Item>
+                      </div>
+                    </div>
+                  )}
+                </div>
             </div>
 
             <Button
               icon={<SaveOutlined />}
               type="primary"
               onClick={() => {
-                setSubmitting(true)
-                form.validateFields()
+                setSubmitting(true);
+                form.validateFields();
                 handleUpload();
               }}
-
               disabled={submitting}
             >
               Save

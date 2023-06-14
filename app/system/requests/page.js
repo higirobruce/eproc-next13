@@ -315,6 +315,9 @@ export default function UserRequests() {
             content: "Something happened! Please try again.",
           });
         });
+    }else{
+      messageApi.error("Please add atleast one item!")
+      setConfirmLoading(false)
     }
   };
 
@@ -744,6 +747,7 @@ export default function UserRequests() {
   const handleUpload = (files) => {
     if (files?.length < 1) {
       messageApi.error("Please add at least one doc.");
+      setConfirmLoading(false)
     } else {
       files.forEach((filesPerRow, rowIndex) => {
         filesPerRow.map((rowFile, fileIndex) => {
@@ -900,6 +904,8 @@ export default function UserRequests() {
                   setConfirmLoading(true)
                   handleUpload(files);
                 }
+              }else{
+                messageApi.error("Please add atleast one item!")
               }
             }}
             onCancel={() => {

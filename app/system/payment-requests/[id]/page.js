@@ -50,9 +50,8 @@ let url = process.env.NEXT_PUBLIC_BKEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
-
 async function getPaymentRequestDetails(id) {
-  let token = localStorage.getItem('token')
+  let token = localStorage.getItem("token");
   const res = await fetch(`${url}/paymentRequests/${id}`, {
     headers: {
       Authorization: "Basic " + `${encode(`${apiUsername}:${apiPassword}`)}`,
@@ -72,12 +71,12 @@ async function getPaymentRequestDetails(id) {
 }
 
 async function getApprovers() {
-  let token = localStorage.getItem('token')
+  let token = localStorage.getItem("token");
   const res = await fetch(`${url}/users/level1Approvers`, {
     method: "GET",
     headers: {
       Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
-      
+
       token: token,
       "Content-Type": "application/json",
     },
@@ -93,13 +92,15 @@ async function getApprovers() {
   return res.json();
 }
 
+async function getBudgetLines() {}
+
 async function getFile(path) {
-  let token = localStorage.getItem('token')
+  let token = localStorage.getItem("token");
   const res = await fetch(path, {
     method: "GET",
     headers: {
       Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
-     
+
       token: token,
       "Content-Type": "application/json",
     },
@@ -117,7 +118,7 @@ async function getFile(path) {
 
 export default function PaymentRequest({ params }) {
   let user = JSON.parse(localStorage.getItem("user"));
-  let token = localStorage.getItem('token')
+  let token = localStorage.getItem("token");
   let [paymentRequest, setPaymentRequest] = useState(null);
   let router = useRouter();
   let [form] = Form.useForm();
@@ -144,6 +145,9 @@ export default function PaymentRequest({ params }) {
   const [messageApi, contextHolder] = message.useMessage();
   const [confirmRejectLoading, setConfirmRejectLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  let [budgetLines, setBudgetLines] = useState([]);
+  let [budgetLine, setBudgetLine] = useState(null);
+  let [budgeted, setBudgeted] = useState(false);
 
   useEffect(() => {
     getPaymentRequestDetails(params.id).then((res) => {
@@ -151,6 +155,7 @@ export default function PaymentRequest({ params }) {
       let _files = [...files];
 
       let _paymentRequest = res;
+
       _paymentRequest?.docIds?.map((doc, i) => {
         let uid = `rc-upload-${moment().milliseconds()}-${i}`;
         let _url = `${url}/file/paymentRequests/${doc}`;
@@ -183,6 +188,24 @@ export default function PaymentRequest({ params }) {
         messageApi.open({
           type: "error",
           content: "Something happened! Please try again.",
+        });
+      });
+    fetch(`${url}/budgetLines`, {
+      method: "GET",
+      headers: {
+        Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        setBudgetLines(res);
+      })
+      .catch((err) => {
+        messageApi.open({
+          type: "error",
+          content: "Connection Error!",
         });
       });
   }, [params]);
@@ -257,7 +280,11 @@ export default function PaymentRequest({ params }) {
   const save = (_fileList) => {
     fetch(`${url}/paymentRequests/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: "",token: token },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "",
+        token: token,
+      },
       body: JSON.stringify({
         title,
         description,
@@ -353,9 +380,7 @@ export default function PaymentRequest({ params }) {
 
   function updateRequest(docIds) {
     paymentRequest.docIds = docIds;
-    paymentRequest.status = "pending-review";
-    paymentRequest.approver = null;
-    paymentRequest.reviewedAt = null;
+    paymentRequest.status = paymentRequest.status?.includes('approve')? "pending-review" : paymentRequest.status;
     paymentRequest.hod_approvalDate = null;
     paymentRequest.hof_approvalDate = null;
     paymentRequest.rejectionDate = null;
@@ -501,7 +526,7 @@ export default function PaymentRequest({ params }) {
             </div>
           </div>
         </div>
-        {(paymentRequest?.approver?._id === user?._id ) &&
+        {paymentRequest?.approver?._id === user?._id &&
           !paymentRequest?.status.includes("approved") && (
             <Switch
               checked={editRequest}
@@ -512,7 +537,7 @@ export default function PaymentRequest({ params }) {
           )}
       </div>
 
-      <div className="grid md:grid-cols-5 gap-1">
+      <div className="grid md:grid-cols-5 gap-1 ">
         <div className="md:col-span-4 flex flex-col ring-1 ring-gray-200 p-5 rounded shadow-md bg-white overflow-y-scroll space-y-5">
           {/* Overview */}
           <div>
@@ -537,7 +562,7 @@ export default function PaymentRequest({ params }) {
               {paymentRequest?.status}
             </Tag>
           </div>
-          <div className="grid md:grid-cols-4 sm:grid-cols-1">
+          <div className="grid md:grid-cols-4 sm:grid-cols-1 gap-6">
             {/* Request Title */}
             <div className="flex flex-col space-y-2">
               <div className="text-xs text-gray-400">Title</div>
@@ -630,6 +655,107 @@ export default function PaymentRequest({ params }) {
 
               {editRequest && (
                 <UploadOtherFiles files={files} setFiles={setFiles} />
+              )}
+            </div>
+
+            {/* Budgeted */}
+            <div className="flex flex-col space-y-1 items-start">
+              <div className="text-xs text-gray-400">Budgeted:</div>
+              {!editRequest && (
+                <div className="text-sm font-semibold text-gray-600">
+                  {paymentRequest?.budgeted ? "Yes" : "No"}
+                </div>
+              )}
+              {editRequest && (
+                <div className="text-xs text-gray-400">
+                  <Select
+                    // mode="multiple"
+                    // allowClear
+                    defaultValue={paymentRequest?.budgeted ? "Yes" : "No"}
+                    // style={{ width: "100%" }}
+                    placeholder="Please select"
+                    onChange={(value) => {
+                      paymentRequest.budgeted = value;
+                      // handleUpdateRequest(r);
+                    }}
+                    options={[
+                      { value: true, label: "Yes" },
+                      { value: false, label: "No" },
+                    ]}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Budget Line */}
+            <div className="flex flex-col space-y-1 items-start">
+              <div className="text-xs text-gray-400">Budget Line:</div>
+              {!editRequest && (
+                <div className="text-sm font-semibold text-gray-600">
+                  {paymentRequest?.budgetLine?.description}
+                </div>
+              )}
+
+              {editRequest && (
+                // <Select
+                //   // mode="multiple"
+                //   // allowClear
+                //   className="ml-3"
+                //   defaultValue={data?.budgetLine}
+                //   style={{ width: "100%" }}
+                //   placeholder="Please select"
+                //   onChange={(value) => {
+                //     let r = { ...data };
+                //     r.budgetLine = value;
+                //     handleUpdateRequest(r);
+                //   }}
+                // >
+                //   {servCategories?.map((s) => {
+                //     return (
+                //       <Select.Option
+                //         key={s._id}
+                //         value={s.description}
+                //       >
+                //         {s.description}
+                //       </Select.Option>
+                //     );
+                //   })}
+                // </Select>
+
+                <Select
+                  // defaultValue={budgetLine}
+                  // className="ml-3"
+                  placeholder="Select service category"
+                  showSearch
+                  defaultValue={paymentRequest?.budgetLine?._id}
+                  onChange={(value, option) => {
+                    paymentRequest.budgetLine = value;
+                  }}
+                  // filterSort={(optionA, optionB) =>
+                  //   (optionA?.label ?? "")
+                  //     .toLowerCase()
+                  //     .localeCompare(
+                  //       (optionB?.label ?? "").toLowerCase()
+                  //     )
+                  // }
+                  filterOption={(inputValue, option) => {
+                    return option.label
+                      .toLowerCase()
+                      .includes(inputValue.toLowerCase());
+                  }}
+                  options={budgetLines.map((s) => {
+                    return {
+                      label: s.description.toUpperCase(),
+                      options: s.budgetlines.map((sub) => {
+                        return {
+                          label: sub.description,
+                          value: sub._id,
+                          title: sub.description,
+                        };
+                      }),
+                    };
+                  })}
+                ></Select>
               )}
             </div>
 
@@ -932,38 +1058,40 @@ export default function PaymentRequest({ params }) {
             </div>
           )}
 
-          {!paymentRequest?.approver && user?.userType!=='VENDOR' && user?.permissions?.canEditRequests && (
-            <div className="flex flex-col space-y-2">
-              <div className="text-xs text-gray-500">
-                {showAddApproverForm ? "" : "No approver selected yet"}
-              </div>
-              {!showAddApproverForm && (
-                <div className="flex flex-row items-center space-x-1">
-                  <Button
-                    type="primary"
-                    onClick={() => {
-                      setShowAddApproverForm(!showAddApproverForm);
-                      setLevel1Approver(null);
-                    }}
-                  >
-                    Add approver
-                  </Button>
+          {!paymentRequest?.approver &&
+            user?.userType !== "VENDOR" &&
+            user?.permissions?.canEditRequests && (
+              <div className="flex flex-col space-y-2">
+                <div className="text-xs text-gray-500">
+                  {showAddApproverForm ? "" : "No approver selected yet"}
                 </div>
-              )}
-              {showAddApproverForm && (
-                <div className="flex flex-row items-center space-x-1">
-                  <div
-                    onClick={() => {
-                      setShowAddApproverForm(!showAddApproverForm);
-                      setLevel1Approver(null);
-                    }}
-                  >
-                    <CloseCircleOutlined className="text-red-500" />
+                {!showAddApproverForm && (
+                  <div className="flex flex-row items-center space-x-1">
+                    <Button
+                      type="primary"
+                      onClick={() => {
+                        setShowAddApproverForm(!showAddApproverForm);
+                        setLevel1Approver(null);
+                      }}
+                    >
+                      Add approver
+                    </Button>
                   </div>
-                </div>
-              )}
-            </div>
-          )}
+                )}
+                {showAddApproverForm && (
+                  <div className="flex flex-row items-center space-x-1">
+                    <div
+                      onClick={() => {
+                        setShowAddApproverForm(!showAddApproverForm);
+                        setLevel1Approver(null);
+                      }}
+                    >
+                      <CloseCircleOutlined className="text-red-500" />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
           {showAddApproverForm && (
             <div className="w-1/3">
