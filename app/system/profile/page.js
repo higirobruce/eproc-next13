@@ -64,6 +64,7 @@ export default function page() {
   const [attachmentId, setAttachmentId] = useState(null);
   const [editVendor, setEditVendor] = useState(false);
   let [servCategories, setServCategories] = useState([]);
+  const regexPatternSpecialCh = '[!@#$%^&*()\\-_=+[\\]{};:\'"\\\\|,.<>/?]';
 
   let [submitting, setSubmitting] = useState(false);
 
@@ -183,6 +184,7 @@ export default function page() {
                           required: true,
                           message: "Please input your current password!",
                         },
+                        
                       ]}
                       hasFeedback
                     >
@@ -200,6 +202,22 @@ export default function page() {
                           required: true,
                           message: "Please input your new password!",
                         },
+                        {
+                          pattern: new RegExp("([0-9]\\d*)+"),
+                          message: 'Please input at least one digit'
+                        },
+                        {
+                          pattern: new RegExp("([a-zA-Z]\\s*)+"),
+                          message: 'Password should have both small and capital letters'
+                        },
+                        {
+                          pattern: new RegExp(regexPatternSpecialCh, 'g'),
+                          message: 'Password should have a special character'
+                        },
+                        {
+                          pattern: new RegExp("(.{8,})"),
+                          message: 'Password should have atleast 8 characters'
+                        }
                       ]}
                       hasFeedback
                     >

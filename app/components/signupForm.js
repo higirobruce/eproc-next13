@@ -1505,6 +1505,8 @@ const SignupForm = () => {
   const [vatCertId, setVatCertId] = useState(null);
   const [rdbSelected, setRDBSelected] = useState(false);
   const [vatSelected, setVatSelected] = useState(false);
+  const [password, setPassword] = useState('')
+  const regexPatternSpecialCh = '[!@#$%^&*()\\-_=+[\\]{};:\'"\\\\|,.<>/?]';
   
 
   const onFinish = (values) => {
@@ -1876,11 +1878,28 @@ const SignupForm = () => {
                               {
                                 required: true,
                                 message: "Input required",
+                                
                               },
+                              {
+                                pattern: new RegExp("([0-9]\\d*)+"),
+                                message: 'Please input at least one digit'
+                              },
+                              {
+                                pattern: new RegExp("([a-zA-Z]\\s*)+"),
+                                message: 'Password should have both small and capital letters'
+                              },
+                              {
+                                pattern: new RegExp(regexPatternSpecialCh, 'g'),
+                                message: 'Password should have a special character'
+                              },
+                              {
+                                pattern: new RegExp("(.{8,})"),
+                                message: 'Password should have atleast 8 characters'
+                              }
                             ]}
                             hasFeedback
                           >
-                            <Input.Password />
+                            <Input.Password onChange={(v)=>setPassword(v)}/>
                           </Form.Item>
                         </div>
                         <div>
