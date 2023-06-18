@@ -109,7 +109,7 @@ const TenderDetails = ({
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
-  let token = localStorage.getItem('token')
+  let token = localStorage.getItem("token");
   const [messageApi, contextHolder] = message.useMessage();
   const [size, setSize] = useState("small");
   const [currentCode, setCurrentCode] = useState(-1);
@@ -1424,9 +1424,7 @@ const TenderDetails = ({
               content:
                 "Contract can not be submitted. Please fill in the relevant signatories' details!",
             });
-          } else if (
-            !contractStartDate || !contractEndDate
-          ) {
+          } else if (!contractStartDate || !contractEndDate) {
             messageApi.open({
               type: "error",
               content:
@@ -2387,6 +2385,8 @@ const TenderDetails = ({
                       <div className="text-gray-400 text-lg">
                         {s.signed
                           ? "Signed"
+                          : contract?.status === "draft"
+                          ? "Waiting for Legal's review"
                           : `Waiting for ${yetToSign[0]?.names}'s signature`}
                       </div>
                     </div>
@@ -3067,7 +3067,10 @@ const TenderDetails = ({
                                                   <Form.Item>
                                                     <Button
                                                       // size="small"
-                                                      disabled={!user?.permissions?.canCreateContracts}
+                                                      disabled={
+                                                        !user?.permissions
+                                                          ?.canCreateContracts
+                                                      }
                                                       type="primary"
                                                       icon={
                                                         <FileDoneOutlined />
@@ -3106,7 +3109,9 @@ const TenderDetails = ({
                                                                 ?.email,
                                                           },
                                                         ];
-                                                        setSignatories(_signatories)
+                                                        setSignatories(
+                                                          _signatories
+                                                        );
                                                         setOpenCreateContract(
                                                           true
                                                         );
