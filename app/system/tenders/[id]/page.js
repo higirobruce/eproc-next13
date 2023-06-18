@@ -301,10 +301,12 @@ export default function page({ params }) {
     if (user?.userType === "VENDOR")
       return fetch(`${url}/tenders/byServiceCategories/`, {
         method: "POST",
+        
         headers: {
           Authorization:
             "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
           "Content-Type": "application/json",
+          token: token,
         },
         body: JSON.stringify({
           serviceCategories: user?.services,
@@ -314,6 +316,7 @@ export default function page({ params }) {
       return fetch(`${url}/tenders/`, {
         method: "GET",
         headers: {
+          token: token,
           Authorization:
             "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
           "Content-Type": "application/json",

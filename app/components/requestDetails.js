@@ -440,21 +440,22 @@ const RequestDetails = ({
       render: (_, item) => <>{(item?.quantity).toLocaleString()}</>,
     },
     {
-      title: "Unit Price (RWF)",
+      title: "Unit Price",
       dataIndex: "estimatedUnitCost",
       key: "estimatedUnitCost",
       editable: true,
       render: (_, item) => (
-        <>{(item?.estimatedUnitCost * 1).toLocaleString()}</>
+        <>{item?.currency} {(item?.estimatedUnitCost * 1).toLocaleString()} </>
       ),
     },
 
+
     {
-      title: "Total Amount (Rwf)",
+      title: "Total Amount",
       dataIndex: "totalAmount",
       key: "totalAmount",
       render: (_, item) => (
-        <>{(item?.quantity * item?.estimatedUnitCost).toLocaleString()}</>
+        <>{item?.currency} {(item?.quantity * item?.estimatedUnitCost).toLocaleString()}</>
       ),
     },
 

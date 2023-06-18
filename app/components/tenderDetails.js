@@ -831,10 +831,17 @@ const TenderDetails = ({
                         {
                           value: "RWF",
                           label: "RWF",
+                          key: "RWF"
                         },
                         {
                           value: "USD",
                           label: "USD",
+                          key:"USD"
+                        },
+                        {
+                          value: "EUR",
+                          label: "EUR",
+                          key:"EUR"
                         },
                       ]}
                     ></Select>
