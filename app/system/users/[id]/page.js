@@ -726,7 +726,7 @@ export default function page({ params }) {
             />
             {segment === "Permissions" && (
               <div className="p-3 overflow-y-scroll h-[560px]">
-                <div className="text-lg font-semibold mb-5 flex flex-row justify-between items-center">
+                <div className="text-md font-semibold mb-5 flex flex-row justify-between items-center">
                   <div>Module access permissions</div>
                 </div>
                 {row && (
@@ -778,7 +778,7 @@ export default function page({ params }) {
                   />
                 )}
 
-                <div className="text-lg font-semibold my-5 flex flex-row justify-between items-center">
+                <div className="text-md font-semibold my-5 flex flex-row justify-between items-center">
                   <div>Approval permissions</div>
                 </div>
                 {row && (

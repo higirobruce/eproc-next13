@@ -64,7 +64,7 @@ export default function page() {
   const [attachmentId, setAttachmentId] = useState(null);
   const [editVendor, setEditVendor] = useState(false);
   let [servCategories, setServCategories] = useState([]);
-  const regexPatternSpecialCh = '[!@#$%^&*()\\-_=+[\\]{};:\'"\\\\|,.<>/?]';
+  const regexPatternSpecialCh = "[!@#$%^&*()\\-_=+[\\]{};:'\"\\\\|,.<>/?]";
 
   let [submitting, setSubmitting] = useState(false);
 
@@ -123,9 +123,6 @@ export default function page() {
               <div className="bg-white ring-1 ring-gray-100 rounded shadow p-5">
                 <div className="text-xl font-semibold mb-5 flex flex-row justify-between items-center">
                   <div>General Information</div>
-                  <div>
-                    <EditOutlined />
-                  </div>
                 </div>
                 <div className="flex flex-col space-y-2">
                   <div className="flex flex-row items-center space-x-10">
@@ -184,7 +181,6 @@ export default function page() {
                           required: true,
                           message: "Please input your current password!",
                         },
-                        
                       ]}
                       hasFeedback
                     >
@@ -204,20 +200,21 @@ export default function page() {
                         },
                         {
                           pattern: new RegExp("([0-9]\\d*)+"),
-                          message: 'Please input at least one digit'
+                          message: "Please input at least one digit",
                         },
                         {
                           pattern: new RegExp("([a-zA-Z]\\s*)+"),
-                          message: 'Password should have both small and capital letters'
+                          message:
+                            "Password should have both small and capital letters",
                         },
                         {
-                          pattern: new RegExp(regexPatternSpecialCh, 'g'),
-                          message: 'Password should have a special character'
+                          pattern: new RegExp(regexPatternSpecialCh, "g"),
+                          message: "Password should have a special character",
                         },
                         {
                           pattern: new RegExp("(.{8,})"),
-                          message: 'Password should have atleast 8 characters'
-                        }
+                          message: "Password should have atleast 8 characters",
+                        },
                       ]}
                       hasFeedback
                     >
@@ -293,7 +290,10 @@ export default function page() {
                   onChange={setSegment}
                 />
                 {segment === "Permissions" && (
-                  <div>
+                  <div className="flex flex-col space-y-2">
+                    <div className="text-md font-semibold">
+                      Module Access Permissions
+                    </div>
                     <PermissionsTable
                       canApproveRequests={user?.permissions?.canApproveRequests}
                       canCreateRequests={user?.permissions?.canCreateRequests}
@@ -345,6 +345,10 @@ export default function page() {
                       handleSetCanApprove={() => {}}
                       canNotEdit={true}
                     />
+
+                    <div className="text-md font-semibold pt-2">
+                      Approval Permissions
+                    </div>
                     <Form>
                       <Form.Item
                         name="canApproveAsHod"
@@ -379,6 +383,7 @@ export default function page() {
                     </Form>
                   </div>
                 )}
+
                 {segment === "Requests History" && (
                   <div className="p-3">
                     {usersRequests?.map((request) => {
@@ -808,7 +813,6 @@ export default function page() {
                         Full RDB registration not available
                       </Typography.Link>
                     )}
-                   
                   </div>
 
                   <div className="flex flex-row items-center space-x-10">
@@ -816,7 +820,7 @@ export default function page() {
                     {user?.vatCertId && (
                       <Link
                         href={`${url}/file/vatCerts/${user?.vatCertId}.pdf`}
-                        target='_blank'
+                        target="_blank"
                       >
                         <Typography.Link>VAT certificate</Typography.Link>
                       </Link>

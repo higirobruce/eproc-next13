@@ -16,6 +16,9 @@ function UploadBidDoc({ label, uuid, setSelected}) {
     showUploadList: {
       showDownloadIcon: false,
     },
+    onRemove: (file) => {
+      setSelected(false)
+    },
     beforeUpload: (file) => {
       let isPDF = file.type == "application/pdf";
       if (!isPDF) {

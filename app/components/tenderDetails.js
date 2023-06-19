@@ -633,8 +633,8 @@ const TenderDetails = ({
       bankName,
       bankAccountNumber,
       bankAccountName,
-      proposalDocId,
-      otherDocId,
+      proposalDocId: proposalSelected ? proposalDocId : null,
+      otherDocId: otherDocSelected ? otherDocId : null,
     };
     createSubmission(subData);
   }
@@ -831,17 +831,17 @@ const TenderDetails = ({
                         {
                           value: "RWF",
                           label: "RWF",
-                          key: "RWF"
+                          key: "RWF",
                         },
                         {
                           value: "USD",
                           label: "USD",
-                          key:"USD"
+                          key: "USD",
                         },
                         {
                           value: "EUR",
                           label: "EUR",
-                          key:"EUR"
+                          key: "EUR",
                         },
                       ]}
                     ></Select>
@@ -1952,7 +1952,7 @@ const TenderDetails = ({
                       />
 
                       <div className="text-blue-500 flex flex-col">
-                        <div className="text-lg">Signed digitaly</div>
+                        <div className="text-lg">Signed digitally</div>
                         <div>{moment(s.signedAt).format("DD MMM YYYY")} at</div>
                         <div>
                           {moment(s.signedAt)
@@ -2348,7 +2348,7 @@ const TenderDetails = ({
                       />
 
                       <div className="text-blue-500 flex flex-col">
-                        <div className="text-lg">Signed digitaly</div>
+                        <div className="text-lg">Signed digitally</div>
                         <div>{moment(s.signedAt).format("DD MMM YYYY")} at</div>
                         <div>
                           {moment(s.signedAt)

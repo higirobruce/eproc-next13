@@ -375,7 +375,7 @@ export default function page({ params }) {
 
                   {!signing && (
                     <div className="text-blue-500 flex flex-col">
-                      <div className="text-lg">Signed digitaly</div>
+                      <div className="text-lg">Signed digitally</div>
                       <div>{moment(s.signedAt).format("DD MMM YYYY")} at</div>
                       <div>
                         {moment(s.signedAt)
