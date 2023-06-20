@@ -445,17 +445,21 @@ const RequestDetails = ({
       key: "estimatedUnitCost",
       editable: true,
       render: (_, item) => (
-        <>{item?.currency} {(item?.estimatedUnitCost * 1).toLocaleString()} </>
+        <>
+          {item?.currency} {(item?.estimatedUnitCost * 1).toLocaleString()}{" "}
+        </>
       ),
     },
-
 
     {
       title: "Total Amount",
       dataIndex: "totalAmount",
       key: "totalAmount",
       render: (_, item) => (
-        <>{item?.currency} {(item?.quantity * item?.estimatedUnitCost).toLocaleString()}</>
+        <>
+          {item?.currency}{" "}
+          {(item?.quantity * item?.estimatedUnitCost).toLocaleString()}
+        </>
       ),
     },
 
@@ -2734,6 +2738,7 @@ const RequestDetails = ({
                                 onChange={(value) => {
                                   let r = { ...data };
                                   r.budgeted = value;
+                                  if (value == "No") r.budgetLine = null;
                                   handleUpdateRequest(r);
                                 }}
                                 options={[
@@ -2756,7 +2761,7 @@ const RequestDetails = ({
                             </div>
                           )}
 
-                          {edit && (
+                          {edit && data.budgeted && (
                             // <Select
                             //   // mode="multiple"
                             //   // allowClear

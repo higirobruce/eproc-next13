@@ -1,4 +1,4 @@
-'Use client'
+"Use client";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
@@ -49,18 +49,21 @@ const BidList = ({
   user,
   setPreviewAttachment,
   setAttachmentId,
-  tenderData
+  tenderData,
 }) => {
   let router = useRouter();
   const [data, setData] = useState(null);
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
+  const [messageApi, contextHolder] = message.useMessage();
   let [selectedBid, setSelectedBid] = useState(null);
   let [ContainerHeight, setContainerHeight] = useState(0);
   let [openSelectBid, setOpenSelectBid] = useState(false);
   let [evaluationReportId, setEvaluationRptId] = useState(v4());
-  let token = localStorage.getItem('token')
+  let token = localStorage.getItem("token");
+  let [fileSelected, setFileSelected] = useState(false);
+  
 
   const appendData = () => {
     fetch(`${url}/submissions/byTender/${tenderId}`, {
@@ -78,10 +81,10 @@ const BidList = ({
         if (body?.length >= 2) setContainerHeight(200);
         else if (body?.length == 1) setContainerHeight(200);
         else setContainerHeight(0);
-      }).catch(err=>{
-        
-        console.log(err)
       })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   useEffect(() => {
@@ -102,6 +105,7 @@ const BidList = ({
 
   return (
     <>
+      {contextHolder}
       {data && (
         <List size="small">
           <VirtualList
@@ -149,9 +153,7 @@ const BidList = ({
                       </div>
 
                       <div className="self-center">
-                        <div className="text-xs text-gray-400">
-                          Warranty
-                        </div>
+                        <div className="text-xs text-gray-400">Warranty</div>
                         <div className="text-xs text-gray-600">
                           {item?.warranty} {item?.warrantyDuration}
                         </div>
@@ -172,7 +174,7 @@ const BidList = ({
                           <div>
                             <a
                               href={`${url}/file/bidDocs/${item?.proposalDocId}.pdf`}
-                              target='_blank'
+                              target="_blank"
                               // onClick={() => {
                               //   setAttachmentId(
                               //     `bidDocs/${item?.proposalDocId}.pdf`
@@ -192,7 +194,7 @@ const BidList = ({
                           <div>
                             <a
                               href={`${url}/file/bidDocs/${item?.otherDocId}.pdf`}
-                              target='_blank'
+                              target="_blank"
                               // onClick={() => {
                               //   // router.push(`bidDocs/${item?.otherDocId}.pdf`)
                               //   // setAttachmentId(
@@ -231,9 +233,7 @@ const BidList = ({
                         </div>
                       </div>
 
-                      {
-                      item?.status === "pending" && 
-                      (
+                      {item?.status === "pending" && (
                         <Button
                           className="self-center"
                           size="small"
@@ -250,21 +250,22 @@ const BidList = ({
                         </Button>
                       )}
 
-                      {item?.status === "selected" && tenderData?.evaluationReportId && (
-                        <>
-                          <Button
-                            size="small"
-                            disabled={
-                              !documentFullyApproved(data) ||
-                              !user?.permissions?.canCreateContracts
-                            }
-                            type="primary"
-                            onClick={() => handleAwardBid(item._id)}
-                          >
-                            Award Tender
-                          </Button>
-                        </>
-                      )}
+                      {item?.status === "selected" &&
+                        tenderData?.evaluationReportId && (
+                          <>
+                            <Button
+                              size="small"
+                              disabled={
+                                !documentFullyApproved(data) ||
+                                !user?.permissions?.canCreateContracts
+                              }
+                              type="primary"
+                              onClick={() => handleAwardBid(item._id)}
+                            >
+                              Award Tender
+                            </Button>
+                          </>
+                        )}
 
                       {/* {(item?.status === "not selected" || item?.status === "not awarded") && (
                     <Button
@@ -302,8 +303,12 @@ const BidList = ({
         centered
         open={openSelectBid}
         onOk={() => {
-          setOpenSelectBid(false);
-          handleSelectBid(selectedBid, evaluationReportId);
+          if (fileSelected) {
+            setOpenSelectBid(false);
+            handleSelectBid(selectedBid, evaluationReportId);
+          }else{
+            messageApi.error('Please first select the evaluation report!')
+          }
         }}
         width={"30%"}
         okText="Save and Submit"
@@ -319,6 +324,7 @@ const BidList = ({
               <UploadEvaluationReport
                 uuid={evaluationReportId}
                 label="Select evaluation report!"
+                setSelected={setFileSelected}
               />
             </Form.Item>
 

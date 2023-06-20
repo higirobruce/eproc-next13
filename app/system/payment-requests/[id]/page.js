@@ -380,7 +380,9 @@ export default function PaymentRequest({ params }) {
 
   function updateRequest(docIds) {
     paymentRequest.docIds = docIds;
-    paymentRequest.status = paymentRequest.status?.includes('approve')? "pending-review" : paymentRequest.status;
+    paymentRequest.status = paymentRequest.status?.includes("approve")
+      ? "pending-review"
+      : paymentRequest.status;
     paymentRequest.hod_approvalDate = null;
     paymentRequest.hof_approvalDate = null;
     paymentRequest.rejectionDate = null;
@@ -676,6 +678,8 @@ export default function PaymentRequest({ params }) {
                     placeholder="Please select"
                     onChange={(value) => {
                       paymentRequest.budgeted = value;
+                      if (value == "No") paymentRequest.budgetLine = null;
+                      setBudgeted(value)
                       // handleUpdateRequest(r);
                     }}
                     options={[
@@ -696,7 +700,7 @@ export default function PaymentRequest({ params }) {
                 </div>
               )}
 
-              {editRequest && (
+              {editRequest && budgeted && (
                 // <Select
                 //   // mode="multiple"
                 //   // allowClear
