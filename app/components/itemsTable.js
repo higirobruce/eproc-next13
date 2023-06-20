@@ -132,6 +132,7 @@ const ItemsTable = ({
         return (
           <Select
             defaultValue="RWF"
+            onChange={(value) => (record.currency = value)}
             options={[
               {
                 value: "RWF",
