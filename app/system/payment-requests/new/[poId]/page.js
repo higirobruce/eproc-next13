@@ -48,6 +48,7 @@ export default function NewPaymentRequest({ params }) {
   let [title, setTitle] = useState("");
   let [description, setDescription] = useState("");
   let [amount, setAmout] = useState(null);
+  let [currency, setCurrency] = useState(null);
   let [docId, setDocId] = useState(null);
   let [files, setFiles] = useState([]);
   let [submitting, setSubmitting] = useState(false);
@@ -129,6 +130,8 @@ export default function NewPaymentRequest({ params }) {
         title,
         description,
         amount,
+        currency,
+        category: 'external',
         createdBy: user?._id,
         purchaseOrder: params?.poId,
         docIds: _fileList,
@@ -245,26 +248,51 @@ export default function NewPaymentRequest({ params }) {
 
               <div>
                 {/* Amount */}
-                <div>
+                <div className="flex flex-col">
                   <div>Amount due</div>
-                  <div>
+                  <Form.Item>
                     <Form.Item
                       name="amount"
+                      noStyle
                       rules={[
                         {
                           required: true,
-                          message: "Request title is required",
+                          message: "Amount is required",
                         },
                       ]}
                     >
                       <InputNumber
-                        className="w-full"
+                        style={{ width: "100%" }}
+                        addonBefore={
+                          <Form.Item noStyle name="currency">
+                            <Select
+                              onChange={(value) => setCurrency(value)}
+                              defaultValue="RWF"
+                              options={[
+                                {
+                                  value: "RWF",
+                                  label: "RWF",
+                                  key: "RWF",
+                                },
+                                {
+                                  value: "USD",
+                                  label: "USD",
+                                  key: "USD",
+                                },
+                                {
+                                  value: "EUR",
+                                  label: "EUR",
+                                  key: "EUR",
+                                },
+                              ]}
+                            ></Select>
+                          </Form.Item>
+                        }
                         value={amount}
                         onChange={(e) => setAmout(e)}
-                        placeholder="100000"
                       />
                     </Form.Item>
-                  </div>
+                  </Form.Item>
                 </div>
                 <div>
                   <div>Invoice attachement(s)</div>

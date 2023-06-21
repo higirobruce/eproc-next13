@@ -28,12 +28,13 @@ export default function NewPaymentRequest() {
   let [title, setTitle] = useState("");
   let [description, setDescription] = useState("");
   let [amount, setAmout] = useState(null);
+  let [currency, setCurrency] = useState(null);
   let [docId, setDocId] = useState(null);
   let [files, setFiles] = useState([]);
   let [submitting, setSubmitting] = useState(false);
   let [budgetLines, setBudgetLines] = useState([]);
   let [budgetLine, setBudgetLine] = useState(null);
-  let [budgeted, setBudgeted] = useState(false)
+  let [budgeted, setBudgeted] = useState(false);
 
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -115,9 +116,11 @@ export default function NewPaymentRequest() {
         title,
         description,
         amount,
+        currency,
         createdBy: user?._id,
         budgeted,
         budgetLine,
+        category: 'internal',
         // purchaseOrder: params?.poId,
         docIds: _fileList,
       }),
@@ -229,11 +232,10 @@ export default function NewPaymentRequest() {
                 </div>
               </div>
 
-
               {/* Form grid 2 */}
               <div>
                 {/* Amount */}
-                <div>
+                {/* <div>
                   <div>Amount due</div>
                   <div>
                     <Form.Item
@@ -253,6 +255,53 @@ export default function NewPaymentRequest() {
                       />
                     </Form.Item>
                   </div>
+                </div> */}
+
+                <div className="flex flex-col">
+                  <div>Amount due</div>
+                  <Form.Item>
+                    <Form.Item
+                      name="amount"
+                      noStyle
+                      rules={[
+                        {
+                          required: true,
+                          message: "Amount is required",
+                        },
+                      ]}
+                    >
+                      <InputNumber
+                        style={{ width: "100%" }}
+                        addonBefore={
+                          <Form.Item noStyle name="currency">
+                            <Select
+                              onChange={(value) => setCurrency(value)}
+                              defaultValue="RWF"
+                              options={[
+                                {
+                                  value: "RWF",
+                                  label: "RWF",
+                                  key: "RWF",
+                                },
+                                {
+                                  value: "USD",
+                                  label: "USD",
+                                  key: "USD",
+                                },
+                                {
+                                  value: "EUR",
+                                  label: "EUR",
+                                  key: "EUR",
+                                },
+                              ]}
+                            ></Select>
+                          </Form.Item>
+                        }
+                        value={amount}
+                        onChange={(e) => setAmout(e)}
+                      />
+                    </Form.Item>
+                  </Form.Item>
                 </div>
                 <div>
                   <div>Invoice attachement(s)</div>
@@ -262,89 +311,89 @@ export default function NewPaymentRequest() {
 
               {/* Form grid 3 */}
               <div>
-                  {/* Budgeted */}
+                {/* Budgeted */}
+                <div>
+                  <div>Budgeted?</div>
                   <div>
-                    <div>Budgeted?</div>
+                    <Form.Item
+                      name="budgeted"
+                      valuePropName="checked"
+                      // wrapperCol={{ offset: 8, span: 16 }}
+                    >
+                      <Radio.Group
+                        onChange={(e) => {
+                          setBudgeted(e.target.value);
+                          if (e.target.value === false) setBudgetLine(null);
+                        }}
+                        value={budgeted}
+                      >
+                        <Radio value={true}>Yes</Radio>
+                        <Radio value={false}>No</Radio>
+                      </Radio.Group>
+                    </Form.Item>
+                  </div>
+                </div>
+
+                {/* Budget Lines */}
+                {budgeted && (
+                  // <Form.Item label="Budget Line" name="budgetLine">
+                  //   <Input
+                  //     onChange={(e) => {
+                  //       setBudgetLine(e.target.value);
+                  //     }}
+                  //     placeholder=""
+                  //   />
+                  // </Form.Item>
+
+                  <div>
+                    <div>Budget Line</div>
                     <div>
                       <Form.Item
-                        name="budgeted"
-                        valuePropName="checked"
-                        // wrapperCol={{ offset: 8, span: 16 }}
+                        name="budgetLine"
+                        rules={[
+                          {
+                            required: budgeted,
+                            message: "Budget Line is required",
+                          },
+                        ]}
                       >
-                        <Radio.Group
-                          onChange={(e) => {
-                            setBudgeted(e.target.value);
-                            if (e.target.value === false) setBudgetLine(null);
+                        <Select
+                          // defaultValue={budgetLine}
+                          placeholder="Select service category"
+                          showSearch
+                          onChange={(value, option) => {
+                            setBudgetLine(value);
                           }}
-                          value={budgeted}
-                        >
-                          <Radio value={true}>Yes</Radio>
-                          <Radio value={false}>No</Radio>
-                        </Radio.Group>
+                          // filterSort={(optionA, optionB) =>
+                          //   (optionA?.label ?? "")
+                          //     .toLowerCase()
+                          //     .localeCompare(
+                          //       (optionB?.label ?? "").toLowerCase()
+                          //     )
+                          // }
+                          filterOption={(inputValue, option) => {
+                            return option.label
+                              .toLowerCase()
+                              .includes(inputValue.toLowerCase());
+                          }}
+                          options={budgetLines.map((s) => {
+                            return {
+                              label: s.description.toUpperCase(),
+                              options: s.budgetlines.map((sub) => {
+                                return {
+                                  label: sub.description,
+                                  value: sub._id,
+                                  title: sub.description,
+                                };
+                              }),
+                            };
+                          })}
+                        ></Select>
                       </Form.Item>
                     </div>
                   </div>
-
-                  {/* Budget Lines */}
-                  {budgeted && (
-                    // <Form.Item label="Budget Line" name="budgetLine">
-                    //   <Input
-                    //     onChange={(e) => {
-                    //       setBudgetLine(e.target.value);
-                    //     }}
-                    //     placeholder=""
-                    //   />
-                    // </Form.Item>
-
-                    <div>
-                      <div>Budget Line</div>
-                      <div>
-                        <Form.Item
-                          name="budgetLine"
-                          rules={[
-                            {
-                              required: budgeted,
-                              message: "Budget Line is required",
-                            },
-                          ]}
-                        >
-                          <Select
-                            // defaultValue={budgetLine}
-                            placeholder="Select service category"
-                            showSearch
-                            onChange={(value, option) => {
-                              setBudgetLine(value);
-                            }}
-                            // filterSort={(optionA, optionB) =>
-                            //   (optionA?.label ?? "")
-                            //     .toLowerCase()
-                            //     .localeCompare(
-                            //       (optionB?.label ?? "").toLowerCase()
-                            //     )
-                            // }
-                            filterOption={(inputValue, option) => {
-                              return option.label
-                                .toLowerCase()
-                                .includes(inputValue.toLowerCase());
-                            }}
-                            options={budgetLines.map((s) => {
-                              return {
-                                label: s.description.toUpperCase(),
-                                options: s.budgetlines.map((sub) => {
-                                  return {
-                                    label: sub.description,
-                                    value: sub._id,
-                                    title: sub.description,
-                                  };
-                                }),
-                              };
-                            })}
-                          ></Select>
-                        </Form.Item>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                )}
+              </div>
             </div>
 
             <Button
