@@ -131,6 +131,7 @@ export default function PaymentRequest({ params }) {
   let [showAddApproverForm, setShowAddApproverForm] = useState(false);
   let [level1Approvers, setLevel1Approvers] = useState([]);
   let [level1Approver, setLevel1Approver] = useState(null);
+  let [currency, setCurrency] = useState('RWF')
 
   let [editRequest, setEditRequest] = useState(false);
 
@@ -529,7 +530,7 @@ export default function PaymentRequest({ params }) {
           </div>
         </div>
         {((paymentRequest?.createdBy?._id === user?._id &&
-          paymentRequest?.status == "pending-review") ||
+          (paymentRequest?.status == "pending-review" || paymentRequest?.status=='rejected')) ||
           (paymentRequest?.approver?._id === user?._id &&
             (paymentRequest?.status.includes("pending-review") ||
               paymentRequest?.status.includes("pending-approval")))) && (
@@ -577,10 +578,11 @@ export default function PaymentRequest({ params }) {
               {editRequest && (
                 <div className="mr-10">
                   <Input
-                    size="small"
+                    // size="small"
                     name="title"
                     className="text-xs"
                     placeholder={paymentRequest?.title}
+                    defaultValue={paymentRequest?.title}
                     onChange={(e) => {
                       let _p = { ...paymentRequest };
                       _p.title = e.target.value;
@@ -604,6 +606,7 @@ export default function PaymentRequest({ params }) {
                     name="title"
                     className="text-xs"
                     placeholder={paymentRequest?.description}
+                    defaultValue={paymentRequest?.description}
                     onChange={(e) => {
                       paymentRequest.description = e.target.value;
                     }}
@@ -617,12 +620,12 @@ export default function PaymentRequest({ params }) {
               <div className="text-xs text-gray-400">Amount due</div>
               {!editRequest && (
                 <div className="text-xs">
-                  {paymentRequest?.amount?.toLocaleString()} Rwf
+                  {paymentRequest?.amount?.toLocaleString()} {paymentRequest?.currency}
                 </div>
               )}
               {editRequest && (
                 <div className="mr-10">
-                  <InputNumber
+                  {/* <InputNumber
                     size="small"
                     name="title"
                     className="text-xs w-full"
@@ -630,7 +633,54 @@ export default function PaymentRequest({ params }) {
                     onChange={(e) => {
                       paymentRequest.amount = e;
                     }}
-                  />
+                  /> */}
+
+                  <Form.Item>
+                    <Form.Item
+                      name="amount"
+                      noStyle
+                      rules={[
+                        {
+                          required: true,
+                          message: "Amount is required",
+                        },
+                      ]}
+                    >
+                      <InputNumber
+                        style={{ width: "100%" }}
+                        addonBefore={
+                          <Form.Item noStyle name="currency">
+                            <Select
+                              onChange={(value) => paymentRequest.currency=value}
+                              defaultValue="RWF"
+                              options={[
+                                {
+                                  value: "RWF",
+                                  label: "RWF",
+                                  key: "RWF",
+                                },
+                                {
+                                  value: "USD",
+                                  label: "USD",
+                                  key: "USD",
+                                },
+                                {
+                                  value: "EUR",
+                                  label: "EUR",
+                                  key: "EUR",
+                                },
+                              ]}
+                            ></Select>
+                          </Form.Item>
+                        }
+                        defaultValue={paymentRequest.amount}
+                        value={paymentRequest.amount}
+                        onChange={(e) => {
+                          paymentRequest.amount = e;
+                        }}
+                      />
+                    </Form.Item>
+                  </Form.Item>
                 </div>
               )}
             </div>
@@ -703,7 +753,7 @@ export default function PaymentRequest({ params }) {
                 </div>
               )}
 
-              {editRequest && budgeted && (
+              {editRequest && (budgeted || paymentRequest?.budgeted) && (
                 // <Select
                 //   // mode="multiple"
                 //   // allowClear
@@ -788,13 +838,16 @@ export default function PaymentRequest({ params }) {
             <Typography.Title level={4}>Request Approval</Typography.Title>
           </div>
 
-          {paymentRequest?.status==='pending-review' && !user?.permissions?.canEditPaymentRequests && <div className="text-sm text-gray-600 p-3 bg-gray-50 rounded-md flex flex-col justify-center items-center">
+          {paymentRequest?.status === "pending-review" &&
+            !user?.permissions?.canEditPaymentRequests && (
+              <div className="text-sm text-gray-600 p-3 bg-gray-50 rounded-md flex flex-col justify-center items-center">
                 <LockClosedIcon className="h-10 w-10 text-blue-400" />
                 <p>
-                  This request needs to be reviewed for the payment approval process to
-                  start.
+                  This request needs to be reviewed for the payment approval
+                  process to start.
                 </p>
-              </div>}
+              </div>
+            )}
 
           {paymentRequest?.approver && (
             <div className="mx-3 mt-5 ">
@@ -1080,19 +1133,20 @@ export default function PaymentRequest({ params }) {
                 {/* <div className="text-xs text-gray-500">
                   {showAddApproverForm ? "" : "No approver selected yet"}
                 </div> */}
-                {!showAddApproverForm && user?.permissions?.canEditPaymentRequests && (
-                  <div className="flex flex-row items-center space-x-1">
-                    <Button
-                      type="primary"
-                      onClick={() => {
-                        setShowAddApproverForm(!showAddApproverForm);
-                        setLevel1Approver(null);
-                      }}
-                    >
-                      Add approver
-                    </Button>
-                  </div>
-                )}
+                {!showAddApproverForm &&
+                  user?.permissions?.canEditPaymentRequests && (
+                    <div className="flex flex-row items-center space-x-1">
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          setShowAddApproverForm(!showAddApproverForm);
+                          setLevel1Approver(null);
+                        }}
+                      >
+                        Add approver
+                      </Button>
+                    </div>
+                  )}
                 {showAddApproverForm && (
                   <div className="flex flex-row items-center space-x-1">
                     <div
