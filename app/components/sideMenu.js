@@ -24,7 +24,6 @@ const SideMenu = ({ setScreen, screen, user }) => {
   const [items, setItems] = useState([]);
   useEffect(() => {}, [screen]);
   
-  console.log(pathName)
   let parts = pathName.split('/')
   if(parts.length>=3){
     pathName = `/${parts[1]}/${parts[2]}`

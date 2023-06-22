@@ -1,7 +1,7 @@
-'use client'
+"use client";
 import React, { useEffect, useState } from "react";
 import { LoadingOutlined } from "@ant-design/icons";
-import {decode as base64_decode, encode as base64_encode} from 'base-64';
+import { decode as base64_decode, encode as base64_encode } from "base-64";
 import {
   AutoComplete,
   Button,
@@ -58,11 +58,11 @@ const residences = [
   },
 ];
 
-const LoginForm = () => {
+const LoginForm = ({ goTo }) => {
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
-  let router = useRouter()
+  let router = useRouter();
 
   const [messageApi, contextHolder] = message.useMessage();
   let [loaded, setLoaded] = useState(false);
@@ -77,7 +77,8 @@ const LoginForm = () => {
     fetch(`${url}/users/login`, {
       method: "POST",
       headers: {
-        Authorization: "Basic " + base64_encode(`${apiUsername}:${apiPassword}`),
+        Authorization:
+          "Basic " + base64_encode(`${apiUsername}:${apiPassword}`),
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -87,7 +88,6 @@ const LoginForm = () => {
     })
       .then((res) => res.json())
       .then((res) => {
-
         if (res.allowed) {
           if (res.user.status === "approved") {
             messageApi.open({
@@ -95,15 +95,22 @@ const LoginForm = () => {
               content: "Success!!",
             });
             localStorage.setItem("user", JSON.stringify(res.user));
-            localStorage.setItem("token", res?.token)
-            router.push(`${res.user?.userType ==='VENDOR' ? '/system/tenders' :'/system/dashboard' }`)
+            localStorage.setItem("token", res?.token);
+            goTo
+              ? router.push(`${goTo}`)
+              : router.push(
+                  `${
+                    res.user?.userType === "VENDOR"
+                      ? "/system/tenders"
+                      : "/system/dashboard"
+                  }`
+                );
             setSubmitting(false);
           } else {
             messageApi.open({
-              
-
               type: "error",
-              content: "You do not have the required permissions to access this system. Please contact the system admin to request access.",
+              content:
+                "You do not have the required permissions to access this system. Please contact the system admin to request access.",
             });
             setSubmitting(false);
           }
@@ -137,7 +144,8 @@ const LoginForm = () => {
     fetch(`${url}/users/recoverPassword/${values.email}`, {
       method: "PUT",
       headers: {
-        Authorization: "Basic " + base64_encode(`${apiUsername}:${apiPassword}`),
+        Authorization:
+          "Basic " + base64_encode(`${apiUsername}:${apiPassword}`),
         "Content-Type": "application/json",
       },
       // body: JSON.stringify({
@@ -153,7 +161,7 @@ const LoginForm = () => {
         });
         localStorage.setItem("user", JSON.stringify(res));
         setSubmitting(false);
-        setForgotPassword(false)
+        setForgotPassword(false);
       })
       .catch((err) => {
         console.log(err);
@@ -222,24 +230,25 @@ const LoginForm = () => {
       {contextHolder}
       {loaded ? (
         <div className="flex flex-col bg-gray-50 items-center justify-center rounded shadow-md h-screen md:px-20">
-          {!forgotPassword && <>
-            <Form
-              {...formItemLayout}
-              form={form}
-              name="register"
-              onFinish={onFinish}
-              initialValues={{
-                residence: ["zhejiang", "hangzhou", "xihu"],
-                firstName: "",
-                prefix: "+250",
-                email: "",
-              }}
-              scrollToFirstError
-              style={{ width: "100%" }}
-            >
-              <Row className="flex flex-col items-center justify-between pb-5">
-                <div className="flex flex-row items-center">
-                  {/* <div>
+          {!forgotPassword && (
+            <>
+              <Form
+                {...formItemLayout}
+                form={form}
+                name="register"
+                onFinish={onFinish}
+                initialValues={{
+                  residence: ["zhejiang", "hangzhou", "xihu"],
+                  firstName: "",
+                  prefix: "+250",
+                  email: "",
+                }}
+                scrollToFirstError
+                style={{ width: "100%" }}
+              >
+                <Row className="flex flex-col items-center justify-between pb-5">
+                  <div className="flex flex-row items-center">
+                    {/* <div>
                   <Image
                     alt=""
                     className="pt-3"
@@ -249,85 +258,91 @@ const LoginForm = () => {
                   />{" "}
                 </div>
                 <div className="font-bold text-lg">Irembo Procure</div> */}
-                </div>
-                <Typography.Title className="" level={3}>
-                  Login
-                </Typography.Title>
-              </Row>
-
-              <div>
-                <div>Email</div>
-                <Form.Item
-                  name="email"
-                  // label="E-mail"
-                  rules={[
-                    {
-                      type: "email",
-                      message: "The input is not valid E-mail!",
-                    },
-                    {
-                      required: true,
-                      message: "Please input your E-mail!",
-                    },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-              </div>
-
-              <div>
-                <div>Password</div>
-                <Form.Item
-                  name="password"
-                  // label="Password"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please input your password!",
-                    },
-                  ]}
-                  hasFeedback
-                >
-                  <Input.Password />
-                </Form.Item>
-              </div>
-
-              <Form.Item {...tailFormItemLayout}>
-                {submitting ? (
-                  <Spin indicator={antIcon} />
-                ) : (
-                  <div className="flex flex-row items-center justify-between">
-                    <Button type="default" htmlType="submit">
-                      Login
-                    </Button>
-
-                    <Button type="link" onClick={()=>setForgotPassword(true)}>Forgot password?</Button>
                   </div>
-                )}
-              </Form.Item>
-            </Form>
+                  <Typography.Title className="" level={3}>
+                    Login
+                  </Typography.Title>
+                </Row>
 
-            <div className="flex flex-row space-x-2 self-start">
-              <Typography.Text level={5}>New User? </Typography.Text>
-              <Typography.Link onClick={() => router.push("/auth/signup")}>
-                Sign up
-              </Typography.Link>
-            </div>
-          </>}
+                <div>
+                  <div>Email</div>
+                  <Form.Item
+                    name="email"
+                    // label="E-mail"
+                    rules={[
+                      {
+                        type: "email",
+                        message: "The input is not valid E-mail!",
+                      },
+                      {
+                        required: true,
+                        message: "Please input your E-mail!",
+                      },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                </div>
 
-          {forgotPassword && <>
-            <Form
-              {...formItemLayout}
-              form={form}
-              name="reset"
-              onFinish={resetPassword}
-              
-              scrollToFirstError
-              style={{ width: "100%" }}
-            >
-              <Row className="flex flex-col items-center justify-between pb-5">
-                <div className="flex flex-row items-center">
-                  {/* <div>
+                <div>
+                  <div>Password</div>
+                  <Form.Item
+                    name="password"
+                    // label="Password"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input your password!",
+                      },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input.Password />
+                  </Form.Item>
+                </div>
+
+                <Form.Item {...tailFormItemLayout}>
+                  {submitting ? (
+                    <Spin indicator={antIcon} />
+                  ) : (
+                    <div className="flex flex-row items-center justify-between">
+                      <Button type="default" htmlType="submit">
+                        Login
+                      </Button>
+
+                      <Button
+                        type="link"
+                        onClick={() => setForgotPassword(true)}
+                      >
+                        Forgot password?
+                      </Button>
+                    </div>
+                  )}
+                </Form.Item>
+              </Form>
+
+              <div className="flex flex-row space-x-2 self-start">
+                <Typography.Text level={5}>New User? </Typography.Text>
+                <Typography.Link onClick={() => router.push("/auth/signup")}>
+                  Sign up
+                </Typography.Link>
+              </div>
+            </>
+          )}
+
+          {forgotPassword && (
+            <>
+              <Form
+                {...formItemLayout}
+                form={form}
+                name="reset"
+                onFinish={resetPassword}
+                scrollToFirstError
+                style={{ width: "100%" }}
+              >
+                <Row className="flex flex-col items-center justify-between pb-5">
+                  <div className="flex flex-row items-center">
+                    {/* <div>
                   <Image
                     alt=""
                     className="pt-3"
@@ -337,48 +352,53 @@ const LoginForm = () => {
                   />{" "}
                 </div>
                 <div className="font-bold text-lg">Irembo Procure</div> */}
-                </div>
-                <Typography.Title className="" level={3}>
-                  Reset Password
-                </Typography.Title>
-              </Row>
-
-              <div>
-                <div>Email</div>
-                <Form.Item
-                  name="email"
-                  // label="E-mail"
-                  rules={[
-                    {
-                      type: "email",
-                      message: "The input is not valid E-mail!",
-                    },
-                    {
-                      required: true,
-                      message: "Please input your E-mail!",
-                    },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-              </div>
-
-
-              <Form.Item {...tailFormItemLayout}>
-                {submitting ? (
-                  <Spin indicator={antIcon} />
-                ) : (
-                  <div className="flex flex-row items-center justify-between">
-                    <Button type="default" htmlType="submit">
-                      Send me reset token
-                    </Button>
-
-                    <Button type="link" onClick={()=>setForgotPassword(false)}>Back to Login</Button>
                   </div>
-                )}
-              </Form.Item>
-            </Form>
-          </>}
+                  <Typography.Title className="" level={3}>
+                    Reset Password
+                  </Typography.Title>
+                </Row>
+
+                <div>
+                  <div>Email</div>
+                  <Form.Item
+                    name="email"
+                    // label="E-mail"
+                    rules={[
+                      {
+                        type: "email",
+                        message: "The input is not valid E-mail!",
+                      },
+                      {
+                        required: true,
+                        message: "Please input your E-mail!",
+                      },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                </div>
+
+                <Form.Item {...tailFormItemLayout}>
+                  {submitting ? (
+                    <Spin indicator={antIcon} />
+                  ) : (
+                    <div className="flex flex-row items-center justify-between">
+                      <Button type="default" htmlType="submit">
+                        Send me reset token
+                      </Button>
+
+                      <Button
+                        type="link"
+                        onClick={() => setForgotPassword(false)}
+                      >
+                        Back to Login
+                      </Button>
+                    </div>
+                  )}
+                </Form.Item>
+              </Form>
+            </>
+          )}
         </div>
       ) : (
         <Skeleton />
