@@ -131,7 +131,7 @@ export default function PaymentRequest({ params }) {
   let [showAddApproverForm, setShowAddApproverForm] = useState(false);
   let [level1Approvers, setLevel1Approvers] = useState([]);
   let [level1Approver, setLevel1Approver] = useState(null);
-  let [currency, setCurrency] = useState('RWF')
+  let [currency, setCurrency] = useState("RWF");
 
   let [editRequest, setEditRequest] = useState(false);
 
@@ -174,6 +174,7 @@ export default function PaymentRequest({ params }) {
 
       let statusCode = getRequestStatusCode(res?.status);
       setCurrentCode(statusCode);
+      setBudgeted(res?.budgeted)
     });
 
     getApprovers()
@@ -530,7 +531,8 @@ export default function PaymentRequest({ params }) {
           </div>
         </div>
         {((paymentRequest?.createdBy?._id === user?._id &&
-          (paymentRequest?.status == "pending-review" || paymentRequest?.status=='rejected')) ||
+          (paymentRequest?.status == "pending-review" ||
+            paymentRequest?.status == "rejected")) ||
           (paymentRequest?.approver?._id === user?._id &&
             (paymentRequest?.status.includes("pending-review") ||
               paymentRequest?.status.includes("pending-approval")))) && (
@@ -620,7 +622,8 @@ export default function PaymentRequest({ params }) {
               <div className="text-xs text-gray-400">Amount due</div>
               {!editRequest && (
                 <div className="text-xs">
-                  {paymentRequest?.amount?.toLocaleString()} {paymentRequest?.currency}
+                  {paymentRequest?.amount?.toLocaleString()}{" "}
+                  {paymentRequest?.currency}
                 </div>
               )}
               {editRequest && (
@@ -651,7 +654,9 @@ export default function PaymentRequest({ params }) {
                         addonBefore={
                           <Form.Item noStyle name="currency">
                             <Select
-                              onChange={(value) => paymentRequest.currency=value}
+                              onChange={(value) =>
+                                (paymentRequest.currency = value)
+                              }
                               defaultValue="RWF"
                               options={[
                                 {
@@ -731,7 +736,7 @@ export default function PaymentRequest({ params }) {
                     placeholder="Please select"
                     onChange={(value) => {
                       paymentRequest.budgeted = value;
-                      if (value == "No") paymentRequest.budgetLine = null;
+                      if (value === false) paymentRequest.budgetLine = null;
                       setBudgeted(value);
                       // handleUpdateRequest(r);
                     }}
@@ -753,67 +758,68 @@ export default function PaymentRequest({ params }) {
                 </div>
               )}
 
-              {editRequest && (budgeted || paymentRequest?.budgeted) && (
-                // <Select
-                //   // mode="multiple"
-                //   // allowClear
-                //   className="ml-3"
-                //   defaultValue={data?.budgetLine}
-                //   style={{ width: "100%" }}
-                //   placeholder="Please select"
-                //   onChange={(value) => {
-                //     let r = { ...data };
-                //     r.budgetLine = value;
-                //     handleUpdateRequest(r);
-                //   }}
-                // >
-                //   {servCategories?.map((s) => {
-                //     return (
-                //       <Select.Option
-                //         key={s._id}
-                //         value={s.description}
-                //       >
-                //         {s.description}
-                //       </Select.Option>
-                //     );
-                //   })}
-                // </Select>
+              {editRequest &&
+                (budgeted) && (
+                  // <Select
+                  //   // mode="multiple"
+                  //   // allowClear
+                  //   className="ml-3"
+                  //   defaultValue={data?.budgetLine}
+                  //   style={{ width: "100%" }}
+                  //   placeholder="Please select"
+                  //   onChange={(value) => {
+                  //     let r = { ...data };
+                  //     r.budgetLine = value;
+                  //     handleUpdateRequest(r);
+                  //   }}
+                  // >
+                  //   {servCategories?.map((s) => {
+                  //     return (
+                  //       <Select.Option
+                  //         key={s._id}
+                  //         value={s.description}
+                  //       >
+                  //         {s.description}
+                  //       </Select.Option>
+                  //     );
+                  //   })}
+                  // </Select>
 
-                <Select
-                  // defaultValue={budgetLine}
-                  // className="ml-3"
-                  placeholder="Select service category"
-                  showSearch
-                  defaultValue={paymentRequest?.budgetLine?._id}
-                  onChange={(value, option) => {
-                    paymentRequest.budgetLine = value;
-                  }}
-                  // filterSort={(optionA, optionB) =>
-                  //   (optionA?.label ?? "")
-                  //     .toLowerCase()
-                  //     .localeCompare(
-                  //       (optionB?.label ?? "").toLowerCase()
-                  //     )
-                  // }
-                  filterOption={(inputValue, option) => {
-                    return option.label
-                      .toLowerCase()
-                      .includes(inputValue.toLowerCase());
-                  }}
-                  options={budgetLines.map((s) => {
-                    return {
-                      label: s.description.toUpperCase(),
-                      options: s.budgetlines.map((sub) => {
-                        return {
-                          label: sub.description,
-                          value: sub._id,
-                          title: sub.description,
-                        };
-                      }),
-                    };
-                  })}
-                ></Select>
-              )}
+                  <Select
+                    // defaultValue={budgetLine}
+                    // className="ml-3"
+                    placeholder="Select service category"
+                    showSearch
+                    defaultValue={paymentRequest?.budgetLine?._id}
+                    onChange={(value, option) => {
+                      paymentRequest.budgetLine = value;
+                    }}
+                    // filterSort={(optionA, optionB) =>
+                    //   (optionA?.label ?? "")
+                    //     .toLowerCase()
+                    //     .localeCompare(
+                    //       (optionB?.label ?? "").toLowerCase()
+                    //     )
+                    // }
+                    filterOption={(inputValue, option) => {
+                      return option.label
+                        .toLowerCase()
+                        .includes(inputValue.toLowerCase());
+                    }}
+                    options={budgetLines.map((s) => {
+                      return {
+                        label: s.description.toUpperCase(),
+                        options: s.budgetlines.map((sub) => {
+                          return {
+                            label: sub.description,
+                            value: sub._id,
+                            title: sub.description,
+                          };
+                        }),
+                      };
+                    })}
+                  ></Select>
+                )}
             </div>
 
             {editRequest && (
