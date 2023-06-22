@@ -11,6 +11,7 @@ export default function SystemLayout({ children }) {
   let [screen, setScreen] = useState("");
   let [loggedInUser, setLoggedInUser] = useState(null);
   let [loggingOut, setLoggingOut] = useState(false);
+  let [token, setToken] = useState('')
   let [current, setCurrent] = useState('')
   let router = useRouter();
 
@@ -18,6 +19,7 @@ export default function SystemLayout({ children }) {
   useEffect(() => {
     setLoggedInUser(localStorage.getItem("user"));
     let user = JSON.parse(localStorage.getItem("user"));
+    setToken(localStorage.getItem("token"))
     if (user?.userType !== "VENDOR") setScreen("dashboard");
     else setScreen("tenders");
     console.log(pathName)
@@ -33,7 +35,7 @@ export default function SystemLayout({ children }) {
   },[pathName])
   return (
     <main>
-      {loggedInUser && (
+      {(loggedInUser && token?.length>=1 ) && (
         <div className="flex flex-col">
           <TopMenu screen={screen} handleLogout={(v) => setLoggingOut(v)} />
           <Layout>
@@ -59,7 +61,7 @@ export default function SystemLayout({ children }) {
         </div>
       )}
 
-      {!loggedInUser && (
+      {(!loggedInUser || !token) && (
         <div className="flex flex-col items-center justify-center h-screen w-full">
           {/* <Empty
             image="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"

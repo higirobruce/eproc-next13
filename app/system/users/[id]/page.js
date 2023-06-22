@@ -335,7 +335,7 @@ export default function page({ params }) {
     let viewPermissionLable = "canView" + module;
 
     newUser.permissions[permissionLable] = canCreate;
-    newUser.permissions[editPermissionLable] = canCreate;
+    if(module!=='PaymentRequests') newUser.permissions[editPermissionLable] = canCreate;
     newUser.permissions[viewPermissionLable] = canCreate;
 
     fetch(`${url}/users/${row?._id}`, {
@@ -735,6 +735,10 @@ export default function page({ params }) {
                     canCreateRequests={row?.permissions?.canCreateRequests}
                     canEditRequests={row?.permissions?.canEditRequests}
                     canViewRequests={row?.permissions?.canViewRequests}
+                    canApprovePaymentRequests={row?.permissions?.canApprovePaymentRequests}
+                    canCreatePaymentRequests={row?.permissions?.canCreatePaymentRequests}
+                    canEditPaymentRequests={row?.permissions?.canEditPaymentRequests}
+                    canViewPaymentRequests={row?.permissions?.canViewPaymentRequests}
                     canApproveTenders={row?.permissions?.canApproveTenders}
                     canCreateTenders={row?.permissions?.canCreateTenders}
                     canEditTenders={row?.permissions?.canEditTenders}
