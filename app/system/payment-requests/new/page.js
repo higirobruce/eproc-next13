@@ -28,7 +28,7 @@ export default function NewPaymentRequest() {
   let [title, setTitle] = useState("");
   let [description, setDescription] = useState("");
   let [amount, setAmout] = useState(null);
-  let [currency, setCurrency] = useState(null);
+  let [currency, setCurrency] = useState('RWF');
   let [docId, setDocId] = useState(null);
   let [files, setFiles] = useState([]);
   let [submitting, setSubmitting] = useState(false);
