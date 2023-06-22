@@ -528,15 +528,18 @@ export default function PaymentRequest({ params }) {
             </div>
           </div>
         </div>
-        {paymentRequest?.approver?._id === user?._id &&
-          !paymentRequest?.status.includes("approved") && (
-            <Switch
-              checked={editRequest}
-              checkedChildren={<EditOutlined />}
-              unCheckedChildren={<EyeOutlined />}
-              onChange={(e) => setEditRequest(e)}
-            />
-          )}
+        {((paymentRequest?.createdBy?._id === user?._id &&
+          paymentRequest?.status == "pending-review") ||
+          (paymentRequest?.approver?._id === user?._id &&
+            (paymentRequest?.status.includes("pending-review") ||
+              paymentRequest?.status.includes("pending-approval")))) && (
+          <Switch
+            checked={editRequest}
+            checkedChildren={<EditOutlined />}
+            unCheckedChildren={<EyeOutlined />}
+            onChange={(e) => setEditRequest(e)}
+          />
+        )}
       </div>
 
       <div className="grid md:grid-cols-5 gap-1 ">
@@ -679,7 +682,7 @@ export default function PaymentRequest({ params }) {
                     onChange={(value) => {
                       paymentRequest.budgeted = value;
                       if (value == "No") paymentRequest.budgetLine = null;
-                      setBudgeted(value)
+                      setBudgeted(value);
                       // handleUpdateRequest(r);
                     }}
                     options={[
@@ -784,6 +787,14 @@ export default function PaymentRequest({ params }) {
           <div>
             <Typography.Title level={4}>Request Approval</Typography.Title>
           </div>
+
+          {paymentRequest?.status==='pending-review' && !user?.permissions?.canEditPaymentRequests && <div className="text-sm text-gray-600 p-3 bg-gray-50 rounded-md flex flex-col justify-center items-center">
+                <LockClosedIcon className="h-10 w-10 text-blue-400" />
+                <p>
+                  This request needs to be reviewed for the payment approval process to
+                  start.
+                </p>
+              </div>}
 
           {paymentRequest?.approver && (
             <div className="mx-3 mt-5 ">
@@ -1066,10 +1077,10 @@ export default function PaymentRequest({ params }) {
             user?.userType !== "VENDOR" &&
             user?.permissions?.canEditRequests && (
               <div className="flex flex-col space-y-2">
-                <div className="text-xs text-gray-500">
+                {/* <div className="text-xs text-gray-500">
                   {showAddApproverForm ? "" : "No approver selected yet"}
-                </div>
-                {!showAddApproverForm && (
+                </div> */}
+                {!showAddApproverForm && user?.permissions?.canEditPaymentRequests && (
                   <div className="flex flex-row items-center space-x-1">
                     <Button
                       type="primary"

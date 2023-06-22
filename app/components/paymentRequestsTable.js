@@ -264,7 +264,7 @@ const PaymentRequestsTable = ({
         <>
           <Row className="felx flex-row items-center justify-between">
             <Typography.Text>
-              {record?.amount?.toLocaleString()} Rwf
+              {record?.amount?.toLocaleString()} {record?.currency}
             </Typography.Text>
           </Row>
         </>
