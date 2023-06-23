@@ -544,7 +544,12 @@ export default function page({ params }) {
 
   return (
     <div className="flex flex-col p-3">
-      <Button type="primary" onClick={() => generatePDF()} icon={<PrinterOutlined />} className="self-end"></Button>
+      <Button
+        type="primary"
+        onClick={() => generatePDF()}
+        icon={<PrinterOutlined />}
+        className="self-end"
+      ></Button>
       <div className="space-y-10 px-20 py-5 overflow-x-scroll bg-white mx-11 my-10 shadow-md">
         {/* Header */}
         <div className="flex flex-row justify-between items-center">
@@ -900,6 +905,8 @@ export default function page({ params }) {
                     <div className="text-gray-400 text-lg">
                       {s.signed
                         ? "Signed"
+                        : contract?.status === "draft"
+                        ? "Waiting for Legal's review"
                         : `Waiting for ${yetToSign[0]?.names}'s signature`}
                     </div>
                   </div>
