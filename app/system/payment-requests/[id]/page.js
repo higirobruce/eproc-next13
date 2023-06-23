@@ -830,6 +830,7 @@ export default function PaymentRequest({ params }) {
                         message: "Budget Line is required",
                       },
                     ]}
+                    initialValue={paymentRequest?.budgetLine?._id}
                   >
                     <Select
                       // defaultValue={budgetLine}
