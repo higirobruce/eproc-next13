@@ -305,8 +305,8 @@ export default function NewPaymentRequest({ params }) {
               icon={<SaveOutlined />}
               type="primary"
               onClick={() => {
-                setSubmitting(true);
                 form.validateFields();
+                setSubmitting(true);
                 handleUpload();
               }}
               disabled={submitting}

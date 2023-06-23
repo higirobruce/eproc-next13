@@ -174,7 +174,7 @@ export default function PaymentRequest({ params }) {
 
       let statusCode = getRequestStatusCode(res?.status);
       setCurrentCode(statusCode);
-      setBudgeted(res?.budgeted)
+      setBudgeted(res?.budgeted);
     });
 
     getApprovers()
@@ -510,6 +510,7 @@ export default function PaymentRequest({ params }) {
       }}
       className="flex flex-col mx-10 py-5 flex-1 space-y-3 h-full"
     >
+      {contextHolder}
       <div className="flex flex-row justify-between items-center">
         <div className="flex flex-row justify-between items-center">
           <div className="flex flex-row space-x-10 items-center">
@@ -533,7 +534,8 @@ export default function PaymentRequest({ params }) {
         {((paymentRequest?.createdBy?._id === user?._id &&
           (paymentRequest?.status == "pending-review" ||
             paymentRequest?.status == "rejected")) ||
-          (paymentRequest?.approver?._id === user?._id &&
+          ((paymentRequest?.approver?._id === user?._id ||
+            user?.permissions?.canApproveAsHof) &&
             (paymentRequest?.status.includes("pending-review") ||
               paymentRequest?.status.includes("pending-approval")))) && (
           <Switch
@@ -570,65 +572,89 @@ export default function PaymentRequest({ params }) {
               {paymentRequest?.status}
             </Tag>
           </div>
-          <div className="grid md:grid-cols-4 sm:grid-cols-1 gap-6">
-            {/* Request Title */}
-            <div className="flex flex-col space-y-2">
-              <div className="text-xs text-gray-400">Title</div>
-              {!editRequest && (
-                <div className="text-xs">{paymentRequest?.title}</div>
-              )}
-              {editRequest && (
-                <div className="mr-10">
-                  <Input
-                    // size="small"
-                    name="title"
-                    className="text-xs"
-                    placeholder={paymentRequest?.title}
-                    defaultValue={paymentRequest?.title}
-                    onChange={(e) => {
-                      let _p = { ...paymentRequest };
-                      _p.title = e.target.value;
-                      setPaymentRequest(_p);
-                    }}
-                  />
-                </div>
-              )}
-            </div>
+          <Form form={form}>
+            <div className="grid md:grid-cols-4 sm:grid-cols-1 gap-6">
+              {/* Request Title */}
+              <div className="flex flex-col space-y-2">
+                <div className="text-xs text-gray-400">Title</div>
+                {!editRequest && (
+                  <div className="text-xs">{paymentRequest?.title}</div>
+                )}
+                {editRequest && (
+                  <div className="mr-10">
+                    <Form.Item
+                      name="title"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Title is required",
+                        },
+                      ]}
+                      initialValue={paymentRequest?.title}
+                    >
+                      <Input
+                        // size="small"
+                        
+                        className="text-xs"
+                        // placeholder={paymentRequest?.title}
+                        // defaultValue={paymentRequest?.title}
+                        value={paymentRequest?.title}
+                        onChange={(e) => {
+                          let _p = { ...paymentRequest };
+                          _p.title = e.target.value;
+                          setPaymentRequest(_p);
+                        }}
+                      />
+                    </Form.Item>
+                  </div>
+                )}
+              </div>
 
-            {/* Request Comment/addtional note */}
-            <div className="flex flex-col  space-y-2 ">
-              <div className="text-xs text-gray-400">Comment</div>
-              {!editRequest && (
-                <div className="text-xs">{paymentRequest?.description}</div>
-              )}
-              {editRequest && (
-                <div className="mr-10">
-                  <Input.TextArea
-                    size="small"
-                    name="title"
-                    className="text-xs"
-                    placeholder={paymentRequest?.description}
-                    defaultValue={paymentRequest?.description}
-                    onChange={(e) => {
-                      paymentRequest.description = e.target.value;
-                    }}
-                  />
-                </div>
-              )}
-            </div>
+              {/* Request Comment/addtional note */}
+              <div className="flex flex-col  space-y-2 ">
+                <div className="text-xs text-gray-400">Comment</div>
+                {!editRequest && (
+                  <div className="text-xs">{paymentRequest?.description}</div>
+                )}
+                {editRequest && (
+                  <div className="mr-10">
+                    <Form.Item
+                      name="description"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Description is required",
+                        },
+                      ]}
+                      initialValue={paymentRequest?.description}
+                    >
+                      <Input.TextArea
+                        size="small"
+                        className="text-xs"
+                        placeholder={paymentRequest?.description}
+                        // defaultValue={paymentRequest?.description}
+                        value={paymentRequest?.description}
+                        onChange={(e) => {
+                          paymentRequest.description = e.target.value;
+                        }}
+                      />
+                    </Form.Item>
+                  </div>
+                )}
+              </div>
 
-            {/* Request Amount due*/}
-            <div className="flex flex-col  space-y-2 ">
-              <div className="text-xs text-gray-400">Amount due</div>
-              {!editRequest && (
-                <div className="text-xs">
-                  {paymentRequest?.amount?.toLocaleString()}{" "}
-                  {paymentRequest?.currency}
-                </div>
-              )}
-              {editRequest && (
-                <div className="mr-10">
-                  {/* <InputNumber
+              {/* Request Amount due*/}
+              <div className="flex flex-col  space-y-2 ">
+                <div className="text-xs text-gray-400">Amount due</div>
+                {!editRequest && (
+                  <div className="text-xs">
+                    {paymentRequest?.amount?.toLocaleString()}{" "}
+                    {paymentRequest?.currency}
+                  </div>
+                )}
+                {editRequest && (
+                  <div className="mr-10">
+                    {/* <InputNumber
                     size="small"
                     name="title"
                     className="text-xs w-full"
@@ -638,128 +664,132 @@ export default function PaymentRequest({ params }) {
                     }}
                   /> */}
 
-                  <Form.Item>
-                    <Form.Item
-                      name="amount"
-                      noStyle
-                      rules={[
-                        {
-                          required: true,
-                          message: "Amount is required",
-                        },
-                      ]}
-                    >
-                      <InputNumber
-                        style={{ width: "100%" }}
-                        addonBefore={
-                          <Form.Item noStyle name="currency">
-                            <Select
-                              onChange={(value) =>
-                                (paymentRequest.currency = value)
-                              }
-                              defaultValue="RWF"
-                              options={[
-                                {
-                                  value: "RWF",
-                                  label: "RWF",
-                                  key: "RWF",
-                                },
-                                {
-                                  value: "USD",
-                                  label: "USD",
-                                  key: "USD",
-                                },
-                                {
-                                  value: "EUR",
-                                  label: "EUR",
-                                  key: "EUR",
-                                },
-                              ]}
-                            ></Select>
-                          </Form.Item>
-                        }
-                        defaultValue={paymentRequest.amount}
-                        value={paymentRequest.amount}
-                        onChange={(e) => {
-                          paymentRequest.amount = e;
+                    <Form.Item>
+                      <Form.Item
+                        name="amount"
+                        noStyle
+                        rules={[
+                          {
+                            required: true,
+                            message: "Amount is required",
+                          },
+                        ]}
+                        initialValue={paymentRequest.amount}
+                      >
+                        <InputNumber
+                          style={{ width: "100%" }}
+                          addonBefore={
+                            <Form.Item noStyle name="currency">
+                              <Select
+                                onChange={(value) =>
+                                  (paymentRequest.currency = value)
+                                }
+                                defaultValue={paymentRequest.currency}
+                                value={paymentRequest.currency}
+                                options={[
+                                  {
+                                    value: "RWF",
+                                    label: "RWF",
+                                    key: "RWF",
+                                  },
+                                  {
+                                    value: "USD",
+                                    label: "USD",
+                                    key: "USD",
+                                  },
+                                  {
+                                    value: "EUR",
+                                    label: "EUR",
+                                    key: "EUR",
+                                  },
+                                ]}
+                              ></Select>
+                            </Form.Item>
+                          }
+                          // defaultValue={paymentRequest.amount}
+                          value={paymentRequest.amount}
+                          onChange={(e) => {
+                            paymentRequest.amount = e;
+                          }}
+                        />
+                      </Form.Item>
+                    </Form.Item>
+                  </div>
+                )}
+              </div>
+
+              {/* Request Attached Invoice*/}
+              <div className="flex flex-col  space-y-2 ">
+                <div className="text-xs text-gray-400">Attached Invoice(s)</div>
+                {!editRequest && (
+                  <div className="grid grid-cols-2 gap-y-2">
+                    {paymentRequest?.docIds?.map((doc, i) => {
+                      return (
+                        <Link
+                          href={`${url}/file/paymentRequests/${doc}`}
+                          target="_blank"
+                        >
+                          <div className="text-xs">
+                            <div className="flex flex-row space-x-1">
+                              {" "}
+                              <PaperClipOutlined /> Invoice {i + 1}
+                            </div>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {editRequest && (
+                  <UploadOtherFiles files={files} setFiles={setFiles} />
+                )}
+              </div>
+
+              {/* Budgeted */}
+              <div className="flex flex-col space-y-1 items-start">
+                <div className="text-xs text-gray-400">Budgeted:</div>
+                {!editRequest && (
+                  <div className="text-sm font-semibold text-gray-600">
+                    {paymentRequest?.budgeted ? "Yes" : "No"}
+                  </div>
+                )}
+                {editRequest && (
+                  <div className="text-xs text-gray-400">
+                    <Form.Item name="budgeted">
+                      <Select
+                        // mode="multiple"
+                        // allowClear
+                        defaultValue={paymentRequest?.budgeted ? "Yes" : "No"}
+                        value={paymentRequest?.budgeted ? "Yes" : "No"}
+                        // style={{ width: "100%" }}
+                        placeholder="Please select"
+                        onChange={(value) => {
+                          paymentRequest.budgeted = value;
+                          if (value === false) paymentRequest.budgetLine = null;
+                          setBudgeted(value);
+                          // handleUpdateRequest(r);
                         }}
+                        options={[
+                          { value: true, label: "Yes" },
+                          { value: false, label: "No" },
+                        ]}
                       />
                     </Form.Item>
-                  </Form.Item>
-                </div>
-              )}
-            </div>
+                  </div>
+                )}
+              </div>
 
-            {/* Request Attached Invoice*/}
-            <div className="flex flex-col  space-y-2 ">
-              <div className="text-xs text-gray-400">Attached Invoice(s)</div>
-              {!editRequest && (
-                <div className="grid grid-cols-2 gap-y-2">
-                  {paymentRequest?.docIds?.map((doc, i) => {
-                    return (
-                      <Link
-                        href={`${url}/file/paymentRequests/${doc}`}
-                        target="_blank"
-                      >
-                        <div className="text-xs">
-                          <div className="flex flex-row space-x-1">
-                            {" "}
-                            <PaperClipOutlined /> Invoice {i + 1}
-                          </div>
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
+              {/* Budget Line */}
+              <div className="flex flex-col space-y-1 items-start">
+                <div className="text-xs text-gray-400">Budget Line:</div>
+                {!editRequest && (
+                  <div className="text-sm font-semibold text-gray-600">
+                    {paymentRequest?.budgetLine?.description}
+                  </div>
+                )}
 
-              {editRequest && (
-                <UploadOtherFiles files={files} setFiles={setFiles} />
-              )}
-            </div>
-
-            {/* Budgeted */}
-            <div className="flex flex-col space-y-1 items-start">
-              <div className="text-xs text-gray-400">Budgeted:</div>
-              {!editRequest && (
-                <div className="text-sm font-semibold text-gray-600">
-                  {paymentRequest?.budgeted ? "Yes" : "No"}
-                </div>
-              )}
-              {editRequest && (
-                <div className="text-xs text-gray-400">
-                  <Select
-                    // mode="multiple"
-                    // allowClear
-                    defaultValue={paymentRequest?.budgeted ? "Yes" : "No"}
-                    // style={{ width: "100%" }}
-                    placeholder="Please select"
-                    onChange={(value) => {
-                      paymentRequest.budgeted = value;
-                      if (value === false) paymentRequest.budgetLine = null;
-                      setBudgeted(value);
-                      // handleUpdateRequest(r);
-                    }}
-                    options={[
-                      { value: true, label: "Yes" },
-                      { value: false, label: "No" },
-                    ]}
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Budget Line */}
-            <div className="flex flex-col space-y-1 items-start">
-              <div className="text-xs text-gray-400">Budget Line:</div>
-              {!editRequest && (
-                <div className="text-sm font-semibold text-gray-600">
-                  {paymentRequest?.budgetLine?.description}
-                </div>
-              )}
-
-              {editRequest &&
-                (budgeted) && (
+                {editRequest && budgeted && (
                   // <Select
                   //   // mode="multiple"
                   //   // allowClear
@@ -785,59 +815,72 @@ export default function PaymentRequest({ params }) {
                   //   })}
                   // </Select>
 
-                  <Select
-                    // defaultValue={budgetLine}
-                    // className="ml-3"
-                    placeholder="Select service category"
-                    showSearch
-                    defaultValue={paymentRequest?.budgetLine?._id}
-                    onChange={(value, option) => {
-                      paymentRequest.budgetLine = value;
-                    }}
-                    // filterSort={(optionA, optionB) =>
-                    //   (optionA?.label ?? "")
-                    //     .toLowerCase()
-                    //     .localeCompare(
-                    //       (optionB?.label ?? "").toLowerCase()
-                    //     )
-                    // }
-                    filterOption={(inputValue, option) => {
-                      return option.label
-                        .toLowerCase()
-                        .includes(inputValue.toLowerCase());
-                    }}
-                    options={budgetLines.map((s) => {
-                      return {
-                        label: s.description.toUpperCase(),
-                        options: s.budgetlines.map((sub) => {
-                          return {
-                            label: sub.description,
-                            value: sub._id,
-                            title: sub.description,
-                          };
-                        }),
-                      };
-                    })}
-                  ></Select>
+                  <Form.Item
+                    name="budgetLine"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Budget Line is required",
+                      },
+                    ]}
+                  >
+                    <Select
+                      // defaultValue={budgetLine}
+                      // className="ml-3"
+                      placeholder="Select service category"
+                      showSearch
+                      // defaultValue={paymentRequest?.budgetLine?._id}
+                      value={paymentRequest?.budgetLine?._id}
+                      onChange={(value, option) => {
+                        paymentRequest.budgetLine = value;
+                      }}
+                      // filterSort={(optionA, optionB) =>
+                      //   (optionA?.label ?? "")
+                      //     .toLowerCase()
+                      //     .localeCompare(
+                      //       (optionB?.label ?? "").toLowerCase()
+                      //     )
+                      // }
+                      filterOption={(inputValue, option) => {
+                        return option.label
+                          .toLowerCase()
+                          .includes(inputValue.toLowerCase());
+                      }}
+                      options={budgetLines.map((s) => {
+                        return {
+                          label: s.description.toUpperCase(),
+                          options: s.budgetlines.map((sub) => {
+                            return {
+                              label: sub.description,
+                              value: sub._id,
+                              title: sub.description,
+                            };
+                          }),
+                        };
+                      })}
+                    ></Select>
+                  </Form.Item>
                 )}
-            </div>
-
-            {editRequest && (
-              <div>
-                <Button
-                  loading={saving}
-                  icon={<SaveOutlined />}
-                  type="primary"
-                  onClick={() => {
-                    setEditRequest(false);
-                    handleUpload("update");
-                  }}
-                >
-                  Update
-                </Button>
               </div>
-            )}
-          </div>
+
+              {editRequest && (
+                <div>
+                  <Button
+                    loading={saving}
+                    icon={<SaveOutlined />}
+                    type="primary"
+                    onClick={async () => {
+                      await form.validateFields();
+                      setEditRequest(false);
+                      handleUpload("update");
+                    }}
+                  >
+                    Update
+                  </Button>
+                </div>
+              )}
+            </div>
+          </Form>
 
           {/* Approval flow */}
           <div>
