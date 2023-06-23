@@ -1189,7 +1189,7 @@ export default function PaymentRequest({ params }) {
 
           {!paymentRequest?.approver &&
             user?.userType !== "VENDOR" &&
-            user?.permissions?.canEditRequests && (
+            user?.permissions?.canEditPaymentRequests && (
               <div className="flex flex-col space-y-2">
                 {/* <div className="text-xs text-gray-500">
                   {showAddApproverForm ? "" : "No approver selected yet"}

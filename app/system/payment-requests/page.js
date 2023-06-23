@@ -100,11 +100,11 @@ export default function UserRequests() {
           d?.number.toString().indexOf(searchText) > -1 ||
           d?.purchaseOrder?.number.toString().indexOf(searchText) > -1 ||
           d?.createdBy?.firstName
-            .toLowerCase()
-            .indexOf(searchText.toLowerCase()) > -1 ||
+            ?.toLowerCase()
+            .indexOf(searchText?.toLowerCase()) > -1 ||
           d?.createdBy?.lastName
-            .toLowerCase()
-            .indexOf(searchText.toLowerCase()) > -1
+            ?.toLowerCase()
+            .indexOf(searchText?.toLowerCase()) > -1
         );
       });
       setTempDataset(filtered);
