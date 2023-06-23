@@ -58,9 +58,11 @@ let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
 async function getPODetails(id) {
+  let token = localStorage.getItem('token')
   const res = await fetch(`${url}/purchaseOrders/${id}`, {
     headers: {
       Authorization: "Basic " + `${encode(`${apiUsername}:${apiPassword}`)}`,
+      token: token,
       "Content-Type": "application/json",
     },
   });
@@ -141,6 +143,7 @@ export default function page({ params }) {
           headers: {
             Authorization:
               "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+              token: token,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
@@ -372,7 +375,7 @@ export default function page({ params }) {
 
                   {!signing && (
                     <div className="text-blue-500 flex flex-col">
-                      <div className="text-lg">Signed digitaly</div>
+                      <div className="text-lg">Signed digitally</div>
                       <div>{moment(s.signedAt).format("DD MMM YYYY")} at</div>
                       <div>
                         {moment(s.signedAt)

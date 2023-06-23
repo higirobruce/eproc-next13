@@ -39,7 +39,8 @@ import { useRouter } from "next/navigation";
 
 export default function PurchaseOrders() {
   let user = JSON.parse(localStorage.getItem("user"));
-  let router = useRouter()
+  let token = localStorage.getItem("token");
+  let router = useRouter();
   const [dataLoaded, setDataLoaded] = useState(false);
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
@@ -60,6 +61,8 @@ export default function PurchaseOrders() {
       label: "View PO",
     },
   ];
+
+  let [submitting, setSubmitting] = useState(false);
 
   const [previewAttachment, setPreviewAttachment] = useState(false);
   const [attachmentId, setAttachmentId] = useState("TOR-id.pdf");
@@ -142,6 +145,7 @@ export default function PurchaseOrders() {
         headers: {
           Authorization:
             "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+          token: token,
           "Content-Type": "application/json",
         },
       })
@@ -160,6 +164,7 @@ export default function PurchaseOrders() {
         headers: {
           Authorization:
             "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+          token: token,
           "Content-Type": "application/json",
         },
       })
@@ -369,7 +374,7 @@ export default function PurchaseOrders() {
 
                       {!signing && (
                         <div className="text-blue-500 flex flex-col">
-                          <div className="text-lg">Signed digitaly</div>
+                          <div className="text-lg">Signed digitally</div>
                           <div>
                             {moment(s.signedAt).format("DD MMM YYYY")} at
                           </div>
@@ -455,6 +460,7 @@ export default function PurchaseOrders() {
           headers: {
             Authorization:
               "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+            token: token,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
@@ -515,6 +521,7 @@ export default function PurchaseOrders() {
       }),
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -584,7 +591,7 @@ export default function PurchaseOrders() {
 
   return (
     <>
-      {dataLoaded ? (
+      {dataLoaded && !submitting ? (
         <div className="flex flex-col transition-opacity ease-in-out duration-1000 flex-1 space-y-1 h-full">
           {viewPOMOdal()}
 
@@ -679,7 +686,7 @@ export default function PurchaseOrders() {
                   ease: "circOut",
                 }}
               >
-                <Col flex={5}>
+                <Col flex={user?.userType !== "VENDOR" ? 7 : 5}>
                   {tempPOs?.map((po) => {
                     let t = 0;
                     return (
@@ -687,9 +694,9 @@ export default function PurchaseOrders() {
                         key={po?.number}
                         className={`grid ${
                           user?.userType !== "VENDOR"
-                            ? `md:grid-cols-7`
-                            : `md:grid-cols-4`
-                        }  gap-3 ring-1 ring-gray-200 bg-white rounded px-5 py-3 shadow hover:shadow-md m-3`}
+                            ? `lg:grid-cols-6`
+                            : `lg:grid-cols-3`
+                        } sm:grid-col-1 md:grid-cols-3 gap-1 ring-1 ring-gray-200 bg-white rounded px-5 py-3 shadow hover:shadow-md m-3`}
                       >
                         <div className="flex flex-col space-y-1">
                           <div className="text-xs text-gray-600">
@@ -705,6 +712,7 @@ export default function PurchaseOrders() {
                             user?.userType !== "VENDOR" && (
                               <div className="text-gray-600">
                                 <Link
+                                  onClick={() => setSubmitting(true)}
                                   alt=""
                                   href={`/system/requests/${
                                     po?.tender?.purchaseRequest?._id ||
@@ -732,32 +740,31 @@ export default function PurchaseOrders() {
                         </div>
 
                         {user?.userType !== "VENDOR" && (
-                          <>
-                            <div className="flex flex-col space-y-2">
-                              <div className="text-xs text-gray-600">
-                                SAP B1 reference(s)
-                              </div>
-                              <div className="text-gray-600">
-                                {po?.referenceDocs?.map((ref, i) => {
-                                  return <Tag key={i}>{ref}</Tag>;
-                                })}
-                              </div>
+                          <div className="flex flex-col space-y-2">
+                            <div className="text-xs text-gray-600">
+                              SAP B1 reference(s)
                             </div>
-                            <div className="flex flex-col space-y-1">
-                              <div className="text-xs text-gray-600">
-                                Vendor
-                              </div>
-                              <div className="font-semibold">
-                                {po?.vendor?.companyName}
-                              </div>
-                              <div className=" text-gray-500">
-                                TIN: {po?.vendor?.tin}
-                              </div>
-                              <div className=" text-gray-500">
-                                email: {po?.vendor?.companyEmail}
-                              </div>
+                            <div className="text-gray-600">
+                              {po?.referenceDocs?.map((ref, i) => {
+                                return <Tag key={i}>{ref}</Tag>;
+                              })}
                             </div>
-                          </>
+                          </div>
+                        )}
+
+                        {user?.userType !== "VENDOR" && (
+                          <div className="flex flex-col space-y-1">
+                            <div className="text-xs text-gray-600">Vendor</div>
+                            <div className="font-semibold">
+                              {po?.vendor?.companyName}
+                            </div>
+                            <div className=" text-gray-500">
+                              TIN: {po?.vendor?.tin}
+                            </div>
+                            <div className=" text-gray-500">
+                              email: {po?.vendor?.companyEmail}
+                            </div>
+                          </div>
                         )}
 
                         <div className="flex flex-col space-y-1">
@@ -829,76 +836,92 @@ export default function PurchaseOrders() {
                           Actions
                         </Dropdown.Button> */}
 
-                          <Button
-                            disabled={
-                              user?.userType === "VENDOR" &&
-                              !documentFullySignedInternally(po)
-                            }
-                            onClick={() => {
-                              setPO(po);
-                              setOpenViewPO(true);
-                            }}
-                          >
-                            View Document
-                          </Button>
+                          {(user?.userType !== "VENDOR" ||
+                            (user?.userType === "VENDOR" &&
+                              documentFullySignedInternally(po))) && (
+                            <div className="w-full">
+                              <Button
+                                disabled={
+                                  user?.userType === "VENDOR" &&
+                                  !documentFullySignedInternally(po)
+                                }
+                                onClick={() => {
+                                  setPO(po);
+                                  setOpenViewPO(true);
+                                }}
+                              >
+                                View PO
+                              </Button>
+                            </div>
+                          )}
 
                           {documentFullySigned(po) && (
                             <div>
                               <Tag color="green">Signed</Tag>
                             </div>
                           )}
-                        </div>
 
-                        <div className="flex flex-col space-y-1 justify-center">
-                          {/* <div className="text-xs text-gray-400">Delivery</div> */}
+                          <div className="flex flex-col space-y-1 justify-center">
+                            {/* <div className="text-xs text-gray-400">Delivery</div> */}
 
-                          {po?.status !== "started" &&
-                            po?.status !== "stopped" && (
-                              <Button
-                                type="primary"
-                                disabled={!documentFullySigned(po)}
+                            {po?.status !== "started" &&
+                              po?.status !== "stopped" && (
+                                <Button
+                                  type="primary"
+                                  disabled={!documentFullySigned(po)}
+                                  size="small"
+                                  loading={po.status === "starting"}
+                                  // icon={<PlaySquareOutlined />}
+                                  onClick={() => handleStartDelivery(po)}
+                                >
+                                  Delivery start
+                                </Button>
+                              )}
+
+                            <div className="text-xs text-gray-600">
+                              Delivery progress
+                            </div>
+                            <div>
+                              <Progress
+                                percent={_.round(po?.deliveryProgress, 1)}
                                 size="small"
-                                loading={po.status === "starting"}
-                                icon={<PlaySquareOutlined />}
-                                onClick={() => handleStartDelivery(po)}
-                              >
-                                Start delivering
-                              </Button>
-                            )}
+                                status="active"
+                              />
+                            </div>
 
-                          <div className="text-xs text-gray-600">
-                            Delivery progress
+                            {
+                              // _.round(po?.deliveryProgress,1) >= 100 &&
+                              <div>
+                                <Button
+                                  type="default"
+                                  // disabled={!documentFullySigned(po)}
+                                  size="small"
+                                  // loading={submitting}
+                                  icon={<DollarOutlined />}
+                                  onClick={() => {
+                                    setSubmitting(true);
+                                    router.push(
+                                      `/system/payment-requests/new/${po?._id}`
+                                    );
+                                  }}
+                                >
+                                  Payment
+                                </Button>
+                              </div>
+                            }
                           </div>
-                          <Progress
-                            percent={_.round(po?.deliveryProgress, 1)}
-                            size="small"
-                            status="active"
-                          />
-
-                          {_.round(po?.deliveryProgress,1) >= 100 && (
-                            <Button
-                              type="default"
-                              // disabled={!documentFullySigned(po)}
-                              size="small"
-                              loading={false}
-                              icon={<DollarOutlined />}
-                              onClick={() => router.push(`/system/payment-requests/new/${po?._id}`)}
-                            >
-                              Payment
-                            </Button>
-                          )}
                         </div>
                       </div>
                     );
                   })}
 
-                  <div class="absolute -bottom-0 right-10 opacity-10">
+                  {/* <div class="absolute -bottom-0 right-10 opacity-10">
                     <Image
                       src="/icons/blue icon.png"
                       width={110}
                       height={100}
                     />
-                  </div>
+                  </div> */}
                 </Col>
               </motion.div>
             </Row>

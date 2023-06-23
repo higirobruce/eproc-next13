@@ -5,6 +5,7 @@ import Image from "next/image";
 import Router from "next/router";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function PublicPortal() {
   let router = useRouter()
@@ -34,12 +35,11 @@ export default function PublicPortal() {
                 />
               </div>
               <div className="flex flex-row space-x-10 items-center">
-                <div className="hover:text-blue-500 hover:underline cursor-pointer">
-                  About Us
-                </div>
-                <div className="hover:text-blue-500 hover:underline cursor-pointer">
-                  Resources
-                </div>
+                <Link href='https://irembo.com/about/' target="_blank">About Us</Link>
+                <Link href='#howItWorks'>How it works</Link>
+                <Button type="link" onClick={() => router.push("/auth/signup")}>
+                  Register
+                </Button>
                 <Button type="primary" onClick={() => router.push("/auth")}>
                   SIGN IN
                 </Button>
@@ -78,10 +78,10 @@ export default function PublicPortal() {
                 </div>
               </div>
 
-              <div className="bg-white text-gray-700 flex flex-col items-center justify-center py-10 space-y-10">
+              <div id="howItWorks" className="bg-white text-gray-700 flex flex-col items-center justify-center py-10 space-y-10">
                 <div className="text-2xl">How it works for suppliers</div>
                 <div>
-                  <div className="grid grid-cols-2 gap-10">
+                  <div className="grid grid-cols-4 gap-10">
                     {card(
                       `Step 1`,
                       `Register to get access to available opportunities`
@@ -197,8 +197,8 @@ export default function PublicPortal() {
 
   function card(step, content) {
     return (
-      <div className="bg-gray-50 rounded shadow text-gray-700 h-[200px] w-[400px] flex items-center p-5 justify-center">
-        <div className="flex flex-col space-y-2">
+      <div className="bg-gray-50 rounded shadow text-gray-700 h-[200px] w-[300px] flex items-center p-5 justify-center">
+        <div className="flex flex-col space-y-2 justify-center items-center">
           <Typography.Text className="text-md font-semibold">
             {step}
           </Typography.Text>

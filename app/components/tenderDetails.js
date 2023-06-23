@@ -109,6 +109,7 @@ const TenderDetails = ({
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
+  let token = localStorage.getItem("token");
   const [messageApi, contextHolder] = message.useMessage();
   const [size, setSize] = useState("small");
   const [currentCode, setCurrentCode] = useState(-1);
@@ -136,8 +137,8 @@ const TenderDetails = ({
   let [openCreateContract, setOpenCreateContract] = useState(false);
   let [openViewContract, setOpenViewContract] = useState(false);
   let [selectionComitee, setSelectionComitee] = useState([]);
-  let [contractStartDate, setContractStartDate] = useState(moment());
-  let [contractEndDate, setContractEndDate] = useState(moment());
+  let [contractStartDate, setContractStartDate] = useState(null);
+  let [contractEndDate, setContractEndDate] = useState(null);
 
   let [vendor, setVendor] = useState("");
   let [tendor, setTendor] = useState("");
@@ -395,6 +396,7 @@ const TenderDetails = ({
       method: "POST",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -433,10 +435,13 @@ const TenderDetails = ({
       method: "PUT",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         newContract: _contract,
+        previousStatus: contract?.status,
+        signingIndex,
       }),
     })
       .then((res) => res.json())
@@ -460,6 +465,7 @@ const TenderDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -479,6 +485,7 @@ const TenderDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -511,6 +518,7 @@ const TenderDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -530,6 +538,7 @@ const TenderDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -546,6 +555,7 @@ const TenderDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -563,6 +573,7 @@ const TenderDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -622,8 +633,8 @@ const TenderDetails = ({
       bankName,
       bankAccountNumber,
       bankAccountName,
-      proposalDocId,
-      otherDocId,
+      proposalDocId: proposalSelected ? proposalDocId : null,
+      otherDocId: otherDocSelected ? otherDocId : null,
     };
     createSubmission(subData);
   }
@@ -633,6 +644,7 @@ const TenderDetails = ({
       method: "POST",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -651,6 +663,7 @@ const TenderDetails = ({
       method: "POST",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -818,10 +831,17 @@ const TenderDetails = ({
                         {
                           value: "RWF",
                           label: "RWF",
+                          key: "RWF",
                         },
                         {
                           value: "USD",
                           label: "USD",
+                          key: "USD",
+                        },
+                        {
+                          value: "EUR",
+                          label: "EUR",
+                          key: "EUR",
                         },
                       ]}
                     ></Select>
@@ -1411,6 +1431,12 @@ const TenderDetails = ({
               content:
                 "Contract can not be submitted. Please fill in the relevant signatories' details!",
             });
+          } else if (!contractStartDate || !contractEndDate) {
+            messageApi.open({
+              type: "error",
+              content:
+                "Contract can not be submitted. Please set start and end dates!",
+            });
           } else {
             handleCreateContract(
               vendor?._id,
@@ -1926,7 +1952,7 @@ const TenderDetails = ({
                       />
 
                       <div className="text-blue-500 flex flex-col">
-                        <div className="text-lg">Signed digitaly</div>
+                        <div className="text-lg">Signed digitally</div>
                         <div>{moment(s.signedAt).format("DD MMM YYYY")} at</div>
                         <div>
                           {moment(s.signedAt)
@@ -2322,7 +2348,7 @@ const TenderDetails = ({
                       />
 
                       <div className="text-blue-500 flex flex-col">
-                        <div className="text-lg">Signed digitaly</div>
+                        <div className="text-lg">Signed digitally</div>
                         <div>{moment(s.signedAt).format("DD MMM YYYY")} at</div>
                         <div>
                           {moment(s.signedAt)
@@ -2366,6 +2392,8 @@ const TenderDetails = ({
                       <div className="text-gray-400 text-lg">
                         {s.signed
                           ? "Signed"
+                          : contract?.status === "draft"
+                          ? "Waiting for Legal's review"
                           : `Waiting for ${yetToSign[0]?.names}'s signature`}
                       </div>
                     </div>
@@ -2394,6 +2422,7 @@ const TenderDetails = ({
       method: "PUT",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ newTender }),
@@ -2485,32 +2514,49 @@ const TenderDetails = ({
                 />
               )}
 
-              {user?.permissions?.canEditTenders && !extending && (
-                <Tooltip title="Extend submission deadline">
-                  <div
-                    onClick={extendSubmissionDadeline}
-                    className="px-2 rounded ring-1 ring-red-300 shadow-md flex items-center text-red-500 justify-center cursor-pointer active:shadow-sm active:text-red-300"
-                  >
-                    <CalendarDaysIcon className="h-4 w-4  " />
+              {user?.permissions?.canEditTenders &&
+                !extending &&
+                data?.status !== "bidSelected" &&
+                data?.status !== "bidAwarded" && (
+                  <div>
+                    <Tooltip title="Extend submission deadline">
+                      <div
+                        onClick={extendSubmissionDadeline}
+                        className="p-2 rounded ring-1 ring-red-300 shadow-md flex items-center text-red-500 justify-center cursor-pointer active:shadow-sm active:text-red-300"
+                      >
+                        <CalendarDaysIcon className="h-4 w-4  " />
+                      </div>
+                    </Tooltip>
                   </div>
-                </Tooltip>
-              )}
+                )}
 
               {user?.permissions?.canEditTenders && extending && (
-                <Popconfirm
-                  title="Are you sure?"
-                  onConfirm={() => {
-                    submitExtensionRequest();
-                    // setExtending(false);
-                  }}
-                >
-                  <div
-                    onClick={extendSubmissionDadeline}
-                    className="px-2 rounded ring-1 ring-red-300 shadow-md flex items-center text-red-500 justify-center cursor-pointer active:shadow-sm active:text-red-300"
-                  >
-                    <CheckIcon className="h-4 w-4  " />
+                <div className="flex flex-row space-x-1">
+                  <div>
+                    <Popconfirm
+                      title="Are you sure?"
+                      onConfirm={() => {
+                        submitExtensionRequest();
+                        // setExtending(false);
+                      }}
+                    >
+                      <div
+                        onClick={extendSubmissionDadeline}
+                        className="p-2 rounded ring-1 ring-green-300 shadow-md flex items-center text-green-500 justify-center cursor-pointer active:shadow-sm active:text-green-300"
+                      >
+                        <CheckIcon className="h-4 w-4  " />
+                      </div>
+                    </Popconfirm>
                   </div>
-                </Popconfirm>
+                  <div>
+                    <div
+                      onClick={() => setExtending(false)}
+                      className="p-2 rounded ring-1 ring-red-300 shadow-md flex items-center text-red-500 justify-center cursor-pointer active:shadow-sm active:text-red-300"
+                    >
+                      <CloseOutlined className="h-4 w-4  " />
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
 
@@ -2563,6 +2609,7 @@ const TenderDetails = ({
           method: "PUT",
           headers: {
             Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+            token: token,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
@@ -2608,6 +2655,7 @@ const TenderDetails = ({
           method: "PUT",
           headers: {
             Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+            token: token,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
@@ -2615,7 +2663,7 @@ const TenderDetails = ({
             pending: po?.status === "pending-signature" || !po?.status,
             paritallySigned: documentFullySignedInternally(po),
             signed: documentFullySigned(po),
-            signingIndex: index
+            signingIndex: index,
           }),
         })
           .then((res) => res.json())
@@ -2770,7 +2818,7 @@ const TenderDetails = ({
                                         handleSendEvalApproval(data, invitees);
                                       }}
                                     >
-                                      I agree the recomendations
+                                      I agree with the recomendations
                                     </Button>
                                     <Button
                                       size="small"
@@ -2825,51 +2873,52 @@ const TenderDetails = ({
                         </div>
                       </div>
                     )}
-                    {!data?.invitationSent && user.permissions.canApproveAsPM && (
-                      <div className="ml-3 flex">
-                        <div className="">
-                          <div>Invite Evaluators</div>
+                    {!data?.invitationSent &&
+                      user.permissions.canApproveAsPM && (
+                        <div className="ml-3 flex">
+                          <div className="">
+                            <div>Invite Evaluators</div>
 
-                          <div className="flex flex-row space-x-1">
-                            <Form
-                              onFinish={() => sendInvitation()}
-                              className="flex flex-row space-x-1"
-                            >
-                              <div>
-                                <Form.Item name="ivitees" required>
-                                  <Select
-                                    showSearch
-                                    showArrow
-                                    onChange={(value) =>
-                                      setSelectionComitee(value)
-                                    }
-                                    style={{ width: "400px" }}
-                                    mode="multiple"
-                                    options={users.map((user) => {
-                                      return {
-                                        label: user?.email,
-                                        value: user?.email,
-                                      };
-                                    })}
-                                  />
-                                </Form.Item>
-                              </div>
-                              <div>
-                                <Form.Item>
-                                  <Button
-                                    htmlType="submit"
-                                    disabled={selectionComitee?.length < 1}
-                                    icon={
-                                      <PaperAirplaneIcon className="h-5 w-5" />
-                                    }
-                                  />
-                                </Form.Item>
-                              </div>
-                            </Form>
+                            <div className="flex flex-row space-x-1">
+                              <Form
+                                onFinish={() => sendInvitation()}
+                                className="flex flex-row space-x-1"
+                              >
+                                <div>
+                                  <Form.Item name="ivitees" required>
+                                    <Select
+                                      showSearch
+                                      showArrow
+                                      onChange={(value) =>
+                                        setSelectionComitee(value)
+                                      }
+                                      style={{ width: "400px" }}
+                                      mode="multiple"
+                                      options={users.map((user) => {
+                                        return {
+                                          label: user?.email,
+                                          value: user?.email,
+                                        };
+                                      })}
+                                    />
+                                  </Form.Item>
+                                </div>
+                                <div>
+                                  <Form.Item>
+                                    <Button
+                                      htmlType="submit"
+                                      disabled={selectionComitee?.length < 1}
+                                      icon={
+                                        <PaperAirplaneIcon className="h-5 w-5" />
+                                      }
+                                    />
+                                  </Form.Item>
+                                </div>
+                              </Form>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
+                      )}
                     <Divider></Divider>
                     <div className="text-lg ml-3">Bids List</div>
                     <div>
@@ -2891,6 +2940,7 @@ const TenderDetails = ({
                         setPreviewAttachment={setPreviewAttachment}
                         // attachmentId={attachmentId}
                         setAttachmentId={setAttachmentId}
+                        tenderData={data}
                       />
                     </div>
                   </div>
@@ -2927,9 +2977,34 @@ const TenderDetails = ({
                                               <div className="text-xs text-gray-600">
                                                 {item?.createdBy?.companyName}
                                               </div>
-                                              <a href="#">
-                                                <FileTextOutlined />{" "}
-                                              </a>
+
+                                              <div className="flex flex-col">
+                                                <Link
+                                                  href={`${url}/file/bidDocs/${item?.proposalDocId}.pdf`}
+                                                  target="_blank"
+                                                >
+                                                  <Typography.Link className="flex flex-row items-center space-x-2">
+                                                    <div>Proposal</div>{" "}
+                                                    <div>
+                                                      <PaperClipIcon className="h-4 w-4" />
+                                                    </div>
+                                                  </Typography.Link>
+                                                </Link>
+
+                                                <Link
+                                                  href={`${url}/file/bidDocs/${item?.otherDocId}.pdf`}
+                                                  target="_blank"
+                                                >
+                                                  <Typography.Link className="flex flex-row items-center space-x-2">
+                                                    <div>
+                                                      Other supporting doc
+                                                    </div>{" "}
+                                                    <div>
+                                                      <PaperClipIcon className="h-4 w-4" />
+                                                    </div>
+                                                  </Typography.Link>
+                                                </Link>
+                                              </div>
                                             </div>
 
                                             <div className="">
@@ -2999,11 +3074,51 @@ const TenderDetails = ({
                                                   <Form.Item>
                                                     <Button
                                                       // size="small"
+                                                      disabled={
+                                                        !user?.permissions
+                                                          ?.canCreateContracts
+                                                      }
                                                       type="primary"
                                                       icon={
                                                         <FileDoneOutlined />
                                                       }
                                                       onClick={() => {
+                                                        let _signatories = [
+                                                          {
+                                                            onBehalfOf:
+                                                              "Irembo Ltd",
+                                                            title:
+                                                              "Procurement Manager",
+                                                            names: "",
+                                                            email: "",
+                                                          },
+                                                          {
+                                                            onBehalfOf:
+                                                              "Irembo Ltd",
+                                                            title:
+                                                              "Finance Manager",
+                                                            names: "",
+                                                            email: "",
+                                                          },
+
+                                                          {
+                                                            onBehalfOf:
+                                                              item?.createdBy
+                                                                ?.companyName,
+                                                            title:
+                                                              item?.createdBy
+                                                                ?.title,
+                                                            names:
+                                                              item?.createdBy
+                                                                ?.contactPersonNames,
+                                                            email:
+                                                              item?.createdBy
+                                                                ?.email,
+                                                          },
+                                                        ];
+                                                        setSignatories(
+                                                          _signatories
+                                                        );
                                                         setOpenCreateContract(
                                                           true
                                                         );
@@ -3156,9 +3271,9 @@ const TenderDetails = ({
                                 </div>
 
                                 <div className="self-center">
-                                <div className="text-xs text-gray-400">
-                                      Bank Info
-                                    </div>
+                                  <div className="text-xs text-gray-400">
+                                    Bank Info
+                                  </div>
                                   <div className="flex flex-col">
                                     {/* <div className="text-xs text-gray-400">
                                       Bank Name:
@@ -3234,7 +3349,7 @@ const TenderDetails = ({
                                       <a
                                         href={`${url}/file/bidDocs/${item?.proposalDocId}.pdf`}
                                         className="text-xs"
-                                        target='_blank'
+                                        target="_blank"
                                       >
                                         Proposal{" "}
                                         <PaperClipIcon className="h-3 w-3" />
@@ -3251,7 +3366,7 @@ const TenderDetails = ({
                                       <a
                                         href={`${url}/file/bidDocs/${item?.otherDocId}.pdf`}
                                         className="text-xs"
-                                        target='_blank'
+                                        target="_blank"
                                       >
                                         Other Doc{" "}
                                         <PaperClipIcon className="h-3 w-3" />

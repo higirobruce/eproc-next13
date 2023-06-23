@@ -80,6 +80,7 @@ let formats = [
 
 export default function Contracts() {
   let user = JSON.parse(localStorage.getItem("user"));
+  let token = localStorage.getItem("token");
   const [dataLoaded, setDataLoaded] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
@@ -207,6 +208,7 @@ export default function Contracts() {
       method: "POST",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -221,19 +223,18 @@ export default function Contracts() {
     })
       .then((res) => res.json())
       .then((res1) => {
-        alert(JSON.stringify(res1));
-        // if (res1.error) {
-        //   messageApi.open({
-        //     type: "error",
-        //     content: res1?.error?.message?.value
-        //       ? res1?.error?.message?.value
-        //       : res1?.message,
-        //   });
-        // } else {
-        //   getContracts();
-        //   setOpenCreatePO(false)
-        //   setCreatingPo(false)
-        // }
+        if (res1.error) {
+          messageApi.open({
+            type: "error",
+            content: res1?.error?.message?.value
+              ? res1?.error?.message?.value
+              : res1?.message,
+          });
+        } else {
+          getContracts();
+          setOpenCreatePO(false);
+          setCreatingPo(false);
+        }
       })
       .catch((err) => {
         console.error(err);
@@ -250,6 +251,7 @@ export default function Contracts() {
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -278,6 +280,7 @@ export default function Contracts() {
   }
 
   function createPOMOdal() {
+    console.log(items);
     return (
       <Modal
         title="New Purchase Order"
@@ -288,7 +291,6 @@ export default function Contracts() {
           setCreatingPo(true);
           let assetItems = [];
           let nonAssetItems = [];
-
           items
             .filter((i) => i.itemType === "asset")
             .map((i, index) => {
@@ -310,6 +312,7 @@ export default function Contracts() {
                 Quantity: i.quantity,
                 UnitPrice: i.estimatedUnitCost,
                 VatGroup: i.taxGroup ? i.taxGroup : "X1",
+                ItemDescription: i.title,
               });
             });
 
@@ -391,7 +394,7 @@ export default function Contracts() {
               signatories
             );
             setCreatingPo(false);
-            // setOpenCreatePO(false);
+            setOpenCreatePO(false);
           }
         }}
         okText="Save and Submit"
@@ -749,6 +752,7 @@ export default function Contracts() {
         method: "GET",
         headers: {
           Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+          token: token,
           "Content-Type": "application/json",
         },
       })
@@ -766,13 +770,17 @@ export default function Contracts() {
         method: "GET",
         headers: {
           Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+          token: token,
           "Content-Type": "application/json",
         },
       })
         .then((res) => res.json())
         .then((res) => {
-          setContracts(res);
-          setTempContracts(res);
+          let _contracts = user?.permissions?.canApproveAsLegal
+            ? res
+            : res?.filter((r) => r.status !== "draft");
+          setContracts(_contracts);
+          setTempContracts(_contracts);
           setDataLoaded(true);
         })
         .catch((err) => {
@@ -790,7 +798,7 @@ export default function Contracts() {
         onOk={() => {
           editContract &&
             contract?.status === "draft" &&
-            handleUpdateContract(sections, signatories, 'draft');
+            handleUpdateContract(sections, signatories, "draft");
           setOpenViewContract(false);
         }}
         okText={
@@ -826,7 +834,8 @@ export default function Contracts() {
               <Button icon={<PrinterOutlined />}>Print</Button>
             )} */}
             {contract?.status === "draft" &&
-              user?.permissions?.canEditContracts && (
+              (user?.permissions?.canEditContracts ||
+                user?.permissions?.canApproveAsLegal) && (
                 <Switch
                   checkedChildren={<EditOutlined />}
                   unCheckedChildren={<EyeOutlined />}
@@ -1119,7 +1128,7 @@ export default function Contracts() {
                       />
 
                       <div className="text-blue-500 flex flex-col">
-                        <div className="text-lg">Signed digitaly</div>
+                        <div className="text-lg">Signed digitally</div>
                         <div>{moment(s.signedAt).format("DD MMM YYYY")} at</div>
                         <div>
                           {moment(s.signedAt)
@@ -1163,6 +1172,8 @@ export default function Contracts() {
                       <div className="text-gray-400 text-lg">
                         {s.signed
                           ? "Signed"
+                          : contract?.status === "draft"
+                          ? "Waiting for Legal's review"
                           : `Waiting for ${yetToSign[0]?.names}'s signature`}
                       </div>
                     </div>
@@ -1182,17 +1193,18 @@ export default function Contracts() {
     _contract.signatories = signatories;
     _contract.status = "pending-signature";
 
-    console.log(previousStatus)
+    console.log(previousStatus);
 
     fetch(`${url}/contracts/${contract?._id}`, {
       method: "PUT",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         newContract: _contract,
-        previousStatus
+        previousStatus,
       }),
     })
       .then((res) => res.json())
@@ -1231,6 +1243,7 @@ export default function Contracts() {
           method: "PUT",
           headers: {
             Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+            token: token,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
@@ -1238,7 +1251,7 @@ export default function Contracts() {
             pending: contract?.status === "pending-signature",
             paritallySigned: documentFullySignedInternally(contract),
             signed: documentFullySigned(contract),
-            signingIndex: index
+            signingIndex: index,
           }),
         })
           .then((res) => res.json())
@@ -1304,6 +1317,7 @@ export default function Contracts() {
       }),
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -1448,7 +1462,12 @@ export default function Contracts() {
                     return (
                       <div
                         key={contract?.number}
-                        className="grid md:grid-cols-6 gap-3 ring-1 ring-gray-200 bg-white rounded px-5 py-3 shadow hover:shadow-md m-3"
+                        // className="grid md:grid-cols-6 gap-3 ring-1 ring-gray-200 bg-white rounded px-5 py-3 shadow hover:shadow-md m-3"
+                        className={`grid ${
+                          user?.userType !== "VENDOR"
+                            ? `lg:grid-cols-6`
+                            : `lg:grid-cols-5`
+                        } sm:grid-col-1 md:grid-cols-3 gap-1 ring-1 ring-gray-200 bg-white rounded px-5 py-3 shadow hover:shadow-md m-3`}
                       >
                         {/*  */}
                         <div className="flex flex-col space-y-1">
@@ -1562,7 +1581,7 @@ export default function Contracts() {
                               setOpenViewContract(true);
                             }}
                           >
-                            View Document
+                            View Doc
                           </Button>
                         </div>
 
@@ -1575,42 +1594,44 @@ export default function Contracts() {
                       >
                         Actions
                       </Dropdown.Button> */}
-                          <Button
-                            disabled={
-                              !documentFullySigned(contract) ||
-                              user?.userType == "VENDOR" ||
-                              moment(contract?.endDate).isBefore(moment())
-                            }
-                            onClick={() => {
-                              setContract(contract);
-                              let _signatories = [
-                                {
-                                  onBehalfOf: "Irembo Ltd",
-                                  title: "Procurement Manager",
-                                  names: "",
-                                  email: "",
-                                },
-                                {
-                                  onBehalfOf: "Irembo Ltd",
-                                  title: "Finance Manager",
-                                  names: "",
-                                  email: "",
-                                },
+                          {user?.userType !== "VENDOR" && (
+                            <Button
+                              disabled={
+                                !documentFullySigned(contract) ||
+                                user?.userType == "VENDOR" ||
+                                moment(contract?.endDate).isBefore(moment())
+                              }
+                              onClick={() => {
+                                setContract(contract);
+                                let _signatories = [
+                                  {
+                                    onBehalfOf: "Irembo Ltd",
+                                    title: "Procurement Manager",
+                                    names: "",
+                                    email: "",
+                                  },
+                                  {
+                                    onBehalfOf: "Irembo Ltd",
+                                    title: "Finance Manager",
+                                    names: "",
+                                    email: "",
+                                  },
 
-                                {
-                                  onBehalfOf: contract?.vendor?.companyName,
-                                  title: contract?.vendor?.title,
-                                  names: contract?.vendor?.contactPersonNames,
-                                  email: contract?.vendor?.email,
-                                },
-                              ];
+                                  {
+                                    onBehalfOf: contract?.vendor?.companyName,
+                                    title: contract?.vendor?.title,
+                                    names: contract?.vendor?.contactPersonNames,
+                                    email: contract?.vendor?.email,
+                                  },
+                                ];
 
-                              setSignatories(_signatories);
-                              setOpenCreatePO(true);
-                            }}
-                          >
-                            Creat PO
-                          </Button>
+                                setSignatories(_signatories);
+                                setOpenCreatePO(true);
+                              }}
+                            >
+                              Create PO
+                            </Button>
+                          )}
                         </div>
 
                         <div className="flex flex-col space-y-1 justify-center">

@@ -362,6 +362,7 @@ const RequestDetails = ({
   let [reason, setReason] = useState("");
   const [messageApi, contextHolder] = message.useMessage();
   let user = JSON.parse(localStorage.getItem("user"));
+  let token = localStorage.getItem("token");
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
@@ -391,8 +392,8 @@ const RequestDetails = ({
   const [attachmentId, setAttachmentId] = useState("TOR-id.pdf");
   const [docId, setDocId] = useState(v4());
   const [vendors, setVendors] = useState([]);
-  let [contractStartDate, setContractStartDate] = useState(moment());
-  let [contractEndDate, setContractEndDate] = useState(moment());
+  let [contractStartDate, setContractStartDate] = useState(null);
+  let [contractEndDate, setContractEndDate] = useState(null);
   let [reqAttachId, setReqAttachId] = useState(v4());
   const [creatingPO, setCreatingPO] = useState(false);
   const [comment, setComment] = useState("");
@@ -439,21 +440,26 @@ const RequestDetails = ({
       render: (_, item) => <>{(item?.quantity).toLocaleString()}</>,
     },
     {
-      title: "Unit Price (RWF)",
+      title: "Unit Price",
       dataIndex: "estimatedUnitCost",
       key: "estimatedUnitCost",
       editable: true,
       render: (_, item) => (
-        <>{(item?.estimatedUnitCost * 1).toLocaleString()}</>
+        <>
+          {item?.currency} {(item?.estimatedUnitCost * 1).toLocaleString()}{" "}
+        </>
       ),
     },
 
     {
-      title: "Total Amount (Rwf)",
+      title: "Total Amount",
       dataIndex: "totalAmount",
       key: "totalAmount",
       render: (_, item) => (
-        <>{(item?.quantity * item?.estimatedUnitCost).toLocaleString()}</>
+        <>
+          {item?.currency}{" "}
+          {(item?.quantity * item?.estimatedUnitCost).toLocaleString()}
+        </>
       ),
     },
 
@@ -500,6 +506,7 @@ const RequestDetails = ({
   ];
 
   let [servCategories, setServCategories] = useState([]);
+  let [budgetLines, setBudgetLines] = useState([]);
   useEffect(() => {
     refresh();
     let _openConfirmDeliv = [...openConfirmDeliv];
@@ -516,12 +523,32 @@ const RequestDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
       .then((res) => res.json())
       .then((res) => {
         setServCategories(res);
+      })
+      .catch((err) => {
+        messageApi.open({
+          type: "error",
+          content: "Connection Error!",
+        });
+      });
+
+    fetch(`${url}/budgetLines`, {
+      method: "GET",
+      headers: {
+        Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        setBudgetLines(res);
       })
       .catch((err) => {
         messageApi.open({
@@ -586,6 +613,7 @@ const RequestDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -636,6 +664,7 @@ const RequestDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -765,6 +794,7 @@ const RequestDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -780,6 +810,7 @@ const RequestDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -798,6 +829,7 @@ const RequestDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -816,6 +848,7 @@ const RequestDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -834,6 +867,7 @@ const RequestDetails = ({
       method: "GET",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -1602,7 +1636,7 @@ const RequestDetails = ({
                       disabled={
                         po?.status !== "started" ||
                         deliveredQties[index] > qty ||
-                        data?.createdBy?._id == user?._id || 
+                        data?.createdBy?._id !== user?._id ||
                         !user?.permissions.canApproveAsPM
                       }
                     >
@@ -2104,6 +2138,12 @@ const RequestDetails = ({
               content:
                 "Contract can not be submitted. Please fill in the relevant signatories' details!",
             });
+          } else if (!contractStartDate || !contractEndDate) {
+            messageApi.open({
+              type: "error",
+              content:
+                "Contract can not be submitted. Please set start and end dates!",
+            });
           } else {
             handleCreateContract(
               vendor?._id,
@@ -2468,6 +2508,7 @@ const RequestDetails = ({
       }),
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -2514,7 +2555,7 @@ const RequestDetails = ({
                                 />
                               }
                               onConfirm={() => {
-                                changeStatus(4);
+                                changeStatus(5);
                                 setOpenWithdraw(false);
                               }}
                               // okButtonProps={{
@@ -2697,6 +2738,7 @@ const RequestDetails = ({
                                 onChange={(value) => {
                                   let r = { ...data };
                                   r.budgeted = value;
+                                  if (value == "No") r.budgetLine = null;
                                   handleUpdateRequest(r);
                                 }}
                                 options={[
@@ -2713,9 +2755,75 @@ const RequestDetails = ({
                           <div className="text-xs ml-3 text-gray-400">
                             Budget Line:
                           </div>
-                          <div className="text-sm font-semibold ml-3 text-gray-600">
-                            {data?.budgetLine?.description}
-                          </div>
+                          {!edit && (
+                            <div className="text-sm font-semibold ml-3 text-gray-600">
+                              {data?.budgetLine?.description}
+                            </div>
+                          )}
+
+                          {edit && data.budgeted && (
+                            // <Select
+                            //   // mode="multiple"
+                            //   // allowClear
+                            //   className="ml-3"
+                            //   defaultValue={data?.budgetLine}
+                            //   style={{ width: "100%" }}
+                            //   placeholder="Please select"
+                            //   onChange={(value) => {
+                            //     let r = { ...data };
+                            //     r.budgetLine = value;
+                            //     handleUpdateRequest(r);
+                            //   }}
+                            // >
+                            //   {servCategories?.map((s) => {
+                            //     return (
+                            //       <Select.Option
+                            //         key={s._id}
+                            //         value={s.description}
+                            //       >
+                            //         {s.description}
+                            //       </Select.Option>
+                            //     );
+                            //   })}
+                            // </Select>
+
+                            <Select
+                              // defaultValue={budgetLine}
+                              className="ml-3"
+                              placeholder="Select service category"
+                              showSearch
+                              defaultValue={data?.budgetLine?._id}
+                              onChange={(value, option) => {
+                                let r = { ...data };
+                                r.budgetLine = value;
+                                handleUpdateRequest(r);
+                              }}
+                              // filterSort={(optionA, optionB) =>
+                              //   (optionA?.label ?? "")
+                              //     .toLowerCase()
+                              //     .localeCompare(
+                              //       (optionB?.label ?? "").toLowerCase()
+                              //     )
+                              // }
+                              filterOption={(inputValue, option) => {
+                                return option.label
+                                  .toLowerCase()
+                                  .includes(inputValue.toLowerCase());
+                              }}
+                              options={budgetLines.map((s) => {
+                                return {
+                                  label: s.description.toUpperCase(),
+                                  options: s.budgetlines.map((sub) => {
+                                    return {
+                                      label: sub.description,
+                                      value: sub._id,
+                                      title: sub.description,
+                                    };
+                                  }),
+                                };
+                              })}
+                            ></Select>
+                          )}
                         </div>
 
                         {/* Description */}
@@ -3009,7 +3117,7 @@ const RequestDetails = ({
         {createContractMOdal()}
       </div>
       <div className="flex flex-col rounded space-y-5 bg-white px-4 pt-2 shadow ">
-        <div className="text-lg">Workflow tracker </div>
+        <Typography.Title level={5}>Workflow tracker</Typography.Title>
         <Timeline
           // mode="alternate"
           items={[

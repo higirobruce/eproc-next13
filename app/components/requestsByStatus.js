@@ -30,12 +30,14 @@ export default function RequestsByStatus() {
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
   const [messageApi, contextHolder] = message.useMessage();
+  let token = localStorage.getItem('token')
 
   useEffect(() => {
     fetch(`${url}/requests/countsByStatus`, {
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })

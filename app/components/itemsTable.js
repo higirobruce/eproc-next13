@@ -1,11 +1,12 @@
-'use client'
-import { Button, Form, Input, Popconfirm, Table } from "antd";
+"use client";
+import { QuestionCircleOutlined } from "@ant-design/icons";
+import { Button, Form, Input, Popconfirm, Select, Table, Tooltip } from "antd";
 import React, { useContext, useEffect, useRef, useState } from "react";
-import {v4} from 'uuid'
+import { v4 } from "uuid";
 import UploadTORs from "./uploadTORs";
 
 const EditableContext = React.createContext(null);
-const EditableRow = ({ index,rowForm, ...props }) => {
+const EditableRow = ({ index, rowForm, ...props }) => {
   const [form] = Form.useForm();
   return (
     <Form form={form} component={false}>
@@ -52,7 +53,7 @@ const EditableCell = ({
     }
   };
   let childNode = children;
-  
+
   if (editable) {
     childNode = editing ? (
       <Form.Item
@@ -67,7 +68,12 @@ const EditableCell = ({
           },
         ]}
       >
-        <Input ref={inputRef} onPressEnter={save} placeholder={dataIndex==='title'?'enter title':'eg. 1000000'} onBlur={save} />
+        <Input
+          ref={inputRef}
+          onPressEnter={save}
+          placeholder={dataIndex === "title" ? "enter title" : "eg. 1000000"}
+          onBlur={save}
+        />
       </Form.Item>
     ) : (
       <div
@@ -84,12 +90,19 @@ const EditableCell = ({
   return <td {...restProps}>{childNode}</td>;
 };
 
-const ItemsTable = ({ setDataSource, dataSource, setFileList, fileList, files, setFiles }) => {
+const ItemsTable = ({
+  setDataSource,
+  dataSource,
+  setFileList,
+  fileList,
+  files,
+  setFiles,
+}) => {
   const [count, setCount] = useState(1);
   const [rowForm] = Form.useForm();
   const handleDelete = (key) => {
     const newData = dataSource.filter((item) => item.key !== key && item.key);
-    setCount(count-1)
+    setCount(count - 1);
     setDataSource(newData);
   };
   const defaultColumns = [
@@ -106,15 +119,66 @@ const ItemsTable = ({ setDataSource, dataSource, setFileList, fileList, files, s
       editable: true,
     },
     {
-      title: "Estimated Unit cost (RWF)",
+      title: "Estimated Unit cost",
       dataIndex: "estimatedUnitCost",
-      width: "20%",
+      width: "15%",
       editable: true,
     },
     {
-      title: <div>Supporting Docs <i className="text-xs font-thin">(e.g specs, ToR,... expected in PDF format)</i></div>,
+      title: "Currency",
+      dataIndex: "currency",
+      width: "10%",
+      render: (_, record) => {
+        return (
+          <Select
+            defaultValue="RWF"
+            onChange={(value) => (record.currency = value)}
+            options={[
+              {
+                value: "RWF",
+                label: "RWF",
+                key: "RWF",
+              },
+              {
+                value: "USD",
+                label: "USD",
+                key: "USD",
+              },
+              {
+                value: "EUR",
+                label: "EUR",
+                key: "EUR",
+              },
+            ]}
+          />
+        );
+      },
+    },
+    {
+      title: (
+        <div className="flex flex-row space-x-1 items-center">
+          <div>Supporting Docs</div>
+          <Tooltip
+            title="(e.g specs, ToR,... expected in PDF format)"
+            placement="top"
+            arrow={false}
+          >
+            <QuestionCircleOutlined />
+          </Tooltip>
+        </div>
+      ),
       dataIndex: "attachements",
-      render: (_, record) => (dataSource.length >= 1 ? <UploadTORs uuid={record?.key-1} setFileList={setFileList} fileList={fileList} files={files} setFiles={setFiles} /> : null),
+      width: "20%",
+      render: (_, record) =>
+        dataSource.length >= 1 ? (
+          <UploadTORs
+            uuid={record?.key - 1}
+            setFileList={setFileList}
+            fileList={fileList}
+            files={files}
+            setFiles={setFiles}
+          />
+        ) : null,
     },
     {
       title: "Action",
@@ -134,15 +198,16 @@ const ItemsTable = ({ setDataSource, dataSource, setFileList, fileList, files, s
     const newData = {
       key: count,
       title: ``,
-      quantity: '',
-      estimatedUnitCost: '',
-      id: v4()
+      quantity: "",
+      estimatedUnitCost: "",
+      currency: "RWF",
+      id: v4(),
     };
-    
+
     setDataSource([...dataSource, newData]);
     setCount(count + 1);
   };
-  
+
   const handleSave = (row) => {
     const newData = [...dataSource];
     const index = newData.findIndex((item) => row.key === item.key);
@@ -175,7 +240,7 @@ const ItemsTable = ({ setDataSource, dataSource, setFileList, fileList, files, s
       }),
     };
   });
-  
+
   return (
     <div>
       <Button

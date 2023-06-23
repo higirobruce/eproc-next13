@@ -19,9 +19,9 @@ export default function LoginText() {
         looking to work with Irembo.
       </div>
 
-      <div onClick={()=>router.push('/')} className="bg-white text-blue-500 px-5 py-2 mt-10 rounded hover:bg-blue-500 hover:text-white hover:ring-1 hover:ring-white transition-all ease-out duration-300 cursor-pointer">
+      {/* <div onClick={()=>router.push('/')} className="bg-white text-blue-500 px-5 py-2 mt-10 rounded hover:bg-blue-500 hover:text-white hover:ring-1 hover:ring-white transition-all ease-out duration-300 cursor-pointer">
         More
-      </div>
+      </div> */}
       {/* <Image alt="" src="/icons/white icon.png" width={236} height={220} /> */}
       <div className="">
         <div className="self-center flex flex-col"></div>

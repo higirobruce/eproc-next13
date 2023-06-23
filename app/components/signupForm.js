@@ -1490,6 +1490,7 @@ const SignupForm = () => {
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
+  let [token, setToken] = useState(null)
   let router = useRouter()
 
   const [messageApi, contextHolder] = message.useMessage();
@@ -1504,6 +1505,9 @@ const SignupForm = () => {
   const [vatCertId, setVatCertId] = useState(null);
   const [rdbSelected, setRDBSelected] = useState(false);
   const [vatSelected, setVatSelected] = useState(false);
+  const [password, setPassword] = useState('')
+  const regexPatternSpecialCh = '[!@#$%^&*()\\-_=+[\\]{};:\'"\\\\|,.<>/?]';
+  
 
   const onFinish = (values) => {
     setSubmitting(true);
@@ -1512,6 +1516,7 @@ const SignupForm = () => {
       method: "POST",
       headers: {
         Authorization: "Basic " + base64_encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -1546,6 +1551,7 @@ const SignupForm = () => {
             type: "success",
             content: "Successfully registered!",
           });
+          router.push('/auth')
         } else {
           messageApi.open({
             type: "error",
@@ -1566,6 +1572,8 @@ const SignupForm = () => {
   const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
   useEffect(() => {
+
+    setToken(localStorage.getItem('token'))
     setRdbCertId(v4());
     setVatCertId(v4());
     setLoaded(true);
@@ -1573,6 +1581,7 @@ const SignupForm = () => {
       method: "GET",
       headers: {
         Authorization: "Basic " + base64_encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -1591,6 +1600,7 @@ const SignupForm = () => {
       method: "GET",
       headers: {
         Authorization: "Basic " + base64_encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -1868,11 +1878,28 @@ const SignupForm = () => {
                               {
                                 required: true,
                                 message: "Input required",
+                                
                               },
+                              {
+                                pattern: new RegExp("([0-9]\\d*)+"),
+                                message: 'Please input at least one digit'
+                              },
+                              {
+                                pattern: new RegExp("([a-zA-Z]\\s*)+"),
+                                message: 'Password should have both small and capital letters'
+                              },
+                              {
+                                pattern: new RegExp(regexPatternSpecialCh, 'g'),
+                                message: 'Password should have a special character'
+                              },
+                              {
+                                pattern: new RegExp("(.{8,})"),
+                                message: 'Password should have atleast 8 characters'
+                              }
                             ]}
                             hasFeedback
                           >
-                            <Input.Password />
+                            <Input.Password onChange={(v)=>setPassword(v)}/>
                           </Form.Item>
                         </div>
                         <div>
