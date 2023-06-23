@@ -382,13 +382,20 @@ export default function PaymentRequest({ params }) {
 
   function updateRequest(docIds) {
     paymentRequest.docIds = docIds;
-    paymentRequest.status = paymentRequest.status?.includes("approve")
-      ? "pending-review"
-      : paymentRequest.status;
-    paymentRequest.hod_approvalDate = null;
-    paymentRequest.hof_approvalDate = null;
-    paymentRequest.rejectionDate = null;
-    paymentRequest.reasonForRejection = null;
+    if (paymentRequest.status == "declined") {
+      paymentRequest.hod_approvalDate = null;
+      paymentRequest.hof_approvalDate = null;
+      paymentRequest.rejectionDate = null;
+      paymentRequest.reasonForRejection = null;
+      paymentRequest.approver = null;
+      paymentRequest.reviewedAt = null;
+      paymentRequest.reviewedBy = null;
+    }
+    paymentRequest.status =
+      paymentRequest.status == "declined"
+        ? "pending-review"
+        : paymentRequest.status;
+
     fetch(`${url}/paymentRequests/${paymentRequest?._id}`, {
       method: "PUT",
       body: JSON.stringify({
@@ -533,7 +540,7 @@ export default function PaymentRequest({ params }) {
         </div>
         {((paymentRequest?.createdBy?._id === user?._id &&
           (paymentRequest?.status == "pending-review" ||
-            paymentRequest?.status == "rejected")) ||
+            paymentRequest?.status == "declined")) ||
           ((paymentRequest?.approver?._id === user?._id ||
             user?.permissions?.canApproveAsHof) &&
             (paymentRequest?.status.includes("pending-review") ||

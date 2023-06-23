@@ -201,7 +201,7 @@ const PaymentRequestsTable = ({
     },
 
     {
-      title: "PO Number",
+      title: "PO Reference",
       // dataIndex: "number",
       sorter: (a, b) => a?.purchaseOrder?.number - b?.purchaseOrder?.number,
       render: (_, record) => (
@@ -216,14 +216,14 @@ const PaymentRequestsTable = ({
               );
             }}
           >
-            {record?.purchaseOrder && (
+            {record?.purchaseOrder ? (
               <div className="font-semibold cursor-pointer space-x-1 flex flex-row items-center text-blue-500 hover:underline">
                 <div>
                   <FileTextOutlined className="text-xs" />
                 </div>
                 <div>{record?.purchaseOrder?.number}</div>
               </div>
-            )}
+            ): <div className="text-xs self-end">N/A</div>}
           </div>
         </>
       ),
