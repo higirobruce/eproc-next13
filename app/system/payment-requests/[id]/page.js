@@ -594,7 +594,7 @@ export default function PaymentRequest({ params }) {
                     >
                       <Input
                         // size="small"
-                        
+
                         className="text-xs"
                         // placeholder={paymentRequest?.title}
                         // defaultValue={paymentRequest?.title}
@@ -871,8 +871,12 @@ export default function PaymentRequest({ params }) {
                     type="primary"
                     onClick={async () => {
                       await form.validateFields();
-                      setEditRequest(false);
-                      handleUpload("update");
+                      if (files.length < 1) {
+                        messageApi.error("Please attach atleast one file!");
+                      } else {
+                        setEditRequest(false);
+                        handleUpload("update");
+                      }
                     }}
                   >
                     Update
