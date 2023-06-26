@@ -299,6 +299,10 @@ export default function page() {
                       canCreateRequests={user?.permissions?.canCreateRequests}
                       canEditRequests={user?.permissions?.canEditRequests}
                       canViewRequests={user?.permissions?.canViewRequests}
+                      canApprovePaymentRequests={user?.permissions?.canApprovePaymentRequests}
+                      canCreatePaymentRequests={user?.permissions?.canCreatePaymentRequests}
+                      canEditPaymentRequests={user?.permissions?.canEditPaymentRequests}
+                      canViewPaymentRequests={user?.permissions?.canViewPaymentRequests}
                       canApproveTenders={user?.permissions?.canApproveTenders}
                       canCreateTenders={user?.permissions?.canCreateTenders}
                       canEditTenders={user?.permissions?.canEditTenders}
