@@ -2138,6 +2138,16 @@ const RequestDetails = ({
               content:
                 "Contract can not be submitted. Please fill in the relevant signatories' details!",
             });
+          } else if (
+            signatories?.filter((s) => {
+              return !s?.onBehalfOf.includes("Irembo")
+            })?.length < 1
+          ) {
+            messageApi.open({
+              type: "error",
+              content:
+                "Contract can not be submitted. Please supply the Vendor's information!",
+            });
           } else if (!contractStartDate || !contractEndDate) {
             messageApi.open({
               type: "error",
@@ -2431,29 +2441,48 @@ const RequestDetails = ({
                 </div>
               );
             })}
-            <div
-              onClick={() => {
-                let signs = [...signatories];
-                let newSignatory =
-                  signs?.length < 2
-                    ? { onBehalfOf: "Irembo Ltd" }
-                    : {
-                        onBehalfOf: vendor?.companyName,
-                        title: vendor?.title,
-                        names: vendor?.contactPersonNames,
-                        email: vendor?.email,
-                      };
-                signs.push(newSignatory);
-                setSignatories(signs);
-              }}
-              className="flex flex-col ring-1 ring-gray-300 rounded pt-5 space-y-3 items-center justify-center cursor-pointer hover:bg-gray-50"
-            >
+            <div className="flex flex-col ring-1 ring-gray-300 rounded py-5 space-y-3 items-center justify-center  hover:bg-gray-50">
               <Image
                 src="/icons/icons8-signature-80.png"
                 width={40}
                 height={40}
               />
-              <div>Add new Signatory</div>
+              <div
+                className="cursor-pointer underline hover:text-blue-600"
+                onClick={() => {
+                  let signs = [...signatories];
+                  let newSignatory = { onBehalfOf: "Irembo Ltd" };
+                  // signs?.length < 2
+                  //   ?
+                  //   : {
+                  //       onBehalfOf: vendor?.companyName,
+                  //       title: vendor?.title,
+                  //       names: vendor?.contactPersonNames,
+                  //       email: vendor?.email,
+                  //     };
+                  signs.push(newSignatory);
+                  setSignatories(signs);
+                }}
+              >
+                Add intenal Signatory
+              </div>
+              <div
+                className="cursor-pointer underline"
+                onClick={() => {
+                  let signs = [...signatories];
+                  let newSignatory = {
+                    onBehalfOf: vendor?.companyName,
+                    title: vendor?.title,
+                    names: vendor?.contactPersonNames,
+                    email: vendor?.email,
+                  };
+
+                  signs.push(newSignatory);
+                  setSignatories(signs);
+                }}
+              >
+                Add external Signatory
+              </div>
             </div>
           </div>
         </div>

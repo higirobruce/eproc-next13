@@ -346,7 +346,7 @@ export default function page({ params }) {
           )} */}
         </div>
         {/* Signatories */}
-        <div className="grid grid-cols-2 gap-5">
+        <div className="grid grid-cols-2 gap-5" id="page2el">
           {contract?.signatories?.map((s, index) => {
             let yetToSign = contract?.signatories?.filter((notS) => {
               return !notS.signed;
@@ -521,9 +521,11 @@ export default function page({ params }) {
                       height={20}
                       src="/icons/icons8-signature-80-2.png"
                     /> */}
-                    <div className="text-gray-400 text-sm">
+                    <div className="text-gray-400 text-lg">
                       {s.signed
                         ? "Signed"
+                        : contract?.status === "draft"
+                        ? "Waiting for Legal's review"
                         : `Waiting for ${yetToSign[0]?.names}'s signature`}
                     </div>
                   </div>
@@ -539,7 +541,9 @@ export default function page({ params }) {
   const generatePDF = () => {
     // const element = document.getElementById("pdf-content");
     const printElement = ReactDOMServer.renderToString(content());
-    html2pdf().from(printElement).save();
+    html2pdf().set({
+      pagebreak: { mode: 'avoid-all', before: '#page2el' }
+    }).from(printElement).save();
   };
 
   return (
