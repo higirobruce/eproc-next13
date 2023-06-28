@@ -54,7 +54,7 @@ import {
 import moment from "moment";
 import dayjs from "dayjs";
 import Image from "next/image";
-import ItemsTable from "./itemsTableB1";
+import ItemsTable from "./itemsTable";
 import dynamic from "next/dynamic";
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 import "react-quill/dist/quill.snow.css";
@@ -384,6 +384,7 @@ const RequestDetails = ({
   let [totalTax, setTotTax] = useState(0);
   let [grossTotal, setGrossTotal] = useState(0);
   let [startingDelivery, setStartingDelivery] = useState(false);
+  const [values, setValues] = useState([]);
 
   const [signatories, setSignatories] = useState([]);
   const [docDate, setDocDate] = useState(moment());
@@ -408,6 +409,8 @@ const RequestDetails = ({
   const [deliveredQties, setDeliveredQties] = useState([]);
   const [tenderDocSelected, setTendeDocSelected] = useState(false);
   const [attachSelected, setAttachSelected] = useState(false);
+  let [fileList, setFileList] = useState([]);
+  let [files, setFiles] = useState([]);
 
   const showPopconfirm = () => {
     setOpen(true);
@@ -555,6 +558,35 @@ const RequestDetails = ({
           type: "error",
           content: "Connection Error!",
         });
+      });
+
+      setValues(data?.items)
+
+      let _files = [...files];
+
+      let itemsList = data?.items;
+
+
+
+      console.log('tiemmmms', itemsList['id'])
+
+      itemsList?.paths?.map((doc, i) => {
+
+        console.log('tiemmmms', doc)
+        let uid = `rc-upload-${moment().milliseconds()}-${i}`;
+        let _url = `${url}/file/termsOfReference/${doc}`;
+        let status = "done";
+        let name = `supporting doc${i + 1}.pdf`;
+
+        _files.push({
+          uid,
+          url: _url,
+          status,
+          name,
+        });
+
+        
+        setFiles(_files);
       });
   }, [data]);
 
@@ -2140,7 +2172,7 @@ const RequestDetails = ({
             });
           } else if (
             signatories?.filter((s) => {
-              return !s?.onBehalfOf.includes("Irembo")
+              return !s?.onBehalfOf.includes("Irembo");
             })?.length < 1
           ) {
             messageApi.open({
@@ -2552,6 +2584,15 @@ const RequestDetails = ({
       });
   }
 
+  function _setFileList(list) {
+    console.log(list);
+    setFileList(list);
+  }
+
+  function _setFiles(newFileList) {
+    setFiles(newFileList);
+  }
+
   return (
     <div className="grid md:grid-cols-5 gap-1">
       {contextHolder}
@@ -2889,14 +2930,32 @@ const RequestDetails = ({
 
                     {/* Items table */}
                     <div className="p-5">
-                      <Table
-                        size="small"
-                        dataSource={data?.items}
-                        columns={columns}
-                        rowClassName={() => "editable-row"}
-                        bordered
-                        pagination={false}
-                      />
+                      {!edit && (
+                        <Table
+                          size="small"
+                          dataSource={data?.items}
+                          columns={columns}
+                          rowClassName={() => "editable-row"}
+                          bordered
+                          pagination={false}
+                        />
+                      )}
+
+                      {edit && (
+                        <ItemsTable
+                          setDataSource={(v)=>{
+                            setValues(v)
+                            let r={...data}
+                            r.items = v
+                            handleUpdateRequest(r)
+                          }}
+                          dataSource={values}
+                          fileList={fileList}
+                          setFileList={_setFileList}
+                          files={files}
+                          setFiles={_setFiles}
+                        />
+                      )}
                     </div>
 
                     {

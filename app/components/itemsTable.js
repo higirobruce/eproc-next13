@@ -4,6 +4,9 @@ import { Button, Form, Input, Popconfirm, Select, Table, Tooltip } from "antd";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { v4 } from "uuid";
 import UploadTORs from "./uploadTORs";
+let url = process.env.NEXT_PUBLIC_BKEND_URL;
+let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
+let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
 const EditableContext = React.createContext(null);
 const EditableRow = ({ index, rowForm, ...props }) => {
@@ -26,7 +29,7 @@ const EditableCell = ({
   handleSave,
   ...restProps
 }) => {
-  const [editing, setEditing] = useState(true);
+  const [editing, setEditing] = useState(false);
   const inputRef = useRef(null);
   const form = useContext(EditableContext);
   useEffect(() => {
@@ -73,6 +76,7 @@ const EditableCell = ({
           onPressEnter={save}
           placeholder={dataIndex === "title" ? "enter title" : "eg. 1000000"}
           onBlur={save}
+          
         />
       </Form.Item>
     ) : (
@@ -100,6 +104,13 @@ const ItemsTable = ({
 }) => {
   const [count, setCount] = useState(1);
   const [rowForm] = Form.useForm();
+
+  
+  useEffect(()=>{
+    setCount(dataSource?.length +1)
+    console.log(dataSource)
+    console.log(files)
+  },[dataSource])
   const handleDelete = (key) => {
     const newData = dataSource.filter((item) => item.key !== key && item.key);
     setCount(count - 1);
@@ -131,7 +142,7 @@ const ItemsTable = ({
       render: (_, record) => {
         return (
           <Select
-            defaultValue="RWF"
+            defaultValue={record.currency}
             onChange={(value) => (record.currency = value)}
             options={[
               {

@@ -123,7 +123,7 @@ function UploadTORs({ label, uuid, fileList, setFileList, files, setFiles }) {
   return (
     <>
       {contextHolder}
-      <Upload {...props}>
+      <Upload {...props} defaultFileList={[...files]}>
         <Button>{label ? label : "Select file"}</Button>
       </Upload>
 
