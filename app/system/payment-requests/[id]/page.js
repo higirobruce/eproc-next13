@@ -381,7 +381,14 @@ export default function PaymentRequest({ params }) {
   }
 
   function updateRequest(docIds) {
-    paymentRequest.docIds = docIds;
+    // docIds[0] = null;
+    if (
+      !docIds.includes(null) &&
+      !docIds.includes(undefined) &&
+      !docIds.includes("")
+    ) {
+      paymentRequest.docIds = docIds;
+    } 
     if (paymentRequest.status == "declined") {
       paymentRequest.hod_approvalDate = null;
       paymentRequest.hof_approvalDate = null;
