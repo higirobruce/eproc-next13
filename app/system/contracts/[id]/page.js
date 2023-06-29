@@ -555,7 +555,7 @@ export default function page({ params }) {
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: { scale: 2, letterRendering: true },
         jsPDF: { unit: "mm", format: "A4", orientation: "portrait" },
-        // pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+        pagebreak: { mode: ["avoid-all", "css", "legacy"] },
       })
       .from(printElement)
       .save();
