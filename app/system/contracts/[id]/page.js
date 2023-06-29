@@ -169,7 +169,7 @@ export default function page({ params }) {
 
   const content = () => {
     return (
-      <div className="space-y-10 p-3 overflow-x-scroll bg-white mx-11 my-10 shadow-md">
+      <div className="space-y-5 p-3 overflow-x-scroll bg-white mx-11 my-10 shadow-md">
         {/* Header */}
         <div className="flex flex-row justify-between items-center">
           <Typography.Title level={4} className="flex flex-row items-center">
@@ -183,7 +183,7 @@ export default function page({ params }) {
                   )} - ${moment(contract?.endDate).format("YYYY-MMM-DD")}`}
                 >
                   <div className="text-xs font-thin text-gray-500">
-                    Expires in {moment(contract?.endDate).fromNow()}
+                    Expires {moment(contract?.endDate).fromNow()}
                   </div>
                 </Popover>
               </div>
@@ -266,7 +266,7 @@ export default function page({ params }) {
           </div>
         </div>
         {/* Details */}
-        <div className="flex flex-col space-y-5">
+        <div className="flex flex-col space-y-5 text-sm">
           <Typography.Title level={3}>Details</Typography.Title>
           <div>
             {contract?.sections?.map((s, index) => {
@@ -541,9 +541,18 @@ export default function page({ params }) {
   const generatePDF = () => {
     // const element = document.getElementById("pdf-content");
     const printElement = ReactDOMServer.renderToString(content());
-    html2pdf().set({
-      pagebreak: { mode: 'avoid-all', before: '#page2el' }
-    }).from(printElement).save();
+    html2pdf()
+      .set({
+        // pagebreak: { mode: "avoid-all", before: "#page2el" },
+        margin: [15, 15],
+        filename: "Contract.pdf",
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, letterRendering: true },
+        jsPDF: { unit: "pt", format: "letter", orientation: "portrait" },
+        pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+      })
+      .from(printElement)
+      .save();
   };
 
   return (
@@ -568,7 +577,7 @@ export default function page({ params }) {
                   )} - ${moment(contract?.endDate).format("YYYY-MMM-DD")}`}
                 >
                   <div className="text-xs font-thin text-gray-500">
-                    Expires in {moment(contract?.endDate).fromNow()}
+                    Expires {moment(contract?.endDate).fromNow()}
                   </div>
                 </Popover>
               </div>

@@ -1469,8 +1469,11 @@ export default function Contracts() {
                         {/*  */}
                         <div className="flex flex-col space-y-1">
                           <div className="text-xs text-gray-600">Contract</div>
-                          <div className="font-semibold">
-                            {contract?.number}
+                          <div className="font-semibold flex flex-row items-center space-x-2">
+                            <div>{contract?.number}</div>{" "}
+                            <Link href={`/system/contracts/${contract?._id}`}>
+                              <PrinterOutlined className="text-blue-400 cursor-pointer" />
+                            </Link>
                           </div>
                           {(contract?.tender?.purchaseRequest?._id ||
                             contract?.request?._id) &&
