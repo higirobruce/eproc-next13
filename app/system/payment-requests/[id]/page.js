@@ -62,7 +62,7 @@ async function getPaymentRequestDetails(id) {
 
   if (!res.ok) {
     // This will activate the closest `error.js` Error Boundary
-    console.log(id);
+
     return null;
     // throw new Error("Failed to fetch data");
   }
@@ -180,7 +180,6 @@ export default function PaymentRequest({ params }) {
     getApprovers()
       .then((res) => {
         let approversList = res?.filter((a) => a?._id !== user?._id);
-        console.log(res);
         setLevel1Approvers(res);
         let hod = approversList?.filter(
           (a) => a?.department?._id === user?.department
@@ -213,7 +212,6 @@ export default function PaymentRequest({ params }) {
   }, [params]);
 
   useEffect(() => {
-    console.log(files);
   }, [files]);
 
   function getPoTotalVal() {

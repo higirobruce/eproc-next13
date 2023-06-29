@@ -280,7 +280,6 @@ export default function Contracts() {
   }
 
   function createPOMOdal() {
-    console.log(items);
     return (
       <Modal
         title="New Purchase Order"
@@ -815,7 +814,7 @@ export default function Contracts() {
           <div className="flex flex-row justify-between items-center">
             <Typography.Title level={4} className="flex flex-row items-center">
               <div>
-                CONTRACTOR: {contract?.vendor?.companyName}{" "}
+                CONTRACTOR #{contract?.number}{" "}
                 <div>
                   <Popover
                     placement="topLeft"
@@ -1193,8 +1192,6 @@ export default function Contracts() {
     _contract.signatories = signatories;
     _contract.status = "pending-signature";
 
-    console.log(previousStatus);
-
     fetch(`${url}/contracts/${contract?._id}`, {
       method: "PUT",
       headers: {
@@ -1472,8 +1469,11 @@ export default function Contracts() {
                         {/*  */}
                         <div className="flex flex-col space-y-1">
                           <div className="text-xs text-gray-600">Contract</div>
-                          <div className="font-semibold">
-                            {contract?.number}
+                          <div className="font-semibold flex flex-row items-center space-x-2">
+                            <div>{contract?.number}</div>{" "}
+                            <Link href={`/system/contracts/${contract?._id}`}>
+                              <PrinterOutlined className="text-blue-400 cursor-pointer" />
+                            </Link>
                           </div>
                           {(contract?.tender?.purchaseRequest?._id ||
                             contract?.request?._id) &&

@@ -82,7 +82,7 @@ export default function page({ params }) {
   useEffect(() => {
     getUserDetails(params?.id).then((res) => {
       setRow(res);
-      console.log(res);
+      
     });
 
     fetch(`${url}/dpts`, {
@@ -97,7 +97,7 @@ export default function page({ params }) {
       .then((res) => res.json())
       .then((res) => {
         setDpts(res);
-        console.log(res);
+        
       })
       .catch((err) => {
         messageApi.open({

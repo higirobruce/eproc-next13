@@ -200,7 +200,6 @@ export default function Users() {
 
   useEffect(() => {
     setUpdatingId("");
-    console.log(dataset);
   }, [dataset]);
 
   useEffect(() => {
@@ -275,7 +274,7 @@ export default function Users() {
         let elindex = _data[index];
         elindex.status = "approved";
 
-        console.log(_data[index]);
+        
         // Replace item at index using native splice
         _data.splice(index, 1, elindex);
 
@@ -309,7 +308,7 @@ export default function Users() {
         let elindex = _data[index];
         elindex.status = "rejected";
 
-        console.log(_data[index]);
+        
         // Replace item at index using native splice
         _data.splice(index, 1, elindex);
 

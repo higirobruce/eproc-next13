@@ -200,7 +200,7 @@ export default function PurchaseOrders() {
         <div className="space-y-10 px-20 py-5 overflow-x-scroll">
           <div className="flex flex-row justify-between items-center">
             <Typography.Title level={4} className="flex flex-row items-center">
-              PURCHASE ORDER: {po?.vendor?.companyName}{" "}
+              PURCHASE ORDER #{po?.number}{" "}
             </Typography.Title>
             {/* <Button icon={<PrinterOutlined />}>Print</Button> */}
           </div>
@@ -702,7 +702,12 @@ export default function PurchaseOrders() {
                           <div className="text-xs text-gray-600">
                             Purchase Order
                           </div>
-                          <div className="font-semibold">{po?.number}</div>
+                          <div className="font-semibold flex flex-row space-x-2">
+                            <div>{po?.number}</div>
+                            <Link href={`/system/purchase-orders/${po?._id}`}>
+                              <PrinterOutlined />
+                            </Link>
+                          </div>
                           <div className="text-gray-600">
                             {po?.tender?.purchaseRequest?.description ||
                               po?.request?.description}

@@ -1,9 +1,18 @@
-'use client'
+"use client";
 import React, { useState } from "react";
 import { UploadOutlined } from "@ant-design/icons";
 import { Button, Upload, message } from "antd";
 
-function UploadTORs({ label, uuid, fileList, setFileList, files, setFiles }) {
+function UploadTORs({
+  label,
+  uuid,
+  fileList,
+  setFileList,
+  files,
+  setFiles,
+  itemFiles,
+  disabled
+}) {
   const [messageApi, contextHolder] = message.useMessage();
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
@@ -53,16 +62,16 @@ function UploadTORs({ label, uuid, fileList, setFileList, files, setFiles }) {
 
   const props = {
     onRemove: (file) => {
-      const index = files[uuid]?.indexOf(file?.originFileObj);
-      console.log(files[uuid], file)
-      console.log(index)
-      const newFileList = files[uuid]?.slice();
+      const index = files[uuid + 1]?.indexOf(file?.uid);
+
+      const newFileList = files[uuid + 1]?.slice();
+      let nullIndex = newFileList.indexOf(null);
       newFileList?.splice(index, 1);
+      newFileList?.splice(nullIndex, 1);
       // setFileList(newFileList);
-      let _files = [...files]
-      _files[uuid] = newFileList;
+      let _files = [...files];
 
-
+      _files[uuid + 1] = newFileList;
 
       // const _index = files.indexOf(file);
       // const _newFileList = files.slice();
@@ -76,25 +85,31 @@ function UploadTORs({ label, uuid, fileList, setFileList, files, setFiles }) {
     //   showDownloadIcon: false,
     // },
     beforeUpload: (file) => {
-      let isPDF = file.type == "application/pdf";
-      if (!isPDF) {
-        messageApi.error(`${file.name} is not a PDF file`);
-        return false || Upload.LIST_IGNORE;
+      try {
+        let isPDF = file.type == "application/pdf";
+        if (!isPDF) {
+          messageApi.error(`${file.name} is not a PDF file`);
+          return false || Upload.LIST_IGNORE;
+        }
+
+        // let _fileList = [...fileList]
+
+        // _fileList[uuid].push(file);
+        // setFileList(_fileList);
+        // setFiles([...files, file]);
+        let _f = [...files];
+        let f = _f[uuid + 1];
+        if (f) {
+          f.push(file);
+        } else _f.push([file]);
+
+        setFiles(_f);
+
+        // return isPDF || Upload.LIST_IGNORE;
+        return false;
+      } catch (err) {
+        console.log(err);
       }
-      // let _fileList = [...fileList]
-
-      // _fileList[uuid].push(file);
-      // setFileList(_fileList);
-      // setFiles([...files, file]);
-      console.log(file)
-      let _f = [...files];
-      let f = _f[uuid];
-      if (f) {f.push(file);}
-      else _f.push([file]);
-      setFiles(_f);
-
-      // return isPDF || Upload.LIST_IGNORE;
-      return false;
     },
     // action: `${url}/uploads/termsOfReference?id=23232`,
     // headers: {
@@ -123,8 +138,8 @@ function UploadTORs({ label, uuid, fileList, setFileList, files, setFiles }) {
   return (
     <>
       {contextHolder}
-      <Upload {...props}>
-        <Button>{label ? label : "Select file"}</Button>
+      <Upload {...props} defaultFileList={[...itemFiles]} disabled={disabled}>
+        <Button disabled={disabled}>{label ? label : "Select file"}</Button>
       </Upload>
 
       {/* <Button

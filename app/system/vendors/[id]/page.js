@@ -127,14 +127,14 @@ export default function page({ params }) {
       .then((res) => res.json())
       .then((res) => {
         if (res.error) {
-          console.log(res);
+          
           setUpdatingId(null);
           messageApi.open({
             type: "error",
             content: res.message,
           });
         } else {
-          console.log(res);
+          
           res.avgRate = rowData.avgRate;
           res.status = "approved";
           setRowData(res);
@@ -166,7 +166,7 @@ export default function page({ params }) {
     })
       .then((res) => res.json())
       .then((res) => {
-        console.log(res);
+        
         res.avgRate = rowData.avgRate;
         setRowData(res);
         setUpdatingId(null);

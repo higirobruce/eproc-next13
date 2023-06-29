@@ -169,12 +169,12 @@ export default function page({ params }) {
 
   const content = () => {
     return (
-      <div className="space-y-10 p-3 overflow-x-scroll bg-white mx-11 my-10 shadow-md">
+      <div className="space-y-5 p-3 overflow-x-scroll bg-white mx-11 my-10 shadow-md">
         {/* Header */}
         <div className="flex flex-row justify-between items-center">
           <Typography.Title level={4} className="flex flex-row items-center">
             <div>
-              CONTRACTOR: {contract?.vendor?.companyName}{" "}
+              CONTRACTOR #{contract?.number}{" "}
               <div>
                 <Popover
                   placement="topLeft"
@@ -183,7 +183,7 @@ export default function page({ params }) {
                   )} - ${moment(contract?.endDate).format("YYYY-MMM-DD")}`}
                 >
                   <div className="text-xs font-thin text-gray-500">
-                    Expires in {moment(contract?.endDate).fromNow()}
+                    Expires {moment(contract?.endDate).fromNow()}
                   </div>
                 </Popover>
               </div>
@@ -266,7 +266,7 @@ export default function page({ params }) {
           </div>
         </div>
         {/* Details */}
-        <div className="flex flex-col space-y-5">
+        <div className="flex flex-col space-y-5 text-sm">
           <Typography.Title level={3}>Details</Typography.Title>
           <div>
             {contract?.sections?.map((s, index) => {
@@ -346,7 +346,7 @@ export default function page({ params }) {
           )} */}
         </div>
         {/* Signatories */}
-        <div className="grid grid-cols-2 gap-5">
+        <div className="grid grid-cols-2 gap-5" id="page2el">
           {contract?.signatories?.map((s, index) => {
             let yetToSign = contract?.signatories?.filter((notS) => {
               return !notS.signed;
@@ -521,9 +521,11 @@ export default function page({ params }) {
                       height={20}
                       src="/icons/icons8-signature-80-2.png"
                     /> */}
-                    <div className="text-gray-400 text-sm">
+                    <div className="text-gray-400 text-lg">
                       {s.signed
                         ? "Signed"
+                        : contract?.status === "draft"
+                        ? "Waiting for Legal's review"
                         : `Waiting for ${yetToSign[0]?.names}'s signature`}
                     </div>
                   </div>
@@ -539,7 +541,24 @@ export default function page({ params }) {
   const generatePDF = () => {
     // const element = document.getElementById("pdf-content");
     const printElement = ReactDOMServer.renderToString(content());
-    html2pdf().from(printElement).save();
+    html2pdf()
+      .set({
+        // pagebreak: { mode: "avoid-all", before: "#page2el" },
+        // margin:[22,10, 15, 21],
+        // filename: "Contract.pdf",
+        // image: { type: "jpeg", quality: 0.98 },
+        // html2canvas: { scale: 2, letterRendering: true },
+        // jsPDF: { unit: "pt", format: "letter", orientation: "portrait" },
+
+        margin: [22, 10, 15, 10], //top, left, buttom, right
+        filename: "Contract.pdf",
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, letterRendering: true },
+        jsPDF: { unit: "mm", format: "A4", orientation: "portrait" },
+        pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+      })
+      .from(printElement)
+      .save();
   };
 
   return (
@@ -555,7 +574,7 @@ export default function page({ params }) {
         <div className="flex flex-row justify-between items-center">
           <Typography.Title level={4} className="flex flex-row items-center">
             <div>
-              CONTRACTOR: {contract?.vendor?.companyName}{" "}
+              CONTRACTOR #{contract?.number}{" "}
               <div>
                 <Popover
                   placement="topLeft"
@@ -564,7 +583,7 @@ export default function page({ params }) {
                   )} - ${moment(contract?.endDate).format("YYYY-MMM-DD")}`}
                 >
                   <div className="text-xs font-thin text-gray-500">
-                    Expires in {moment(contract?.endDate).fromNow()}
+                    Expires {moment(contract?.endDate).fromNow()}
                   </div>
                 </Popover>
               </div>

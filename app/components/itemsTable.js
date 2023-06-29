@@ -1,11 +1,16 @@
 "use client";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { Button, Form, Input, Popconfirm, Select, Table, Tooltip } from "antd";
+import moment from "moment";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { v4 } from "uuid";
 import UploadTORs from "./uploadTORs";
+let url = process.env.NEXT_PUBLIC_BKEND_URL;
+let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
+let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
 const EditableContext = React.createContext(null);
+
 const EditableRow = ({ index, rowForm, ...props }) => {
   const [form] = Form.useForm();
   return (
@@ -60,6 +65,7 @@ const EditableCell = ({
         style={{
           margin: 0,
         }}
+        initialValue={record[dataIndex]}
         name={dataIndex}
         rules={[
           {
@@ -97,9 +103,11 @@ const ItemsTable = ({
   fileList,
   files,
   setFiles,
+  editingRequest
 }) => {
-  const [count, setCount] = useState(1);
+  const [count, setCount] = useState(dataSource?.length+1);
   const [rowForm] = Form.useForm();
+  
   const handleDelete = (key) => {
     const newData = dataSource.filter((item) => item.key !== key && item.key);
     setCount(count - 1);
@@ -131,7 +139,7 @@ const ItemsTable = ({
       render: (_, record) => {
         return (
           <Select
-            defaultValue="RWF"
+            defaultValue={record.currency}
             onChange={(value) => (record.currency = value)}
             options={[
               {
@@ -169,16 +177,37 @@ const ItemsTable = ({
       ),
       dataIndex: "attachements",
       width: "20%",
-      render: (_, record) =>
-        dataSource.length >= 1 ? (
+      render: (_, record) => {
+        let _files = [];
+
+        record?.paths?.map((doc, i) => {
+          if (doc) {
+            let uid = `rc-upload-${moment().milliseconds()}-${i}`;
+            let _url = `${url}/file/termsOfReference/${doc}`;
+            let status = "done";
+            let name = `supporting doc${i + 1}.pdf`;
+
+            _files.push({
+              uid,
+              url: _url,
+              status,
+              name,
+            });
+          }
+        });
+
+        return (dataSource.length >= 1) ? (
           <UploadTORs
             uuid={record?.key - 1}
             setFileList={setFileList}
             fileList={fileList}
             files={files}
             setFiles={setFiles}
+            itemFiles={_files}
+            disabled={editingRequest}
           />
-        ) : null,
+        ) : null;
+      },
     },
     {
       title: "Action",
@@ -194,6 +223,7 @@ const ItemsTable = ({
         ) : null,
     },
   ];
+
   const handleAdd = () => {
     const newData = {
       key: count,
