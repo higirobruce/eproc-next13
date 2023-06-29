@@ -250,7 +250,6 @@ export default function UserRequests() {
 
   const save = (_fileList) => {
     if (values && values[0]) {
-      console.log("Received values of form:", values);
       setConfirmLoading(true);
       let user = JSON.parse(localStorage.getItem("user"));
       let _values = [...values];
@@ -300,7 +299,6 @@ export default function UserRequests() {
             .catch((err) => {
               setConfirmLoading(false);
               setOpen(false);
-              console.log(err);
               messageApi.open({
                 type: "error",
                 content: "Something happened! Please try again.",
@@ -339,8 +337,6 @@ export default function UserRequests() {
         var index = _.findIndex(_data, { _id: id });
         let elindex = _data[index];
         elindex.status = "approved";
-
-        console.log(_data[index]);
         // Replace item at index using native splice
         _data.splice(index, 1, elindex);
 
@@ -380,8 +376,6 @@ export default function UserRequests() {
         elindex.status = "declined";
         elindex.reasonForRejection = reason;
         elindex.declinedBy = declinedBy;
-
-        console.log(_data[index]);
         // Replace item at index using native splice
         _data.splice(index, 1, elindex);
 
@@ -421,7 +415,6 @@ export default function UserRequests() {
             let r = res.filter((d) => {
               return d._id === rowData?._id;
             });
-            console.log(r);
             setRowData(r[0]);
             setLoadingRowData(false);
             if (status === "withdrawn") setRowData(null);
@@ -465,7 +458,6 @@ export default function UserRequests() {
             let r = res.filter((d) => {
               return d._id === rowData?._id;
             });
-            console.log(r);
             setRowData(r[0]);
           })
           .catch((err) => {
@@ -505,8 +497,6 @@ export default function UserRequests() {
         });
 
         updateStatus(rowData?._id, "pending");
-
-        console.log(r);
         setRowData(r[0]);
         setLoadingRowData(false);
         setDataLoaded(true);
@@ -521,7 +511,6 @@ export default function UserRequests() {
   }
 
   function handleSetRow(row) {
-    console.log(row);
     setLoadingRowData(true);
     setRowData(row);
     setLoadingRowData(false);
@@ -544,7 +533,6 @@ export default function UserRequests() {
         updateSourcingMethod(rowData._id, sourcingMethod);
       })
       .catch((err) => {
-        console.log(err);
         messageApi.open({
           type: "error",
           content: "Something happened! Please try again.",
@@ -736,7 +724,6 @@ export default function UserRequests() {
   }
 
   function _setFileList(list) {
-    console.log(list);
     setFileList(list);
   }
 
@@ -781,7 +768,6 @@ export default function UserRequests() {
               }
             })
             .catch((err) => {
-              console.log(err);
               messageApi.error("upload failed.");
             })
             .finally(() => {});

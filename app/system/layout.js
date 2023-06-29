@@ -22,7 +22,6 @@ export default function SystemLayout({ children }) {
     setToken(localStorage.getItem("token"))
     if (user?.userType !== "VENDOR") setScreen("dashboard");
     else setScreen("tenders");
-    console.log(pathName)
   }, []);
 
   // let parts = pathName.split('/')

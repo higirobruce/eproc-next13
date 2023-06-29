@@ -280,7 +280,6 @@ export default function Contracts() {
   }
 
   function createPOMOdal() {
-    console.log(items);
     return (
       <Modal
         title="New Purchase Order"
@@ -1192,8 +1191,6 @@ export default function Contracts() {
     _contract.sections = sections;
     _contract.signatories = signatories;
     _contract.status = "pending-signature";
-
-    console.log(previousStatus);
 
     fetch(`${url}/contracts/${contract?._id}`, {
       method: "PUT",

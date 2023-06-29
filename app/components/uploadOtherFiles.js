@@ -23,8 +23,6 @@ function UploadOtherFiles({
   const props = {
     onRemove: (file) => {
       const index = files?.indexOf(file?.originFileObj);
-      console.log(files, file);
-      console.log(index);
       const newFileList = files?.slice();
       newFileList?.splice(index, 1);
       // setFileList(newFileList);
@@ -49,7 +47,6 @@ function UploadOtherFiles({
       // _fileList[uuid].push(file);
       // setFileList(_fileList);
       // setFiles([...files, file]);
-      console.log(file);
       let _f = [...files];
       let f = _f;
       if (f) {

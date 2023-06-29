@@ -223,7 +223,6 @@ export default function Vendors() {
           let elindex = _data[index];
           elindex.status = "approved";
 
-          console.log(_data[index]);
           // Replace item at index using native splice
           _data.splice(index, 1, elindex);
 
@@ -263,7 +262,6 @@ export default function Vendors() {
         let elindex = _data[index];
         elindex.status = res?.status;
 
-        console.log(_data[index]);
         // Replace item at index using native splice
         _data.splice(index, 1, elindex);
 
@@ -299,7 +297,6 @@ export default function Vendors() {
         let elindex = _data[index];
         elindex.status = res?.status;
 
-        console.log(_data[index]);
         // Replace item at index using native splice
         _data.splice(index, 1, elindex);
 
@@ -333,7 +330,6 @@ export default function Vendors() {
         let elindex = _data[index];
         elindex.status = res?.status;
 
-        console.log(_data[index]);
         // Replace item at index using native splice
         _data.splice(index, 1, elindex);
 

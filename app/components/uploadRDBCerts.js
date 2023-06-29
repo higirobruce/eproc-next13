@@ -31,7 +31,6 @@ function UploadRDCerts({ label, uuid, setSelected, setId}) {
     listType: "document",
     previewFile(file) {
       setSelected(true)
-      console.log("Your upload file:", file);
       // Your process logic. Here we just mock to the same file
       return fetch(`${url}/users/`, {
         method: "GET",

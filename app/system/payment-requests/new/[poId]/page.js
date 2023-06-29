@@ -31,7 +31,6 @@ async function getPoDetails(id) {
 
   if (!res.ok) {
     // This will activate the closest `error.js` Error Boundary
-    console.log(id);
     return null;
     // throw new Error("Failed to fetch data");
   }
@@ -62,7 +61,6 @@ export default function NewPaymentRequest({ params }) {
   }, [params]);
 
   useEffect(() => {
-    console.log(files);
   }, [files]);
 
   function getPoTotalVal() {

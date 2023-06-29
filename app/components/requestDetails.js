@@ -350,6 +350,10 @@ const RequestDetails = ({
   handleRateDelivery,
   refDoc,
   setRefDoc,
+  setFilePaths,fileList,
+  files,
+  setFileList,
+  setFiles
 }) => {
   const [form] = Form.useForm();
   const [size, setSize] = useState("small");
@@ -409,8 +413,7 @@ const RequestDetails = ({
   const [deliveredQties, setDeliveredQties] = useState([]);
   const [tenderDocSelected, setTendeDocSelected] = useState(false);
   const [attachSelected, setAttachSelected] = useState(false);
-  let [fileList, setFileList] = useState([]);
-  let [files, setFiles] = useState([]);
+  
 
   const showPopconfirm = () => {
     setOpen(true);
@@ -475,23 +478,25 @@ const RequestDetails = ({
           {item?.paths?.map((p, i) => {
             return (
               <div key={p}>
-                <Link
-                  href={`${url}/file/termsOfReference/${p}`}
-                  target="_blank"
-                >
-                  <Typography.Link
-                    className="flex flex-row items-center space-x-2"
-                    // onClick={() => {
-                    //   setPreviewAttachment(!previewAttachment);
-                    //   setAttachmentId(p);
-                    // }}
+                {p && (
+                  <Link
+                    href={`${url}/file/termsOfReference/${p}`}
+                    target="_blank"
                   >
-                    <div>supporting doc{i + 1} </div>{" "}
-                    <div>
-                      <PaperClipIcon className="h-4 w-4" />
-                    </div>
-                  </Typography.Link>
-                </Link>
+                    <Typography.Link
+                      className="flex flex-row items-center space-x-2"
+                      // onClick={() => {
+                      //   setPreviewAttachment(!previewAttachment);
+                      //   setAttachmentId(p);
+                      // }}
+                    >
+                      <div>supporting doc{i + 1} </div>{" "}
+                      <div>
+                        <PaperClipIcon className="h-4 w-4" />
+                      </div>
+                    </Typography.Link>
+                  </Link>
+                )}
               </div>
             );
           })}
@@ -521,6 +526,34 @@ const RequestDetails = ({
       setOpenConfirmDeliv(_openConfirmDeliv);
       setDeliveredQties(_deliveredQties);
     });
+
+    setValues(data?.items);
+
+    // let _p = data?.items?.map((item) => {
+    //   let _files = [];
+    //   let paths = item?.paths?.map((doc, i) => {
+    //     if (doc) {
+    //       let uid = `rc-upload-${moment().milliseconds()}-${i}`;
+    //       let _url = `${url}/file/termsOfReference/${doc}`;
+    //       let status = "done";
+    //       let name = `supporting doc${i + 1}.pdf`;
+
+    //       return {
+    //         uid,
+    //         url: _url,
+    //         status,
+    //         name,
+    //       };
+    //     }
+    //   });
+
+    //   return paths
+    // });
+
+    // setFiles(_p)
+    // setFilePaths(_p)
+
+    // console.log('Seeeeet Files', _p)
 
     fetch(`${url}/serviceCategories`, {
       method: "GET",
@@ -560,39 +593,11 @@ const RequestDetails = ({
         });
       });
 
-      setValues(data?.items)
-
-      let _files = [...files];
-
-      let itemsList = data?.items;
-
-
-
-      console.log('tiemmmms', itemsList['id'])
-
-      itemsList?.paths?.map((doc, i) => {
-
-        console.log('tiemmmms', doc)
-        let uid = `rc-upload-${moment().milliseconds()}-${i}`;
-        let _url = `${url}/file/termsOfReference/${doc}`;
-        let status = "done";
-        let name = `supporting doc${i + 1}.pdf`;
-
-        _files.push({
-          uid,
-          url: _url,
-          status,
-          name,
-        });
-
-        
-        setFiles(_files);
-      });
+    
   }, [data]);
 
-  useEffect(() => {
-    console.log(data);
-  }, [edit]);
+
+  useEffect(() => {}, [edit]);
 
   useEffect(() => {
     let t = 0;
@@ -702,7 +707,6 @@ const RequestDetails = ({
     })
       .then((res) => res.json())
       .then((res) => {
-        console.log(res);
         setVendors(res);
       })
       .catch((err) => {});
@@ -1660,7 +1664,6 @@ const RequestDetails = ({
                       type="primary"
                       icon={<CheckOutlined />}
                       onClick={() => {
-                        console.log(deliveredQties);
                         let _openConfirmDeliv = [...openConfirmDeliv];
                         _openConfirmDeliv[index] = true;
                         setOpenConfirmDeliv(_openConfirmDeliv);
@@ -2585,12 +2588,12 @@ const RequestDetails = ({
   }
 
   function _setFileList(list) {
-    console.log(list);
     setFileList(list);
   }
 
   function _setFiles(newFileList) {
     setFiles(newFileList);
+    setFilePaths(newFileList);
   }
 
   return (
@@ -2943,17 +2946,18 @@ const RequestDetails = ({
 
                       {edit && (
                         <ItemsTable
-                          setDataSource={(v)=>{
-                            setValues(v)
-                            let r={...data}
-                            r.items = v
-                            handleUpdateRequest(r)
+                          setDataSource={(v) => {
+                            setValues(v);
+                            let r = { ...data };
+                            r.items = v;
+                            handleUpdateRequest(r);
                           }}
                           dataSource={values}
                           fileList={fileList}
                           setFileList={_setFileList}
                           files={files}
                           setFiles={_setFiles}
+                          editingRequest={true}
                         />
                       )}
                     </div>
