@@ -814,7 +814,7 @@ export default function Contracts() {
           <div className="flex flex-row justify-between items-center">
             <Typography.Title level={4} className="flex flex-row items-center">
               <div>
-                CONTRACTOR: {contract?.vendor?.companyName}{" "}
+                CONTRACTOR #{contract?.number}{" "}
                 <div>
                   <Popover
                     placement="topLeft"
