@@ -10,6 +10,7 @@ let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
 const EditableContext = React.createContext(null);
+
 const EditableRow = ({ index, rowForm, ...props }) => {
   const [form] = Form.useForm();
   return (
@@ -222,6 +223,7 @@ const ItemsTable = ({
         ) : null,
     },
   ];
+
   const handleAdd = () => {
     const newData = {
       key: count,
