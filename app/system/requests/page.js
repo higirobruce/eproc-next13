@@ -72,6 +72,7 @@ export default function UserRequests() {
   let [searchText, setSearchText] = useState("");
   const [form] = Form.useForm();
   const [onlyMine, setOnlyMine] = useState(true);
+  const [myPendingRequest, setMyPendingRequest] = useState(false);
   const [sourcingMethod, setSourcingMethod] = useState("");
   let [files, setFiles] = useState([]);
   let token = localStorage.getItem('token')
@@ -790,7 +791,25 @@ export default function UserRequests() {
     }
   };
 
+  const getMyPendingRequest = (value) => {
+    
+    setMyPendingRequest(value)
+
+    if(value == true) {
+      const newFilter = tempDataset.filter((item) => (item?.level1Approver?._id == user._id));
   
+      const statusFilter = newFilter.filter((item) =>
+        user?.permissions?.canApproveAsHof ? 
+        (item.status == 'approved hod') :
+        user?.permissions?.canApproveAsPM ?
+        (item.status == 'approved hof') : (item.status == 'pending'))
+  
+  
+      setTempDataset(statusFilter)
+    } else {
+      refresh()
+    }
+  }
 
   return !rowData ? (
     <>
@@ -800,14 +819,25 @@ export default function UserRequests() {
           <Row className="flex flex-col bg-white px-10 py-3 shadow space-y-2">
             <div className="flex flex-row items-center justify-between">
               <div className="text-xl font-semibold">Purchase Requests</div>
-              <div className="flex flex-row items-center space-x-1">
-                <div>View my requests only</div>
-                <Checkbox
-                  checked={onlyMine}
-                  onChange={(e) => {
-                    setOnlyMine(e.target.checked);
-                  }}
-                />
+              <div className="flex items-center space-x-5">
+                <div className="flex flex-row items-center space-x-1">
+                  <div>My Pending Requests</div>
+                  <Checkbox
+                    checked={myPendingRequest}
+                    onChange={(e) => {
+                      getMyPendingRequest(e.target.checked)
+                    }}
+                  />
+                </div>
+                <div className="flex flex-row items-center space-x-1">
+                  <div>View my requests only</div>
+                  <Checkbox
+                    checked={onlyMine}
+                    onChange={(e) => {
+                      setOnlyMine(e.target.checked);
+                    }}
+                  />
+                </div>
               </div>
             </div>
             <Row className="flex flex-row justify-between items-center space-x-4">
