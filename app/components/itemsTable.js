@@ -1,6 +1,6 @@
 "use client";
 import { QuestionCircleOutlined } from "@ant-design/icons";
-import { Button, Form, Input, Popconfirm, Select, Table, Tooltip } from "antd";
+import { Button, Form, Input, InputNumber, Popconfirm, Select, Table, Tooltip } from "antd";
 import moment from "moment";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { v4 } from "uuid";
@@ -74,12 +74,22 @@ const EditableCell = ({
           },
         ]}
       >
-        <Input
-          ref={inputRef}
-          onPressEnter={save}
-          placeholder={dataIndex === "title" ? "enter title" : "eg. 1000000"}
-          onBlur={save}
-        />
+        {dataIndex == "quantity" || dataIndex == "estimatedUnitCost" ? (
+          <InputNumber
+            className="w-full"
+            ref={inputRef}
+            onPressEnter={save}
+            placeholder={dataIndex === "title" ? "enter title" : "eg. 1000000"}
+            onBlur={save}
+          />
+        ) : (
+          <Input
+            ref={inputRef}
+            onPressEnter={save}
+            placeholder={dataIndex === "title" ? "enter title" : "eg. 1000000"}
+            onBlur={save}
+          />
+        )}
       </Form.Item>
     ) : (
       <div
@@ -103,11 +113,11 @@ const ItemsTable = ({
   fileList,
   files,
   setFiles,
-  editingRequest
+  editingRequest,
 }) => {
-  const [count, setCount] = useState(dataSource?.length+1);
+  const [count, setCount] = useState(dataSource?.length + 1);
   const [rowForm] = Form.useForm();
-  
+
   const handleDelete = (key) => {
     const newData = dataSource.filter((item) => item.key !== key && item.key);
     setCount(count - 1);
@@ -196,7 +206,7 @@ const ItemsTable = ({
           }
         });
 
-        return (dataSource.length >= 1) ? (
+        return dataSource.length >= 1 ? (
           <UploadTORs
             uuid={record?.key - 1}
             setFileList={setFileList}

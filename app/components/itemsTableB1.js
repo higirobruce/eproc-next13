@@ -1,5 +1,5 @@
-'use client'
-import { Button, Form, Input, Popconfirm, Select, Table } from "antd";
+"use client";
+import { Button, Form, Input, InputNumber, Popconfirm, Select, Table } from "antd";
 import React, { useContext, useEffect, useRef, useState } from "react";
 
 const EditableContext = React.createContext(null);
@@ -64,7 +64,11 @@ const EditableCell = ({
           },
         ]}
       >
-        <Input ref={inputRef} onPressEnter={save} onBlur={save} />
+        {dataIndex == "quantity" || dataIndex == "estimatedUnitCost" ? (
+          <InputNumber ref={inputRef} onPressEnter={save} onBlur={save} />
+        ) : (
+          <Input ref={inputRef} onPressEnter={save} onBlur={save} />
+        )}
       </Form.Item>
     ) : (
       <div
@@ -92,7 +96,7 @@ const ItemsTable = ({ setDataSource, dataSource, assetOptions }) => {
     {
       title: "Item title",
       dataIndex: "title",
-      
+
       editable: true,
     },
     {
@@ -103,7 +107,7 @@ const ItemsTable = ({ setDataSource, dataSource, assetOptions }) => {
     {
       title: "Item type",
       dataIndex: "itemType",
-     
+
       render: (_, record) => (
         <Select
           onChange={(value) => {
@@ -124,12 +128,12 @@ const ItemsTable = ({ setDataSource, dataSource, assetOptions }) => {
     {
       title: "Asset",
       dataIndex: "asset",
-      width:'30%',
+      width: "30%",
       render: (_, record) => (
         <Select
           mode="tags"
           showArrow
-          disabled={record?.itemType==='non-asset' || !record.itemType}
+          disabled={record?.itemType === "non-asset" || !record.itemType}
           style={{ width: "100%" }}
           onChange={(value) => {
             // let _v = [...assets];
