@@ -12,9 +12,12 @@ let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
 async function getTenderDetails(id) {
+  let token = localStorage.getItem('token');
+
   const res = await fetch(`${url}/tenders/${id}`, {
     headers: {
       Authorization: "Basic " + `${encode(`${apiUsername}:${apiPassword}`)}`,
+      token: token,
       "Content-Type": "application/json",
     },
   });
@@ -32,6 +35,7 @@ async function getTenderDetails(id) {
 export default function page({ params }) {
   let router = useRouter();
   let user = JSON.parse(localStorage.getItem("user"));
+  let token = localStorage.getItem('token');
 
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -50,6 +54,7 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -90,6 +95,7 @@ export default function page({ params }) {
       method: "POST",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
@@ -137,6 +143,7 @@ export default function page({ params }) {
       method: "POST",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -195,6 +202,7 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -239,6 +247,7 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -292,10 +301,12 @@ export default function page({ params }) {
     if (user?.userType === "VENDOR")
       return fetch(`${url}/tenders/byServiceCategories/`, {
         method: "POST",
+        
         headers: {
           Authorization:
             "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
           "Content-Type": "application/json",
+          token: token,
         },
         body: JSON.stringify({
           serviceCategories: user?.services,
@@ -305,6 +316,7 @@ export default function page({ params }) {
       return fetch(`${url}/tenders/`, {
         method: "GET",
         headers: {
+          token: token,
           Authorization:
             "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
           "Content-Type": "application/json",

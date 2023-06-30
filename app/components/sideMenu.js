@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import {
   CopyOutlined,
+  DollarOutlined,
   FileDoneOutlined,
   LogoutOutlined,
   MessageOutlined,
@@ -23,12 +24,10 @@ const SideMenu = ({ setScreen, screen, user }) => {
   const [items, setItems] = useState([]);
   useEffect(() => {}, [screen]);
   
-  console.log(pathName)
   let parts = pathName.split('/')
   if(parts.length>=3){
     pathName = `/${parts[1]}/${parts[2]}`
   }
-  console.log(parts)
   useEffect(()=>{
     setCurrent(pathName.substring(1))
   },[pathName])
@@ -47,7 +46,7 @@ const SideMenu = ({ setScreen, screen, user }) => {
 
       if (user?.permissions?.canViewRequests) {
         _items.push({
-          label: "Requests",
+          label: "Purchase Requests",
           key: "system/requests",
           icon: <SolutionOutlined />,
         });
@@ -77,6 +76,16 @@ const SideMenu = ({ setScreen, screen, user }) => {
         });
       }
 
+      _items.push({
+        label: "Payment requests",
+        key: "system/payment-requests",
+        icon: <DollarOutlined />,
+      });
+
+      if (user?.permissions?.canViewPurchaseOrders) {
+        
+      }
+
       if (user?.permissions?.canViewVendors) {
         _items.push({
           label: "Vendors",
@@ -84,6 +93,7 @@ const SideMenu = ({ setScreen, screen, user }) => {
           icon: <UsergroupAddOutlined />,
         });
       }
+      
 
       if (user?.permissions?.canViewUsers) {
         _items.push({
@@ -96,6 +106,8 @@ const SideMenu = ({ setScreen, screen, user }) => {
           icon: <UserOutlined />,
         },)
       }
+
+      
 
 
     } else {
@@ -115,6 +127,11 @@ const SideMenu = ({ setScreen, screen, user }) => {
           key: "system/purchase-orders",
           icon: <OrderedListOutlined />,
         },
+        {
+          label: "My Payment requests",
+          key: "system/payment-requests",
+          icon: <DollarOutlined />,
+        }
         // {
         //   key: "logout",
         //   label:"Logout",

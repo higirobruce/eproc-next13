@@ -55,6 +55,7 @@ async function getUserDetails(id) {
 
 export default function page({ params }) {
   let user = JSON.parse(localStorage.getItem("user"));
+  let token = localStorage.getItem('token');
   let router = useRouter();
   const [dataLoaded, setDataLoaded] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
@@ -81,8 +82,29 @@ export default function page({ params }) {
   useEffect(() => {
     getUserDetails(params?.id).then((res) => {
       setRow(res);
-      console.log(res);
+      
     });
+
+    fetch(`${url}/dpts`, {
+      method: "GET",
+      headers: {
+        Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
+
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        setDpts(res);
+        
+      })
+      .catch((err) => {
+        messageApi.open({
+          type: "error",
+          content: "Connection Error!",
+        });
+      });
   }, []);
 
   function loadUsersRequests() {
@@ -90,6 +112,7 @@ export default function page({ params }) {
       method: "GET",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -111,6 +134,7 @@ export default function page({ params }) {
       method: "GET",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -131,12 +155,14 @@ export default function page({ params }) {
   function setCanView(canView, module) {
     let newUser = { ...row };
     let permissionLable = "canView" + module;
+    if (!newUser.permissions) newUser.permissions = {};
     newUser.permissions[permissionLable] = canView;
 
     fetch(`${url}/users/${row?._id}`, {
       method: "PUT",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ newUser }),
@@ -156,6 +182,7 @@ export default function page({ params }) {
       method: "GET",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -180,6 +207,7 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ newUser }),
@@ -205,6 +233,7 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ newUser }),
@@ -230,6 +259,33 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ newUser }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        loadUsers();
+      })
+      .catch((err) => {
+        messageApi.open({
+          type: "error",
+          content: "Something happened! Please try again.",
+        });
+      });
+  }
+
+  function setCanApproveAsLegal(can) {
+    let newUser = { ...row };
+    let permissionLable = "canApproveAsLegal";
+    newUser.permissions[permissionLable] = can;
+
+    fetch(`${url}/users/${row?._id}`, {
+      method: "PUT",
+      headers: {
+        Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ newUser }),
@@ -255,6 +311,7 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ newUser }),
@@ -278,13 +335,14 @@ export default function page({ params }) {
     let viewPermissionLable = "canView" + module;
 
     newUser.permissions[permissionLable] = canCreate;
-    newUser.permissions[editPermissionLable] = canCreate;
+    if(module!=='PaymentRequests') newUser.permissions[editPermissionLable] = canCreate;
     newUser.permissions[viewPermissionLable] = canCreate;
 
     fetch(`${url}/users/${row?._id}`, {
       method: "PUT",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ newUser }),
@@ -310,6 +368,7 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ newUser }),
@@ -343,6 +402,7 @@ export default function page({ params }) {
       method: "POST",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(newUser),
@@ -365,6 +425,7 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -395,6 +456,7 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -664,7 +726,7 @@ export default function page({ params }) {
             />
             {segment === "Permissions" && (
               <div className="p-3 overflow-y-scroll h-[560px]">
-                <div className="text-lg font-semibold mb-5 flex flex-row justify-between items-center">
+                <div className="text-md font-semibold mb-5 flex flex-row justify-between items-center">
                   <div>Module access permissions</div>
                 </div>
                 {row && (
@@ -673,6 +735,10 @@ export default function page({ params }) {
                     canCreateRequests={row?.permissions?.canCreateRequests}
                     canEditRequests={row?.permissions?.canEditRequests}
                     canViewRequests={row?.permissions?.canViewRequests}
+                    canApprovePaymentRequests={row?.permissions?.canApprovePaymentRequests}
+                    canCreatePaymentRequests={row?.permissions?.canCreatePaymentRequests}
+                    canEditPaymentRequests={row?.permissions?.canEditPaymentRequests}
+                    canViewPaymentRequests={row?.permissions?.canViewPaymentRequests}
                     canApproveTenders={row?.permissions?.canApproveTenders}
                     canCreateTenders={row?.permissions?.canCreateTenders}
                     canEditTenders={row?.permissions?.canEditTenders}
@@ -716,7 +782,7 @@ export default function page({ params }) {
                   />
                 )}
 
-                <div className="text-lg font-semibold my-5 flex flex-row justify-between items-center">
+                <div className="text-md font-semibold my-5 flex flex-row justify-between items-center">
                   <div>Approval permissions</div>
                 </div>
                 {row && (
@@ -746,6 +812,16 @@ export default function page({ params }) {
                       <Checkbox
                         defaultChecked={row?.permissions?.canApproveAsPM}
                         onChange={(e) => setCanApproveAsPM(e.target.checked)}
+                      />
+                    </Form.Item>
+
+                    <Form.Item
+                      name="canApproveAsLegal"
+                      label="Can approve as a Legal officer"
+                    >
+                      <Checkbox
+                        defaultChecked={row?.permissions?.canApproveAsLegal}
+                        onChange={(e) => setCanApproveAsLegal(e.target.checked)}
                       />
                     </Form.Item>
                   </Form>

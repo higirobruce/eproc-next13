@@ -17,16 +17,17 @@ let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
 async function geRequestDetails(id) {
+  let token = localStorage.getItem("token");
   const res = await fetch(`${url}/requests/${id}`, {
     headers: {
       Authorization: "Basic " + `${encode(`${apiUsername}:${apiPassword}`)}`,
+      token: token,
       "Content-Type": "application/json",
     },
   });
 
   if (!res.ok) {
     // This will activate the closest `error.js` Error Boundary
-    console.log(id);
     return null;
     // throw new Error("Failed to fetch data");
   }
@@ -44,7 +45,11 @@ export default function page({ params }) {
   const [editRequest, setEditRequest] = useState(false);
   const [sourcingMethod, setSourcingMethod] = useState("");
 
+  let token = localStorage.getItem("token");
   let [rowData, setRowData] = useState(null);
+  let [filePaths, setFilePaths] = useState([]);
+  let [fileList, setFileList] = useState([]);
+  let [files, setFiles] = useState([]);
 
   useEffect(() => {
     geRequestDetails(params?.id).then((res) => {
@@ -58,6 +63,7 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -84,6 +90,7 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -108,6 +115,7 @@ export default function page({ params }) {
       method: "POST",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(tenderData),
@@ -118,7 +126,6 @@ export default function page({ params }) {
         updateSourcingMethod(rowData._id, sourcingMethod);
       })
       .catch((err) => {
-        console.log(err);
         messageApi.open({
           type: "error",
           content: "Something happened! Please try again.",
@@ -137,6 +144,7 @@ export default function page({ params }) {
       }),
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -166,6 +174,7 @@ export default function page({ params }) {
       }),
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -190,6 +199,7 @@ export default function page({ params }) {
       method: "POST",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -245,6 +255,7 @@ export default function page({ params }) {
       method: "POST",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -288,6 +299,7 @@ export default function page({ params }) {
       }),
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -304,6 +316,7 @@ export default function page({ params }) {
       method: "PUT",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -321,10 +334,78 @@ export default function page({ params }) {
           type: "error",
           content: "Something happened! Please try again.",
         });
+      })
+      .finally(() => {
+        setEditRequest(false);
       });
   }
 
-  
+  useEffect(() => {
+    console.log("Files chaaaaanged");
+    console.log(files);
+  }, [files]);
+
+  const handleUpload = (myFiles) => {
+    let _filesPaths = [...myFiles]
+
+    let i=0
+    let _totalFilesInitial = rowData?.items?.map(item=>{
+     
+      item?.paths?.map(p=> {if(p) i++})
+    })
+
+    if (_filesPaths?.length < 1) {
+      messageApi.error("Please add at least one doc.");
+      // setConfirmLoading(false);
+    } else {
+      _filesPaths.forEach(
+        (filesPerRow, rowIndex) => {
+          
+          filesPerRow?.map((rowFile, fileIndex) => {
+            const formData = new FormData();
+            formData.append("files[]", rowFile);
+            
+            console.log('Form data', formData)
+            // You can use any AJAX library you like
+            fetch(`${url}/uploads/termsOfReference/`, {
+              method: "POST",
+              body: formData,
+              headers: {
+                Authorization:
+                  "Basic " + encode(`${apiUsername}:${apiPassword}`),
+                token: token,
+                // "Content-Type": "multipart/form-data",
+              },
+            })
+              .then((res) => res.json())
+              .then((savedFiles) => {
+                let _filenames = savedFiles?.map((f) => {
+                  return f?.filename;
+                });
+
+                let _files = [..._filesPaths];
+                _files[rowIndex][fileIndex] = _filenames[0];
+
+                console.log("File Naeeeeemememee", savedFiles);
+
+                if (
+                  rowIndex === _filesPaths?.length - 1 &&
+                  fileIndex === filesPerRow.length - 1
+                ) {
+                  // save(_files);
+                  updateRequest();
+                }
+              })
+              .catch((err) => {
+                console.log(err);
+                messageApi.error("upload failed.");
+              })
+              .finally(() => {});
+          });
+        }
+      );
+    }
+  };
 
   return (
     // <h1>{rowData?.number}</h1>
@@ -382,7 +463,7 @@ export default function page({ params }) {
                 icon={<SaveOutlined />}
                 type="primary"
                 onClick={() => {
-                  updateRequest();
+                  updateRequest()
                 }}
               >
                 Save
@@ -400,6 +481,7 @@ export default function page({ params }) {
           rowData?.createdBy?._id === user?._id) &&
           rowData?.status !== "approved" && (
             <Switch
+              checked={editRequest}
               checkedChildren={<EditOutlined />}
               unCheckedChildren={<EyeOutlined />}
               onChange={(e) => setEditRequest(e)}
@@ -424,6 +506,11 @@ export default function page({ params }) {
           handleRateDelivery={rateDelivery}
           refDoc={sourcingMethod}
           setRefDoc={setSourcingMethod}
+          setFilePaths={setFilePaths}
+          fileList={fileList}
+          files={files}
+          setFileList={setFileList}
+          setFiles={setFiles}
         />
       )}
     </motion.div>

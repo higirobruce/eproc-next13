@@ -53,6 +53,7 @@ import { motion } from "framer-motion";
 
 export default function Vendors() {
   let user = JSON.parse(localStorage.getItem("user"));
+  let token = localStorage.getItem('token');
   const [passwordForm] = Form.useForm();
   const [dataLoaded, setDataLoaded] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
@@ -82,6 +83,7 @@ export default function Vendors() {
       method: "GET",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -146,6 +148,7 @@ export default function Vendors() {
       method: "GET",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -173,6 +176,7 @@ export default function Vendors() {
       method: "GET",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -199,6 +203,7 @@ export default function Vendors() {
       method: "POST",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -218,7 +223,6 @@ export default function Vendors() {
           let elindex = _data[index];
           elindex.status = "approved";
 
-          console.log(_data[index]);
           // Replace item at index using native splice
           _data.splice(index, 1, elindex);
 
@@ -245,6 +249,7 @@ export default function Vendors() {
       method: "POST",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -257,7 +262,6 @@ export default function Vendors() {
         let elindex = _data[index];
         elindex.status = res?.status;
 
-        console.log(_data[index]);
         // Replace item at index using native splice
         _data.splice(index, 1, elindex);
 
@@ -280,6 +284,7 @@ export default function Vendors() {
       method: "POST",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -292,7 +297,6 @@ export default function Vendors() {
         let elindex = _data[index];
         elindex.status = res?.status;
 
-        console.log(_data[index]);
         // Replace item at index using native splice
         _data.splice(index, 1, elindex);
 
@@ -313,6 +317,7 @@ export default function Vendors() {
       method: "POST",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -325,7 +330,6 @@ export default function Vendors() {
         let elindex = _data[index];
         elindex.status = res?.status;
 
-        console.log(_data[index]);
         // Replace item at index using native splice
         _data.splice(index, 1, elindex);
 
@@ -345,6 +349,7 @@ export default function Vendors() {
       method: "PUT",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -370,6 +375,7 @@ export default function Vendors() {
       method: "PUT",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -480,7 +486,7 @@ export default function Vendors() {
           >
             <Row className="flex flex-row space-x-5 mx-10 pt-5">
               <motion.div
-              className="w-full"
+                className="w-full"
                 initial={{ opacity: 0 }}
                 animate={{
                   opacity: tempDataset && tempDataset?.length >= 1 ? 1 : 0,

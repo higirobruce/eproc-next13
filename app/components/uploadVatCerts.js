@@ -8,6 +8,7 @@ function UploadVatCerts({ label, uuid, setId, setSelected }) {
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
+  let token = localStorage.getItem('token')
 
   const props = {
     beforeUpload: (file) => {
@@ -24,11 +25,11 @@ function UploadVatCerts({ label, uuid, setId, setSelected }) {
     action: `${url}/uploads/vatCerts?id=${uuid}`,
     headers: {
       Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+      token: token,
       "Content-Type": "application/json",
     },
     listType: "document",
     previewFile(file) {
-      console.log("Your upload file:", file);
       // Your process logic. Here we just mock to the same file
       return fetch(`${url}/users/`, {
         method: "GET",

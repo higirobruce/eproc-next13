@@ -72,8 +72,10 @@ export default function UserRequests() {
   let [searchText, setSearchText] = useState("");
   const [form] = Form.useForm();
   const [onlyMine, setOnlyMine] = useState(true);
+  const [myPendingRequest, setMyPendingRequest] = useState(false);
   const [sourcingMethod, setSourcingMethod] = useState("");
   let [files, setFiles] = useState([]);
+  let token = localStorage.getItem('token')
 
   useEffect(() => {
     // loadRequests()
@@ -93,6 +95,7 @@ export default function UserRequests() {
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -111,6 +114,7 @@ export default function UserRequests() {
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -144,6 +148,7 @@ export default function UserRequests() {
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -162,6 +167,7 @@ export default function UserRequests() {
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -233,6 +239,7 @@ export default function UserRequests() {
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     });
@@ -244,7 +251,6 @@ export default function UserRequests() {
 
   const save = (_fileList) => {
     if (values && values[0]) {
-      console.log("Received values of form:", values);
       setConfirmLoading(true);
       let user = JSON.parse(localStorage.getItem("user"));
       let _values = [...values];
@@ -256,6 +262,7 @@ export default function UserRequests() {
         method: "POST",
         headers: {
           Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+          token: token,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -293,7 +300,6 @@ export default function UserRequests() {
             .catch((err) => {
               setConfirmLoading(false);
               setOpen(false);
-              console.log(err);
               messageApi.open({
                 type: "error",
                 content: "Something happened! Please try again.",
@@ -308,6 +314,9 @@ export default function UserRequests() {
             content: "Something happened! Please try again.",
           });
         });
+    }else{
+      messageApi.error("Please add atleast one item!")
+      setConfirmLoading(false)
     }
   };
 
@@ -317,6 +326,7 @@ export default function UserRequests() {
       method: "POST",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -328,8 +338,6 @@ export default function UserRequests() {
         var index = _.findIndex(_data, { _id: id });
         let elindex = _data[index];
         elindex.status = "approved";
-
-        console.log(_data[index]);
         // Replace item at index using native splice
         _data.splice(index, 1, elindex);
 
@@ -355,6 +363,7 @@ export default function UserRequests() {
       }),
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -368,8 +377,6 @@ export default function UserRequests() {
         elindex.status = "declined";
         elindex.reasonForRejection = reason;
         elindex.declinedBy = declinedBy;
-
-        console.log(_data[index]);
         // Replace item at index using native splice
         _data.splice(index, 1, elindex);
 
@@ -392,6 +399,7 @@ export default function UserRequests() {
       method: "PUT",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -408,7 +416,6 @@ export default function UserRequests() {
             let r = res.filter((d) => {
               return d._id === rowData?._id;
             });
-            console.log(r);
             setRowData(r[0]);
             setLoadingRowData(false);
             if (status === "withdrawn") setRowData(null);
@@ -435,6 +442,7 @@ export default function UserRequests() {
       method: "PUT",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -451,7 +459,6 @@ export default function UserRequests() {
             let r = res.filter((d) => {
               return d._id === rowData?._id;
             });
-            console.log(r);
             setRowData(r[0]);
           })
           .catch((err) => {
@@ -475,6 +482,7 @@ export default function UserRequests() {
       method: "PUT",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -490,8 +498,6 @@ export default function UserRequests() {
         });
 
         updateStatus(rowData?._id, "pending");
-
-        console.log(r);
         setRowData(r[0]);
         setLoadingRowData(false);
         setDataLoaded(true);
@@ -506,7 +512,6 @@ export default function UserRequests() {
   }
 
   function handleSetRow(row) {
-    console.log(row);
     setLoadingRowData(true);
     setRowData(row);
     setLoadingRowData(false);
@@ -518,6 +523,7 @@ export default function UserRequests() {
       method: "POST",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(tenderData),
@@ -528,7 +534,6 @@ export default function UserRequests() {
         updateSourcingMethod(rowData._id, sourcingMethod);
       })
       .catch((err) => {
-        console.log(err);
         messageApi.open({
           type: "error",
           content: "Something happened! Please try again.",
@@ -547,6 +552,7 @@ export default function UserRequests() {
       }),
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -586,6 +592,7 @@ export default function UserRequests() {
       }),
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -614,7 +621,7 @@ export default function UserRequests() {
       });
   }
 
-  function createPO(
+  async function createPO(
     vendor,
     tender,
     createdBy,
@@ -629,6 +636,7 @@ export default function UserRequests() {
       method: "POST",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -684,6 +692,7 @@ export default function UserRequests() {
       method: "POST",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -716,7 +725,6 @@ export default function UserRequests() {
   }
 
   function _setFileList(list) {
-    console.log(list);
     setFileList(list);
   }
 
@@ -727,6 +735,7 @@ export default function UserRequests() {
   const handleUpload = (files) => {
     if (files?.length < 1) {
       messageApi.error("Please add at least one doc.");
+      setConfirmLoading(false)
     } else {
       files.forEach((filesPerRow, rowIndex) => {
         filesPerRow.map((rowFile, fileIndex) => {
@@ -739,6 +748,7 @@ export default function UserRequests() {
             body: formData,
             headers: {
               Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+              token: token,
               // "Content-Type": "multipart/form-data",
             },
           })
@@ -759,7 +769,6 @@ export default function UserRequests() {
               }
             })
             .catch((err) => {
-              console.log(err);
               messageApi.error("upload failed.");
             })
             .finally(() => {});
@@ -768,38 +777,25 @@ export default function UserRequests() {
     }
   };
 
-  // function createPO(vendor, tender, createdBy, sections, items) {
-  //   fetch(`${url}/purchaseOrders/`, {
-  //     method: "POST",
-  //     headers: {
-  //       Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify({
-  //       vendor,
-  //       tender,
-  //       createdBy,
-  //       sections,
-  //       items,
-  //       request: rowData?._id,
-  //     }),
-  //   })
-  //     .then((res) => res.json())
-  //     .then((res1) => {
-  //       updateStatus(rowData._id, "po created");
-  //       messageApi.open({
-  //         type: "success",
-  //         content: "PO created!",
-  //       });
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //       messageApi.open({
-  //         type: "error",
-  //         content: "Something happened! Please try again.",
-  //       });
-  //     });
-  // }
+  const getMyPendingRequest = (value) => {
+    
+    setMyPendingRequest(value)
+
+    if(value == true) {
+      const newFilter = tempDataset.filter((item) => (item?.level1Approver?._id == user._id));
+  
+      const statusFilter = newFilter.filter((item) =>
+        user?.permissions?.canApproveAsHof ? 
+        (item.status == 'approved hod') :
+        user?.permissions?.canApproveAsPM ?
+        (item.status == 'approved hof') : (item.status == 'pending'))
+  
+  
+      setTempDataset(statusFilter)
+    } else {
+      refresh()
+    }
+  }
 
   return !rowData ? (
     <>
@@ -809,14 +805,25 @@ export default function UserRequests() {
           <Row className="flex flex-col bg-white px-10 py-3 shadow space-y-2">
             <div className="flex flex-row items-center justify-between">
               <div className="text-xl font-semibold">Purchase Requests</div>
-              <div className="flex flex-row items-center space-x-1">
-                <div>View my requests only</div>
-                <Checkbox
-                  checked={onlyMine}
-                  onChange={(e) => {
-                    setOnlyMine(e.target.checked);
-                  }}
-                />
+              <div className="flex items-center space-x-5">
+                <div className="flex flex-row items-center space-x-1">
+                  <div>My Pending Requests</div>
+                  <Checkbox
+                    checked={myPendingRequest}
+                    onChange={(e) => {
+                      getMyPendingRequest(e.target.checked)
+                    }}
+                  />
+                </div>
+                <div className="flex flex-row items-center space-x-1">
+                  <div>View my requests only</div>
+                  <Checkbox
+                    checked={onlyMine}
+                    onChange={(e) => {
+                      setOnlyMine(e.target.checked);
+                    }}
+                  />
+                </div>
               </div>
             </div>
             <Row className="flex flex-row justify-between items-center space-x-4">
@@ -900,6 +907,7 @@ export default function UserRequests() {
             centered
             open={open}
             onOk={async () => {
+              
               await form.validateFields();
               if (values && values[0]) {
                 let invalidValues = values?.filter(
@@ -909,16 +917,20 @@ export default function UserRequests() {
                     v?.estimatedUnitCost === ""
                 );
                 if (invalidValues?.length == 0) {
+                  setConfirmLoading(true)
                   handleUpload(files);
                 }
+              }else{
+                messageApi.error("Please add atleast one item!")
               }
             }}
             onCancel={() => {
               setOpen(false);
               setValues([]);
             }}
+            
             okText="Submit for approval"
-            okButtonProps={{ size: "small" }}
+            okButtonProps={{ size: "small", disabled:confirmLoading }}
             cancelButtonProps={{ size: "small" }}
             width={1200}
             confirmLoading={confirmLoading}

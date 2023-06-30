@@ -3,11 +3,12 @@ import React from "react";
 import { UploadOutlined } from "@ant-design/icons";
 import { Button, Upload, message, UploadFile } from "antd";
 
-function UploadEvaluationReport({ label, uuid}) {
+function UploadEvaluationReport({ label, uuid, setSelected}) {
   const [messageApi, contextHolder] = message.useMessage();
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
+  let token = JSON.stringify(localStorage.getItem("token"))
 
   const props = {
     
@@ -15,17 +16,22 @@ function UploadEvaluationReport({ label, uuid}) {
     showUploadList: {
       showDownloadIcon: false,
     },
+    onRemove:()=>{
+      setSelected(false)
+    },
     beforeUpload: (file) => {
       let isPDF = file.type == "application/pdf";
       if (!isPDF) {
         messageApi.error(`${file.name} is not a PDF file`);
       }
+      setSelected(true)
 
       return isPDF || Upload.LIST_IGNORE;
     },
     action: `${url}/uploads/evaluationReports?id=${uuid}`,
     headers: {
       Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+      token:token,
       "Content-Type": "application/json",
     },
     listType: "document",

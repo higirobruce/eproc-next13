@@ -21,12 +21,14 @@ const ItemList = ({ handleSetValues }) => {
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
+  let token = localStorage.getItem('token')
 
   useEffect(() => {
     fetch(`${url}/serviceCategories`, {
       method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })
@@ -75,10 +77,17 @@ const ItemList = ({ handleSetValues }) => {
                             {
                               value: "RWF",
                               label: "RWF",
+                              key:"RWF"
                             },
                             {
                               value: "USD",
                               label: "USD",
+                              key:"USD"
+                            },
+                            {
+                              value: "EUR",
+                              label: "EUR",
+                              key:"EUR"
                             },
                           ]}
                         ></Select>

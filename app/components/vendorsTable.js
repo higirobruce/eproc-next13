@@ -19,6 +19,7 @@ const VendorsTable = ({
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
+  let token = localStorage.getItem('token')
 
   useEffect(() => {
     setData(dataSet);
@@ -28,6 +29,7 @@ const VendorsTable = ({
     return fetch(`${url}/users/vendors/rate/${id}`, {
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
     })

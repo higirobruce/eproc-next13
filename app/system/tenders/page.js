@@ -30,6 +30,7 @@ import { motion } from "framer-motion";
 
 export default function Tenders() {
   let user = JSON.parse(localStorage.getItem("user"));
+  let token = localStorage.getItem('token');
   const [dataLoaded, setDataLoaded] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
@@ -48,9 +49,10 @@ export default function Tenders() {
   let [totalTenders, setTotalTenders] = useState(0);
   let [totalBids, setTotalBids] = useState(0);
   let [doneCreatingContract, setDoneCreatingContract] = useState(false);
+  let [services, setServices] = useState([]);
 
   let [searchStatus, setSearchStatus] = useState("all");
-  let [searchText, setSearchText] = useState("");
+  let [searchText, setSearchText] = useState(null);
 
   useEffect(() => {
     loadTenders()
@@ -66,7 +68,7 @@ export default function Tenders() {
           content: "Something happened! Please try again.",
         });
       });
-  }, [user]);
+  }, []);
 
   function refresh() {
     setDataLoaded(false);
@@ -94,6 +96,7 @@ export default function Tenders() {
         headers: {
           Authorization:
             "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+            token: token,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -106,14 +109,16 @@ export default function Tenders() {
         headers: {
           Authorization:
             "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+            token: token,
           "Content-Type": "application/json",
         },
       });
   }
 
+
   useEffect(() => {
     setUpdatingId("");
-    loadStats();
+    // loadStats();
   }, [dataset]);
 
   useEffect(() => {
@@ -142,6 +147,7 @@ export default function Tenders() {
         headers: {
           Authorization:
             "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+            token: token,
           "Content-Type": "application/json",
         },
       })
@@ -186,6 +192,7 @@ export default function Tenders() {
       method: "POST",
       headers: {
         Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -219,35 +226,35 @@ export default function Tenders() {
       });
   };
 
-  function loadStats() {
-    fetch(`${url}/tenders/stats`, {
-      method: "GET",
-      headers: {
-        Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        setTotalTenders(res?.total);
-        // setOpen(res?.open)
-        // setClosed(res?.closed)
-      });
+  // function loadStats() {
+  //   fetch(`${url}/tenders/stats`, {
+  //     method: "GET",
+  //     headers: {
+  //       Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+  //       "Content-Type": "application/json",
+  //     },
+  //   })
+  //     .then((res) => res.json())
+  //     .then((res) => {
+  //       setTotalTenders(res?.total);
+  //       // setOpen(res?.open)
+  //       // setClosed(res?.closed)
+  //     });
 
-    fetch(`${url}/submissions`, {
-      method: "GET",
-      headers: {
-        Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        setTotalBids(res?.length);
-        // setOpen(res?.open)
-        // setClosed(res?.closed)
-      });
-  }
+  //   fetch(`${url}/submissions`, {
+  //     method: "GET",
+  //     headers: {
+  //       Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+  //       "Content-Type": "application/json",
+  //     },
+  //   })
+  //     .then((res) => res.json())
+  //     .then((res) => {
+  //       setTotalBids(res?.length);
+  //       // setOpen(res?.open)
+  //       // setClosed(res?.closed)
+  //     });
+  // }
 
   function handleSetRow(row) {
     setLoadingRowData(true);

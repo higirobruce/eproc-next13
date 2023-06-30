@@ -6,6 +6,10 @@ function PermissionsTable({
   canCreateRequests,
   canEditRequests,
   canApproveRequests,
+  canViewPaymentRequests,
+  canCreatePaymentRequests,
+  canEditPaymentRequests,
+  canApprovePaymentRequests,
   canViewTenders,
   canCreateTenders,
   canEditTenders,
@@ -117,6 +121,15 @@ function PermissionsTable({
     },
     {
       key: "2",
+      module: "Payment Requests",
+      alias: "PaymentRequests",
+      view: canViewPaymentRequests,
+      create: canCreatePaymentRequests,
+      edit: canEditPaymentRequests,
+      approve: canApprovePaymentRequests,
+    },
+    {
+      key: "3",
       module: "Tenders",
       alias: "Tenders",
       view: canViewTenders,
@@ -125,7 +138,7 @@ function PermissionsTable({
       approve: canApproveTenders,
     },
     {
-      key: "3",
+      key: "4",
       module: "Bids",
       alias: "Bids",
       view: canViewBids,
@@ -134,7 +147,7 @@ function PermissionsTable({
       approve: canApproveBids,
     },
     {
-      key: "4",
+      key: "5",
       module: "Contracts",
       alias: "Contracts",
       view: canViewContracts,
@@ -143,7 +156,7 @@ function PermissionsTable({
       approve: canApproveContracts,
     },
     {
-      key: "5",
+      key: "6",
       module: "Purchase Orders",
       alias: "PurchaseOrders",
       view: canViewPurchaseOrders,
@@ -152,7 +165,7 @@ function PermissionsTable({
       approve: canApprovePurchaseOrders,
     },
     {
-      key: "6",
+      key: "7",
       module: "Vendors",
       alias: "Vendors",
       view: canViewVendors,
@@ -161,7 +174,7 @@ function PermissionsTable({
       approve: canApproveVendors,
     },
     {
-      key: "7",
+      key: "8",
       module: "Users",
       alias: "Users",
       view: canViewUsers,
@@ -170,7 +183,7 @@ function PermissionsTable({
       approve: canApproveUsers,
     },
     {
-      key: "8",
+      key: "9",
       module: "Dashboard",
       alias: "Dashboard",
       view: canViewDashboard,
