@@ -61,19 +61,35 @@ const EditableCell = ({
           margin: 0,
         }}
         name={dataIndex}
-        rules={[
+        rules={(dataIndex == 'quantity' || dataIndex=='estimatedUnitCost') ? [
+          {
+            required: true,
+            message: `Input required.`,
+          },
+          {
+            pattern: new RegExp("([0-9])+"),
+            message: "Should be a number",
+          },
+        ] :  [
           {
             required: true,
             message: `Input required.`,
           },
         ]}
       >
-        <Input
+        {(dataIndex == 'quantity' || dataIndex=='estimatedUnitCost') ? <InputNumber
+          className="w-full"
           ref={inputRef}
           onPressEnter={save}
           placeholder={dataIndex === "title" ? "enter title" : "eg. 1000000"}
           onBlur={save}
-        />
+        /> : <Input
+        ref={inputRef}
+        onPressEnter={save}
+        placeholder={dataIndex === "title" ? "enter title" : "eg. 1000000"}
+        onBlur={save}
+      />}
+        
       </Form.Item>
     ) : (
       <div
