@@ -441,7 +441,7 @@ const TenderDetails = ({
       body: JSON.stringify({
         newContract: _contract,
         previousStatus: contract?.status,
-        signingIndex,
+        signingIndex: 0,
       }),
     })
       .then((res) => res.json())

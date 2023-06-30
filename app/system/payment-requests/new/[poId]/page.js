@@ -133,6 +133,8 @@ export default function NewPaymentRequest({ params }) {
         createdBy: user?._id,
         purchaseOrder: params?.poId,
         docIds: _fileList,
+        budgeted: po?.request?.budgeted || po?.tender?.purchaseRequest?.budgeted || false ,
+        budgetLine: po?.request?.budgetLine?._id || po?.tender?.purchaseRequest?.budgetLine?._id || '' ,
       }),
     })
       .then((res) => {

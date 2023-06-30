@@ -1,6 +1,6 @@
 "use client";
 import { QuestionCircleOutlined } from "@ant-design/icons";
-import { Button, Form, Input, Popconfirm, Select, Table, Tooltip } from "antd";
+import { Button, Form, Input, InputNumber, Popconfirm, Select, Table, Tooltip } from "antd";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { v4 } from "uuid";
 import UploadTORs from "./uploadTORs";
