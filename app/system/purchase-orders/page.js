@@ -704,9 +704,13 @@ export default function PurchaseOrders() {
                           </div>
                           <div className="font-semibold flex flex-row space-x-2">
                             <div>{po?.number}</div>
-                            <Link href={`/system/purchase-orders/${po?._id}`}>
-                              <PrinterOutlined />
-                            </Link>
+                            {(user?.userType !== "VENDOR" ||
+                              (documentFullySignedInternally(po) &&
+                                user?.userType === "VENDOR")) && (
+                              <Link href={`/system/purchase-orders/${po?._id}`}>
+                                <PrinterOutlined />
+                              </Link>
+                            )}
                           </div>
                           <div className="text-gray-600">
                             {po?.tender?.purchaseRequest?.description ||
