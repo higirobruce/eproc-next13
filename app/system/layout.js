@@ -47,7 +47,7 @@ export default function SystemLayout({ children }) {
               </Layout.Sider>
             </div>
             <Layout>
-              <Layout.Content className="bg-gray-50 h-full">
+              <Layout.Content className="bg-gray-50 h-full z-0">
                 <Spin
                   spinning={loggingOut}
                   indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}
