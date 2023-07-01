@@ -52,6 +52,7 @@ let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
 async function getPaymentRequestDetails(id) {
   let token = localStorage.getItem("token");
+  let router = useRouter()
   const res = await fetch(`${url}/paymentRequests/${id}`, {
     headers: {
       Authorization: "Basic " + `${encode(`${apiUsername}:${apiPassword}`)}`,
@@ -63,6 +64,11 @@ async function getPaymentRequestDetails(id) {
   if (!res.ok) {
     // This will activate the closest `error.js` Error Boundary
 
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push("/auth");
+    } 
     return null;
     // throw new Error("Failed to fetch data");
   }
@@ -117,6 +123,7 @@ async function getFile(path) {
 }
 
 export default function PaymentRequest({ params }) {
+
   let user = JSON.parse(localStorage.getItem("user"));
   let token = localStorage.getItem("token");
   let [paymentRequest, setPaymentRequest] = useState(null);

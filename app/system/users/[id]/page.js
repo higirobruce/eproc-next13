@@ -36,6 +36,7 @@ let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
 async function getUserDetails(id) {
+  let router = useRouter()
   const res = await fetch(`${url}/users/internalUserById/${id}`, {
     headers: {
       Authorization: "Basic " + `${encode(`${apiUsername}:${apiPassword}`)}`,
@@ -44,6 +45,11 @@ async function getUserDetails(id) {
   });
 
   if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push("/auth");
+    } 
     // This will activate the closest `error.js` Error Boundary
     // console.log(id);
     return null;

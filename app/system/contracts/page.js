@@ -49,6 +49,7 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { encode } from "base-64";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 let modules = {
   toolbar: [
@@ -79,6 +80,7 @@ let formats = [
 ];
 
 export default function Contracts() {
+  let router = useRouter();
   let user = JSON.parse(localStorage.getItem("user"));
   let token = localStorage.getItem("token");
   const [dataLoaded, setDataLoaded] = useState(false);
@@ -274,7 +276,7 @@ export default function Contracts() {
       })
       .catch((err) => {
         messageApi.error({
-          content: "Could not fetch users!",
+          content: "Could not fetch fixed assets!",
         });
       });
   }
@@ -755,7 +757,10 @@ export default function Contracts() {
           "Content-Type": "application/json",
         },
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (res.ok) return res.json();
+          else if (res.status === 401) router.push("/auth");
+        })
         .then((res) => {
           setContracts(res);
           setTempContracts(res);
@@ -773,7 +778,14 @@ export default function Contracts() {
           "Content-Type": "application/json",
         },
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (res.ok) return res.json();
+          else if (res.status === 401) {
+            localStorage.removeItem('token')
+            localStorage.removeItem('user')
+            router.push("/auth");
+          }
+        })
         .then((res) => {
           let _contracts = user?.permissions?.canApproveAsLegal
             ? res

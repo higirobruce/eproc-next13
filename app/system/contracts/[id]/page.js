@@ -62,6 +62,11 @@ async function getContractDetails(id) {
   });
 
   if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push("/auth");
+    }
     // This will activate the closest `error.js` Error Boundary
     // console.log(id);
     return null;

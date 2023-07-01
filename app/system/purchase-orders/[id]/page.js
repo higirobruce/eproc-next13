@@ -27,6 +27,7 @@ import "react-quill/dist/quill.snow.css";
 import { encode } from "base-64";
 import html2pdf from "html2pdf.js";
 import ReactDOMServer from "react-dom/server";
+import { useRouter } from "next/navigation";
 
 let modules = {
   toolbar: [
@@ -62,6 +63,7 @@ let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
 async function getPODetails(id) {
   let token = localStorage.getItem("token");
+  let router = useRouter()
   const res = await fetch(`${url}/purchaseOrders/${id}`, {
     headers: {
       Authorization: "Basic " + `${encode(`${apiUsername}:${apiPassword}`)}`,
@@ -71,6 +73,11 @@ async function getPODetails(id) {
   });
 
   if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push("/auth");
+    }
     // This will activate the closest `error.js` Error Boundary
     // console.log(id);
     return null;

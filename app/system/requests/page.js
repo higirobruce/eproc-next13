@@ -99,7 +99,15 @@ export default function UserRequests() {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          router.push("/auth");
+        } else {
+          return res.json();
+        }
+      })
       .then((res) => {
         setServiceCategories(res);
       })

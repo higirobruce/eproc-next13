@@ -27,10 +27,12 @@ import ItemList from "../../components/itemList";
 import TenderDetails from "../../components/tenderDetails";
 import TendersTable from "../../components/tendersTable";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 export default function Tenders() {
   let user = JSON.parse(localStorage.getItem("user"));
-  let token = localStorage.getItem('token');
+  let router = useRouter()
+  let token = localStorage.getItem("token");
   const [dataLoaded, setDataLoaded] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
@@ -74,7 +76,15 @@ export default function Tenders() {
     setDataLoaded(false);
     setLoadingRowData(true);
     loadTenders()
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          router.push("/auth");
+        } else {
+          return res.json();
+        }
+      })
       .then((res) => {
         setDataLoaded(true);
         setLoadingRowData(false);
@@ -96,7 +106,7 @@ export default function Tenders() {
         headers: {
           Authorization:
             "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
-            token: token,
+          token: token,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -109,12 +119,11 @@ export default function Tenders() {
         headers: {
           Authorization:
             "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
-            token: token,
+          token: token,
           "Content-Type": "application/json",
         },
       });
   }
-
 
   useEffect(() => {
     setUpdatingId("");
@@ -147,7 +156,7 @@ export default function Tenders() {
         headers: {
           Authorization:
             "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
-            token: token,
+          token: token,
           "Content-Type": "application/json",
         },
       })
