@@ -71,7 +71,13 @@ export default function UserRequests() {
   let [searchStatus, setSearchStatus] = useState("all");
   let [searchText, setSearchText] = useState("");
   const [form] = Form.useForm();
-  const [onlyMine, setOnlyMine] = useState(true);
+  const [onlyMine, setOnlyMine] = useState(
+    (!user?.permissions?.canApproveAsHof &&
+      !user?.permissions?.canApproveAsPM &&
+      !user?.permissions?.canApproveAsHod)
+      ? true
+      : false
+  );
   const [myPendingRequest, setMyPendingRequest] = useState(false);
   const [sourcingMethod, setSourcingMethod] = useState("");
   let [files, setFiles] = useState([]);
@@ -157,13 +163,7 @@ export default function UserRequests() {
         setBudgetLines(res);
       });
 
-    if (
-      user?.permissions?.canApproveAsHof ||
-      user?.permissions?.canApproveAsPM ||
-      user?.permissions?.canApproveAsHod
-    ) {
-      setOnlyMine(false);
-    }
+   
   }, []);
 
   useEffect(() => {
@@ -224,13 +224,7 @@ export default function UserRequests() {
         setDataLoaded(true);
         setDataset(res);
         setTempDataset(res);
-        if (
-          user?.permissions?.canApproveAsHof ||
-          user?.permissions?.canApproveAsPM ||
-          user?.permissions?.canApproveAsHod
-        ) {
-          setOnlyMine(false);
-        }
+       
       })
       .catch((err) => {
         messageApi.open({
