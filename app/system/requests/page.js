@@ -156,6 +156,14 @@ export default function UserRequests() {
       .then((res) => {
         setBudgetLines(res);
       });
+
+    if (
+      user?.permissions?.canApproveAsHof ||
+      user?.permissions?.canApproveAsPM ||
+      user?.permissions?.canApproveAsHod
+    ) {
+      setOnlyMine(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -817,26 +825,31 @@ export default function UserRequests() {
           <Row className="flex flex-col bg-white px-10 py-3 shadow space-y-2">
             <div className="flex flex-row items-center justify-between">
               <div className="text-xl font-semibold">Purchase Requests</div>
-              <div className="flex items-center space-x-5">
-                <div className="flex flex-row items-center space-x-1">
-                  <div>My Pending Requests</div>
-                  <Checkbox
-                    checked={myPendingRequest}
-                    onChange={(e) => {
-                      getMyPendingRequest(e.target.checked);
-                    }}
-                  />
+              {(user?.permissions?.canApproveAsHof ||
+                user?.permissions?.canApproveAsPM ||
+                user?.permissions?.canApproveAsHod) && (
+                <div className="flex items-center space-x-5">
+                  <div className="flex flex-row items-center space-x-1">
+                    <div>My Pending Requests</div>
+                    <Checkbox
+                      checked={myPendingRequest}
+                      onChange={(e) => {
+                        getMyPendingRequest(e.target.checked);
+                      }}
+                    />
+                  </div>
+
+                  <div className="flex flex-row items-center space-x-1">
+                    <div>View my requests only</div>
+                    <Checkbox
+                      checked={onlyMine}
+                      onChange={(e) => {
+                        setOnlyMine(e.target.checked);
+                      }}
+                    />
+                  </div>
                 </div>
-                <div className="flex flex-row items-center space-x-1">
-                  <div>View my requests only</div>
-                  <Checkbox
-                    checked={onlyMine}
-                    onChange={(e) => {
-                      setOnlyMine(e.target.checked);
-                    }}
-                  />
-                </div>
-              </div>
+              )}
             </div>
             <Row className="flex flex-row justify-between items-center space-x-4">
               <div className="flex-1">
