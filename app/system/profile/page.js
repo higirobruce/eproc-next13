@@ -87,15 +87,7 @@ export default function page() {
         newPassword: values.newPassword,
       }),
     })
-      .then((res) => {
-        if (res.status === 401) {
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
-          router.push("/auth");
-        } else {
-          res.json();
-        }
-      })
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         setSubmitting(false);
         form.resetFields();
@@ -119,6 +111,19 @@ export default function page() {
           content: "Something happened! Please try again.",
         });
       });
+  }
+
+  function getResultFromServer(res) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push(
+        `/auth?goTo=/system/profile/&sessionExpired=true`
+      );
+      throw Error('Unauthorized')
+    } else {
+      return res.json();
+    }
   }
 
   function buildUser() {
@@ -389,7 +394,7 @@ export default function page() {
                         <Checkbox
                           disabled
                           defaultChecked={user?.permissions?.canApproveAsHof}
-                          onChange={(e) => setCanApproveAsHof(e.target.checked)}
+                          // onChange={(e) => setCanApproveAsHof(e.target.checked)}
                         />
                       </Form.Item>
                       <Form.Item
@@ -399,7 +404,18 @@ export default function page() {
                         <Checkbox
                           disabled
                           defaultChecked={user?.permissions?.canApproveAsPM}
-                          onChange={(e) => setCanApproveAsPM(e.target.checked)}
+                          // onChange={(e) => setCanApproveAsPM(e.target.checked)}
+                        />
+                      </Form.Item>
+
+                      <Form.Item
+                        name="canApproveAsLegal"
+                        label="Can approve as a Legal officer"
+                      >
+                        <Checkbox
+                          disabled
+                          defaultChecked={user?.permissions?.canApproveAsPM}
+                          // onChange={(e) => setCanApproveAsPM(e.target.checked)}
                         />
                       </Form.Item>
                     </Form>
@@ -1039,6 +1055,7 @@ export default function page() {
       </div>
     );
   }
+
 
   function previewAttachmentModal() {
     // return (

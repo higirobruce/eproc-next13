@@ -35,8 +35,7 @@ let url = process.env.NEXT_PUBLIC_BKEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
-async function getUserDetails(id) {
-  let router = useRouter()
+async function getUserDetails(id, router) {
   const res = await fetch(`${url}/users/internalUserById/${id}`, {
     headers: {
       Authorization: "Basic " + `${encode(`${apiUsername}:${apiPassword}`)}`,
@@ -86,9 +85,8 @@ export default function page({ params }) {
   const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
   useEffect(() => {
-    getUserDetails(params?.id).then((res) => {
+    getUserDetails(params?.id, router).then((res) => {
       setRow(res);
-      
     });
 
     fetch(`${url}/dpts`, {
