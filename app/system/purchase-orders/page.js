@@ -149,15 +149,7 @@ export default function PurchaseOrders() {
           "Content-Type": "application/json",
         },
       })
-        .then((res) => {
-          if (res.status === 401) {
-            localStorage.removeItem("token");
-            localStorage.removeItem("user");
-            router.push("/auth");
-          } else {
-            res.json();
-          }
-        })
+        .then((res) => getResultFromServer(res))
         .then((res) => {
           setPOs(res);
           setTempPOs(res);
@@ -176,7 +168,7 @@ export default function PurchaseOrders() {
           "Content-Type": "application/json",
         },
       })
-        .then((res) => res.json())
+        .then((res) => getResultFromServer(res))
         .then((res) => {
           setPOs(res);
           setTempPOs(res);
@@ -454,7 +446,7 @@ export default function PurchaseOrders() {
     let _po = { ...po };
 
     fetch("https://api.ipify.org?format=json")
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         myIpObj = res;
         signatory.ipAddress = res?.ip;
@@ -479,7 +471,7 @@ export default function PurchaseOrders() {
             signingIndex: index,
           }),
         })
-          .then((res) => res.json())
+          .then((res) => getResultFromServer(res))
           .then((res) => {
             setSigning(false);
             setSignatories([]);
@@ -533,7 +525,7 @@ export default function PurchaseOrders() {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         if (res?.error) {
           let _pos = [...pOs];
@@ -595,6 +587,18 @@ export default function PurchaseOrders() {
     //     </div>
     //   </Modal>
     // );
+  }
+
+  function getResultFromServer(res) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push(
+        `/auth?goTo=/system/purchase-orders/&sessionExpired=true`
+      );
+    } else {
+      return res.json();
+    }
   }
 
   return (
