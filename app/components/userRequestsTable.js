@@ -171,7 +171,7 @@ const UsersRequestsTable = ({
     else if (status === "Approved (fd)") return "cyan";
     else if (status === "Approved (pm)") return "geekblue";
     else if (status === "Approved (hod)") return "blue";
-    else if (status === "Declined") return "red";
+    else if (status === "Declined" || status === 'Withdrawn') return "red";
   };
 
   useEffect(() => {
