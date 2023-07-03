@@ -149,13 +149,16 @@ const UsersRequestsTable = ({
   });
 
   function getHighLevelStatus(status) {
-    if (status === "Approved" || status === "Declined") {
-      return status;
-    } else if (status === "Approved (pm)") {
-      return "Approved";
-    } else {
-      return "Pending";
-    }
+
+    return status
+
+    // if (status === "Approved" || status === "Declined") {
+    //   return status;
+    // } else if (status === "Approved (pm)") {
+    //   return "Approved";
+    // } else {
+    //   return "Pending";
+    // }
   }
 
   const cancel = () => {
@@ -165,9 +168,9 @@ const UsersRequestsTable = ({
   const getTagColor = (status) => {
     if (status === "Pending") return "yellow";
     else if (status === "Approved") return "green";
-    else if (status === "approved (fd)") return "cyan";
-    else if (status === "approved (pm)") return "geekblue";
-    else if (status === "approved") return "green";
+    else if (status === "Approved (fd)") return "cyan";
+    else if (status === "Approved (pm)") return "geekblue";
+    else if (status === "Approved (hod)") return "blue";
     else if (status === "Declined") return "red";
   };
 
