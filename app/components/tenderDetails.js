@@ -3340,6 +3340,12 @@ const TenderDetails = ({
                                       " " +
                                       item?.currency}
                                   </div>
+                                  <div className="text-xs text-gray-400">
+                                    Comment
+                                  </div>
+                                  <div className="text-xs text-gray-600">
+                                    {item?.comment}
+                                  </div>
                                 </div>
 
                                 <div className="self-center">
