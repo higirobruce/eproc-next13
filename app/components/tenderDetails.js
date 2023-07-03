@@ -2390,7 +2390,7 @@ const TenderDetails = ({
 
                   {(user?.email === s?.email || user?.tempEmail === s?.email) &&
                     !s?.signed &&
-                    previousSignatorySigned(signatories, index) && (
+                    previousSignatorySigned(signatories, index) && contract.status !=='draft' && (
                       <Popconfirm
                         title="Confirm Contract Signature"
                         onConfirm={() => handleSignContract(s, index)}
