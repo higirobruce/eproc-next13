@@ -933,7 +933,7 @@ export default function page({ params }) {
                 {((user?.email !== s?.email &&
                   user?.tempEmail !== s?.email &&
                   !s.signed) ||
-                  !previousSignatorySigned(contract?.signatories, index)) && (
+                  !previousSignatorySigned(contract?.signatories, index) || contract?.status=='draft') && (
                   <div className="flex flex-row justify-center space-x-5 items-center border-t-2 bg-gray-50 p-5">
                     <Image
                       width={40}
