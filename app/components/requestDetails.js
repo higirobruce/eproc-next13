@@ -515,6 +515,7 @@ const RequestDetails = ({
 
   let [servCategories, setServCategories] = useState([]);
   let [budgetLines, setBudgetLines] = useState([]);
+  
   useEffect(() => {
     refresh();
     let _openConfirmDeliv = [...openConfirmDeliv];

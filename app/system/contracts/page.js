@@ -223,7 +223,7 @@ export default function Contracts() {
         signatories,
       }),
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res1) => {
         if (res1.error) {
           messageApi.open({
@@ -257,7 +257,7 @@ export default function Contracts() {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((body) => {
         if (body?.error) {
           messageApi.error({
@@ -757,10 +757,7 @@ export default function Contracts() {
           "Content-Type": "application/json",
         },
       })
-        .then((res) => {
-          if (res.ok) return res.json();
-          else if (res.status === 401) router.push("/auth");
-        })
+        .then((res) => getResultFromServer(res))
         .then((res) => {
           setContracts(res);
           setTempContracts(res);
@@ -778,14 +775,7 @@ export default function Contracts() {
           "Content-Type": "application/json",
         },
       })
-        .then((res) => {
-          if (res.ok) return res.json();
-          else if (res.status === 401) {
-            localStorage.removeItem('token')
-            localStorage.removeItem('user')
-            router.push("/auth");
-          }
-        })
+        .then((res) => getResultFromServer(res))
         .then((res) => {
           let _contracts = user?.permissions?.canApproveAsLegal
             ? res
@@ -1216,7 +1206,7 @@ export default function Contracts() {
         previousStatus,
       }),
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res1) => {
         setSignatories([]);
         setSections([{ title: "Set section title", body: "" }]);
@@ -1240,7 +1230,7 @@ export default function Contracts() {
     let _contract = { ...contract };
 
     fetch("https://api.ipify.org?format=json")
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         myIpObj = res;
         signatory.ipAddress = res?.ip;
@@ -1263,7 +1253,7 @@ export default function Contracts() {
             signingIndex: index,
           }),
         })
-          .then((res) => res.json())
+          .then((res) => getResultFromServer(res))
           .then((res) => {
             // setSignatories([]);
             // setSections([{ title: "Set section title", body: "" }]);
@@ -1330,7 +1320,7 @@ export default function Contracts() {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         if (res?.error) {
           let _pos = [...contracts];
@@ -1392,6 +1382,16 @@ export default function Contracts() {
     //     </div>
     //   </Modal>
     // );
+  }
+
+  function getResultFromServer(res) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push(`/auth?goTo=/system/contracts&sessionExpired=true`);
+    } else {
+      return res.json();
+    }
   }
 
   return (

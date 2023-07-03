@@ -76,15 +76,7 @@ export default function Tenders() {
     setDataLoaded(false);
     setLoadingRowData(true);
     loadTenders()
-      .then((res) => {
-        if (res.status === 401) {
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
-          router.push("/auth");
-        } else {
-          return res.json();
-        }
-      })
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         setDataLoaded(true);
         setLoadingRowData(false);
@@ -271,6 +263,16 @@ export default function Tenders() {
     setLoadingRowData(false);
   }
 
+  function getResultFromServer(res) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push(`/auth?goTo=/system/tenders&sessionExpired=true`);
+    } else {
+      return res.json();
+    }
+  }
+  
   return (
     <>
       {contextHolder}
