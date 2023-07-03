@@ -75,7 +75,7 @@ export default function UserRequests() {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         setDataLoaded(true);
         setDataset(res);
@@ -116,15 +116,7 @@ export default function UserRequests() {
     setDataLoaded(false);
     // setSearchStatus("mine");
     loadRequests()
-      .then((res) => {
-        if (res.status === 401) {
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
-          router.push("/auth");
-        } else {
-          return res.json();
-        }
-      })
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         setDataLoaded(true);
         setDataset(res);
@@ -156,6 +148,18 @@ export default function UserRequests() {
         "Content-Type": "application/json",
       },
     });
+  }
+
+  function getResultFromServer(res) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push(
+        `/auth?goTo=/system/payment-requests/&sessionExpired=true`
+      );
+    } else {
+      return res.json();
+    }
   }
 
   useEffect(() => {
