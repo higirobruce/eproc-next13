@@ -149,7 +149,15 @@ export default function PurchaseOrders() {
           "Content-Type": "application/json",
         },
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (res.status === 401) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            router.push("/auth");
+          } else {
+            res.json();
+          }
+        })
         .then((res) => {
           setPOs(res);
           setTempPOs(res);

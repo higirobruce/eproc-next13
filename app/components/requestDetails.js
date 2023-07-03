@@ -678,7 +678,7 @@ const RequestDetails = ({
       })
       .catch((err) => {
         messageApi.error({
-          content: "Could not fetch users!",
+          content: "Could not connect to SAP B1!",
         });
       });
   }
