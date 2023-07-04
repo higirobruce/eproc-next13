@@ -71,12 +71,18 @@ export default function UserRequests() {
   let [searchStatus, setSearchStatus] = useState("all");
   let [searchText, setSearchText] = useState("");
   const [form] = Form.useForm();
-  const [onlyMine, setOnlyMine] = useState(true);
+  const [onlyMine, setOnlyMine] = useState(
+    (!user?.permissions?.canApproveAsHof &&
+      !user?.permissions?.canApproveAsPM &&
+      !user?.permissions?.canApproveAsHod)
+      ? true
+      : false
+  );
   const [myPendingRequest, setMyPendingRequest] = useState(false);
   const [currentUser, setCurrentUser] = useState('');
   const [sourcingMethod, setSourcingMethod] = useState("");
   let [files, setFiles] = useState([]);
-  let token = localStorage.getItem('token')
+  let token = localStorage.getItem("token");
 
   useEffect(() => {
     // loadRequests()
@@ -100,7 +106,7 @@ export default function UserRequests() {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         setServiceCategories(res);
       })
@@ -172,6 +178,8 @@ export default function UserRequests() {
       .then((res) => {
         setBudgetLines(res);
       });
+
+   
   }, []);
 
   useEffect(() => {
@@ -187,7 +195,7 @@ export default function UserRequests() {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         setDataLoaded(true);
         setDataset(res);
@@ -227,11 +235,12 @@ export default function UserRequests() {
     setDataLoaded(false);
     // setSearchStatus("mine");
     loadRequests()
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         setDataLoaded(true);
         setDataset(res);
         setTempDataset(res);
+       
       })
       .catch((err) => {
         messageApi.open({
@@ -293,7 +302,7 @@ export default function UserRequests() {
           level1Approver,
         }),
       })
-        .then((res) => res.json())
+        .then((res) => getResultFromServer(res))
         .then(async (res) => {
           setDueDate(null),
             setDescription(""),
@@ -305,7 +314,7 @@ export default function UserRequests() {
             setFileList([]);
           setFiles([]);
           loadRequests()
-            .then((res) => res.json())
+            .then((res) => getResultFromServer(res))
             .then((res) => {
               setDataLoaded(true);
               setDataset(res);
@@ -330,9 +339,9 @@ export default function UserRequests() {
             content: "Something happened! Please try again.",
           });
         });
-    }else{
-      messageApi.error("Please add atleast one item!")
-      setConfirmLoading(false)
+    } else {
+      messageApi.error("Please add atleast one item!");
+      setConfirmLoading(false);
     }
   };
 
@@ -346,7 +355,7 @@ export default function UserRequests() {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         let _data = [...dataset];
 
@@ -383,7 +392,7 @@ export default function UserRequests() {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         let _data = [...dataset];
 
@@ -422,7 +431,7 @@ export default function UserRequests() {
         status,
       }),
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         loadRequests()
           .then((res) => res.json())
@@ -505,7 +514,7 @@ export default function UserRequests() {
         updates: rowData,
       }),
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         refresh();
 
@@ -544,7 +553,7 @@ export default function UserRequests() {
       },
       body: JSON.stringify(tenderData),
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         updateStatus(rowData._id, "approved");
         updateSourcingMethod(rowData._id, sourcingMethod);
@@ -572,11 +581,11 @@ export default function UserRequests() {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         setReload(!reload);
         loadRequests()
-          .then((res) => res.json())
+          .then((res) => getResultFromServer(res))
           .then((res) => {
             setDataset(res);
             setTempDataset(res);
@@ -612,11 +621,11 @@ export default function UserRequests() {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         setReload(!reload);
         loadRequests()
-          .then((res) => res.json())
+          .then((res) => getResultFromServer(res))
           .then((res) => {
             setDataset(res);
             setTempDataset(res);
@@ -668,7 +677,7 @@ export default function UserRequests() {
         reqAttachmentDocId,
       }),
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res1) => {
         if (res1.error || res1.code) {
           messageApi.open({
@@ -723,7 +732,7 @@ export default function UserRequests() {
         request: rowData?._id,
       }),
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res1) => {
         updateStatus(rowData._id, "approved");
         updateSourcingMethod(rowData._id, sourcingMethod);
@@ -751,7 +760,7 @@ export default function UserRequests() {
   const handleUpload = (files) => {
     if (files?.length < 1) {
       messageApi.error("Please add at least one doc.");
-      setConfirmLoading(false)
+      setConfirmLoading(false);
     } else {
       files.forEach((filesPerRow, rowIndex) => {
         filesPerRow.map((rowFile, fileIndex) => {
@@ -768,7 +777,7 @@ export default function UserRequests() {
               // "Content-Type": "multipart/form-data",
             },
           })
-            .then((res) => res.json())
+            .then((res) => getResultFromServer(res))
             .then((savedFiles) => {
               let _filenames = savedFiles?.map((f) => {
                 return f?.filename;
@@ -794,22 +803,34 @@ export default function UserRequests() {
   };
 
   const getMyPendingRequest = (value) => {
-    
-    setMyPendingRequest(value)
+    setMyPendingRequest(value);
 
-    if(value == true) {
-      const newFilter = tempDataset.filter((item) => (item?.level1Approver?._id == user._id));
-  
+    if (value == true) {
+      const newFilter = tempDataset.filter(
+        (item) => item?.level1Approver?._id == user._id
+      );
+
       const statusFilter = newFilter.filter((item) =>
-        user?.permissions?.canApproveAsHof ? 
-        (item.status == 'approved hod') :
-        user?.permissions?.canApproveAsPM ?
-        (item.status == 'approved hof') : (item.status == 'pending'))
-  
-  
-      setTempDataset(statusFilter)
+        user?.permissions?.canApproveAsHod
+          ? item.status == "pending"
+          : user?.permissions?.canApproveAsHof
+          ? item.status == "approved (hod)"
+          : item.status == "approved (hof)"
+      );
+
+      setTempDataset(statusFilter);
     } else {
-      refresh()
+      refresh();
+    }
+  };
+
+  function getResultFromServer(res) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push("/auth?goTo=/system/requests&sessionExpired=true");
+    } else {
+      return res.json();
     }
   }
 
@@ -821,16 +842,18 @@ export default function UserRequests() {
           <Row className="flex flex-col bg-white px-10 py-3 shadow space-y-2">
             <div className="flex flex-row items-center justify-between">
               <div className="text-xl font-semibold">Purchase Requests</div>
+
               <div className="flex items-center space-x-5">
                 <div className="flex flex-row items-center space-x-1">
                   <div>My Pending Requests</div>
                   <Checkbox
                     checked={myPendingRequest}
                     onChange={(e) => {
-                      getMyPendingRequest(e.target.checked)
+                      getMyPendingRequest(e.target.checked);
                     }}
                   />
                 </div>
+<<<<<<< HEAD
                 {(currentUser?.permissions?.canApproveAsHod || currentUser?.permissions?.canApproveAsHof || currentUser?.permissions?.canApproveAsPM) && 
                   <div className="flex flex-row items-center space-x-1">
                     <div>View my requests only</div>
@@ -842,6 +865,18 @@ export default function UserRequests() {
                     />
                   </div>
                 }
+=======
+
+                <div className="flex flex-row items-center space-x-1">
+                  <div>View my requests only</div>
+                  <Checkbox
+                    checked={onlyMine}
+                    onChange={(e) => {
+                      setOnlyMine(e.target.checked);
+                    }}
+                  />
+                </div>
+>>>>>>> 75dc241e12da1b2fbea2cc775b55ae28c5a36da9
               </div>
             </div>
             <Row className="flex flex-row justify-between items-center space-x-4">
@@ -890,6 +925,7 @@ export default function UserRequests() {
                   icon={<PlusOutlined />}
                   onClick={() => {
                     form.resetFields();
+
                     setOpen(true);
                   }}
                 >
@@ -925,7 +961,6 @@ export default function UserRequests() {
             centered
             open={open}
             onOk={async () => {
-              
               await form.validateFields();
               if (values && values[0]) {
                 let invalidValues = values?.filter(
@@ -935,20 +970,19 @@ export default function UserRequests() {
                     v?.estimatedUnitCost === ""
                 );
                 if (invalidValues?.length == 0) {
-                  setConfirmLoading(true)
+                  setConfirmLoading(true);
                   handleUpload(files);
                 }
-              }else{
-                messageApi.error("Please add atleast one item!")
+              } else {
+                messageApi.error("Please add atleast one item!");
               }
             }}
             onCancel={() => {
               setOpen(false);
               setValues([]);
             }}
-            
             okText="Submit for approval"
-            okButtonProps={{ size: "small", disabled:confirmLoading }}
+            okButtonProps={{ size: "small", disabled: confirmLoading }}
             cancelButtonProps={{ size: "small" }}
             width={1200}
             confirmLoading={confirmLoading}
@@ -1217,9 +1251,9 @@ export default function UserRequests() {
             </div>
           </Modal>
 
-          <div class="absolute -bottom-32 right-10 opacity-10">
+          {/* <div class="absolute -bottom-32 right-10 opacity-10">
             <Image src="/icons/blue icon.png" width={110} height={100} />
-          </div>
+          </div> */}
         </motion.div>
       ) : (
         <div className="flex items-center justify-center flex-1 h-screen">

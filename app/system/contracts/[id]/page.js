@@ -19,6 +19,7 @@ import "react-quill/dist/quill.snow.css";
 import { encode } from "base-64";
 import html2pdf from "html2pdf.js";
 import ReactDOMServer from "react-dom/server";
+import { useRouter } from "next/navigation";
 let modules = {
   toolbar: [
     [{ header: [1, 2, false] }],
@@ -51,7 +52,7 @@ let url = process.env.NEXT_PUBLIC_BKEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
-async function getContractDetails(id) {
+async function getContractDetails(id, router) {
   let token = localStorage.getItem("token");
   const res = await fetch(`${url}/contracts/${id}`, {
     headers: {
@@ -62,6 +63,11 @@ async function getContractDetails(id) {
   });
 
   if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push(`/auth?goTo=/system/contracts/${id}&sessionExpired=true`);
+    }
     // This will activate the closest `error.js` Error Boundary
     // console.log(id);
     return null;
@@ -75,6 +81,7 @@ export default function page({ params }) {
   let user = JSON.parse(localStorage.getItem("user"));
   let token = localStorage.getItem("token");
   let [contract, setContract] = useState({});
+  let router = useRouter();
 
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
@@ -84,7 +91,7 @@ export default function page({ params }) {
   const [signing, setSigning] = useState(false);
 
   useEffect(() => {
-    getContractDetails(params?.id).then((res) => setContract(res));
+    getContractDetails(params?.id, router).then((res) => setContract(res));
   }, [params]);
 
   function handleSignContract(signatory, index) {
@@ -94,7 +101,7 @@ export default function page({ params }) {
     let _contract = { ...contract };
 
     fetch("https://api.ipify.org?format=json")
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         myIpObj = res;
         signatory.ipAddress = res?.ip;
@@ -117,7 +124,7 @@ export default function page({ params }) {
             signingIndex: index,
           }),
         })
-          .then((res) => res.json())
+          .then((res) => getResultFromServer(res))
           .then((res) => {
             // setSignatories([]);
             // setSections([{ title: "Set section title", body: "" }]);
@@ -561,6 +568,18 @@ export default function page({ params }) {
       .save();
   };
 
+  function getResultFromServer(res) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push(
+        `/auth?goTo=/system/contracts/${params?.id}&sessionExpired=true`
+      );
+    } else {
+      return res.json();
+    }
+  }
+
   return (
     <div className="flex flex-col p-3">
       <Button
@@ -893,7 +912,7 @@ export default function page({ params }) {
 
                 {(user?.email === s?.email || user?.tempEmail === s?.email) &&
                   !s?.signed &&
-                  previousSignatorySigned(contract?.signatories, index) && (
+                  previousSignatorySigned(contract?.signatories, index) && contract?.status!=='draft' && (
                     <Popconfirm
                       title="Confirm Contract Signature"
                       onConfirm={() => handleSignContract(s, index)}
@@ -914,7 +933,7 @@ export default function page({ params }) {
                 {((user?.email !== s?.email &&
                   user?.tempEmail !== s?.email &&
                   !s.signed) ||
-                  !previousSignatorySigned(contract?.signatories, index)) && (
+                  !previousSignatorySigned(contract?.signatories, index) || contract?.status=='draft') && (
                   <div className="flex flex-row justify-center space-x-5 items-center border-t-2 bg-gray-50 p-5">
                     <Image
                       width={40}

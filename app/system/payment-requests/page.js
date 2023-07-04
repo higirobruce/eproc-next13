@@ -60,7 +60,7 @@ export default function UserRequests() {
   const [currentUser, setCurrentUser] = useState('');
   const [sourcingMethod, setSourcingMethod] = useState("");
   let [submitting, setSubmitting] = useState(false);
-  let token = localStorage.getItem('token')
+  let token = localStorage.getItem("token");
 
   useEffect(() => {
     setDataLoaded(false);
@@ -76,7 +76,7 @@ export default function UserRequests() {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         setDataLoaded(true);
         setDataset(res);
@@ -132,7 +132,7 @@ export default function UserRequests() {
     setDataLoaded(false);
     // setSearchStatus("mine");
     loadRequests()
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         setDataLoaded(true);
         setDataset(res);
@@ -166,6 +166,18 @@ export default function UserRequests() {
     });
   }
 
+  function getResultFromServer(res) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push(
+        `/auth?goTo=/system/payment-requests/&sessionExpired=true`
+      );
+    } else {
+      return res.json();
+    }
+  }
+
   useEffect(() => {
     setUpdatingId("");
   }, [dataset]);
@@ -174,7 +186,7 @@ export default function UserRequests() {
     <>
       {contextHolder}
       {dataLoaded && !submitting ? (
-        <motion.div className="flex flex-col transition-opacity ease-in-out duration-1000 flex-1 space-y-10 h-full pb-10">
+        <motion.div className="flex flex-col transition-opacity ease-in-out duration-1000 flex-1 space-y-10 h-full">
           <Row className="flex flex-col bg-white px-10 py-3 shadow space-y-2">
             <div className="flex flex-row items-center justify-between">
               <div className="text-xl font-semibold">Payment Requests</div>
@@ -242,7 +254,7 @@ export default function UserRequests() {
                   type="primary"
                   icon={<PlusOutlined />}
                   onClick={() => {
-                    setSubmitting(true)
+                    setSubmitting(true);
                     router.push("/system/payment-requests/new");
                   }}
                 >

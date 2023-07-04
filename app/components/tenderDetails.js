@@ -441,7 +441,7 @@ const TenderDetails = ({
       body: JSON.stringify({
         newContract: _contract,
         previousStatus: contract?.status,
-        signingIndex,
+        signingIndex: 0,
       }),
     })
       .then((res) => res.json())
@@ -2390,7 +2390,7 @@ const TenderDetails = ({
 
                   {(user?.email === s?.email || user?.tempEmail === s?.email) &&
                     !s?.signed &&
-                    previousSignatorySigned(signatories, index) && (
+                    previousSignatorySigned(signatories, index) && contract?.status !=='draft' && (
                       <Popconfirm
                         title="Confirm Contract Signature"
                         onConfirm={() => handleSignContract(s, index)}
@@ -2411,7 +2411,7 @@ const TenderDetails = ({
                   {((user?.email !== s?.email &&
                     user?.tempEmail !== s?.email &&
                     !s.signed) ||
-                    !previousSignatorySigned(signatories, index)) && (
+                    !previousSignatorySigned(signatories, index) || contract?.status=='draft') && (
                     <div className="flex flex-row justify-center space-x-5 items-center border-t-2 bg-gray-50 p-5">
                       <Image
                         width={40}
@@ -3339,6 +3339,12 @@ const TenderDetails = ({
                                     {item?.price.toLocaleString() +
                                       " " +
                                       item?.currency}
+                                  </div>
+                                  <div className="text-xs text-gray-400">
+                                    Comment
+                                  </div>
+                                  <div className="text-xs text-gray-600">
+                                    {item?.comment}
                                   </div>
                                 </div>
 

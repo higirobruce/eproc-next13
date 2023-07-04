@@ -28,7 +28,7 @@ export default function NewPaymentRequest() {
   let [title, setTitle] = useState("");
   let [description, setDescription] = useState("");
   let [amount, setAmout] = useState(null);
-  let [currency, setCurrency] = useState('RWF');
+  let [currency, setCurrency] = useState("RWF");
   let [docId, setDocId] = useState(null);
   let [files, setFiles] = useState([]);
   let [submitting, setSubmitting] = useState(false);
@@ -47,7 +47,15 @@ export default function NewPaymentRequest() {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          router.push("/auth");
+        } else {
+          res.json();
+        }
+      })
       .then((res) => {
         setBudgetLines(res);
       })
@@ -120,7 +128,7 @@ export default function NewPaymentRequest() {
         createdBy: user?._id,
         budgeted,
         budgetLine,
-        category: 'internal',
+        category: "internal",
         // purchaseOrder: params?.poId,
         docIds: _fileList,
       }),
@@ -396,7 +404,6 @@ export default function NewPaymentRequest() {
               </div>
             </div>
 
-            
             <Button
               icon={<SaveOutlined />}
               type="primary"

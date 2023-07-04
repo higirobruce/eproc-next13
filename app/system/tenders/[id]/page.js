@@ -11,8 +11,8 @@ let url = process.env.NEXT_PUBLIC_BKEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
-async function getTenderDetails(id) {
-  let token = localStorage.getItem('token');
+async function getTenderDetails(id, router) {
+  let token = localStorage.getItem("token");
 
   const res = await fetch(`${url}/tenders/${id}`, {
     headers: {
@@ -23,8 +23,14 @@ async function getTenderDetails(id) {
   });
 
   if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push(`/auth?goTo=/system/tenders/${id}&sessionExpired=true`);
+    }
+
     // This will activate the closest `error.js` Error Boundary
-    console.log(id);
+
     return null;
     // throw new Error("Failed to fetch data");
   }
@@ -35,7 +41,7 @@ async function getTenderDetails(id) {
 export default function page({ params }) {
   let router = useRouter();
   let user = JSON.parse(localStorage.getItem("user"));
-  let token = localStorage.getItem('token');
+  let token = localStorage.getItem("token");
 
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -43,7 +49,7 @@ export default function page({ params }) {
   let [loadingRowData, setLoadingRowData] = useState(false);
 
   useEffect(() => {
-    getTenderDetails(params?.id).then((res) => {
+    getTenderDetails(params?.id, router).then((res) => {
       setRowData(res);
     });
   }, [params]);
@@ -61,10 +67,10 @@ export default function page({ params }) {
         status,
       }),
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         loadTenders()
-          .then((res) => res.json())
+          .then((res) => getResultFromServer(res))
           .then((res) => {
             let r = res.filter((d) => {
               return d._id === id;
@@ -100,10 +106,10 @@ export default function page({ params }) {
       },
       body: JSON.stringify(data),
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res1) => {
         loadTenders()
-          .then((res2) => res2.json())
+          .then((res2) => getResultFromServer(res2))
           .then((res3) => {
             let r = res3.filter((d) => {
               return d._id === rowData._id;
@@ -156,7 +162,7 @@ export default function page({ params }) {
         signatories,
       }),
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res1) => {
         if (res1.error) {
           messageApi.open({
@@ -210,10 +216,10 @@ export default function page({ params }) {
         newTender: tenderUpdate,
       }),
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         loadTenders()
-          .then((res) => res.json())
+          .then((res) => getResultFromServer(res))
           .then((res) => {
             let r = res.filter((d) => {
               return d._id === id;
@@ -254,10 +260,10 @@ export default function page({ params }) {
         newTender: tenderUpdate,
       }),
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         loadTenders()
-          .then((res) => res.json())
+          .then((res) => getResultFromServer(res))
           .then((res) => {
             let r = res.filter((d) => {
               return d._id === tenderUpdate?._id;
@@ -285,7 +291,7 @@ export default function page({ params }) {
   function refresh() {
     setLoadingRowData(true);
     loadTenders()
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         setLoadingRowData(false);
       })
@@ -301,7 +307,7 @@ export default function page({ params }) {
     if (user?.userType === "VENDOR")
       return fetch(`${url}/tenders/byServiceCategories/`, {
         method: "POST",
-        
+
         headers: {
           Authorization:
             "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
@@ -322,6 +328,16 @@ export default function page({ params }) {
           "Content-Type": "application/json",
         },
       });
+  }
+
+  function getResultFromServer(res) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push(`/auth?goTo=/system/tenders/${params?.id}&sessionExpired=true`);
+    } else {
+      return res.json();
+    }
   }
 
   return (

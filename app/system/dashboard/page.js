@@ -43,17 +43,17 @@ export default function page() {
 
   useEffect(() => {
     loadTenders()
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         setTenders(res);
         loadAvgBidsPerTender()
-          .then((res) => res.json())
+          .then((res) => getResultFromServer(res))
           .then((res) => {
             // alert(JSON.stringify(res))
             setAvgBids(Math.round(res[0]?.avg*100)/100);
           });
         loadTendersStats()
-          .then((res) => res.json())
+          .then((res) => getResultFromServer(res))
           .then((res) => {
             setOpenTenders(Math.round((res?.open / res?.total) * 100)/100);
             setClosedTenders(Math.round((res?.closed / res?.total) * 100)/100);
@@ -67,11 +67,11 @@ export default function page() {
       });
 
     loadRequests()
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         setRequests(res);
         loadRequestsByBudgetStatus()
-          .then((res) => res.json())
+          .then((res) => getResultFromServer(res))
           .then((resBudg) => {
             let _budgeted = resBudg?.filter((r) => r._id === true);
             let _unbudgeted = resBudg?.filter((r) => r._id === false);
@@ -92,7 +92,7 @@ export default function page() {
       });
 
     loadContracts()
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         setContracts(res);
       })
@@ -104,7 +104,7 @@ export default function page() {
       });
 
     loadPurchaseOrders()
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         setPurchaseOrders(res);
       })
@@ -116,7 +116,7 @@ export default function page() {
       });
 
     loadVendors()
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         setVendors(res);
       })
@@ -216,6 +216,18 @@ export default function page() {
     });
   }
 
+  function getResultFromServer(res) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push(
+        `/auth?goTo=/system/dashboard/&sessionExpired=true`
+      );
+      throw Error('Unauthorized')
+    } else {
+      return res.json();
+    }
+  }
   return (
     <>
       {contextHolder}

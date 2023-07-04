@@ -50,8 +50,9 @@ let url = process.env.NEXT_PUBLIC_BKEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
-async function getPaymentRequestDetails(id) {
+async function getPaymentRequestDetails(id, router) {
   let token = localStorage.getItem("token");
+
   const res = await fetch(`${url}/paymentRequests/${id}`, {
     headers: {
       Authorization: "Basic " + `${encode(`${apiUsername}:${apiPassword}`)}`,
@@ -63,6 +64,11 @@ async function getPaymentRequestDetails(id) {
   if (!res.ok) {
     // This will activate the closest `error.js` Error Boundary
 
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push(`/auth?goTo=/system/payment-requests/${id}&sessionExpired=true`);
+    } 
     return null;
     // throw new Error("Failed to fetch data");
   }
@@ -151,7 +157,7 @@ export default function PaymentRequest({ params }) {
   let [budgeted, setBudgeted] = useState(false);
 
   useEffect(() => {
-    getPaymentRequestDetails(params.id).then((res) => {
+    getPaymentRequestDetails(params.id, router).then((res) => {
       setPaymentRequest(res);
       let _files = [...files];
 
@@ -368,11 +374,7 @@ export default function PaymentRequest({ params }) {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => {
-        if (res.ok) {
-          return res.json();
-        }
-      })
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         refresh();
       });
@@ -405,11 +407,7 @@ export default function PaymentRequest({ params }) {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => {
-        if (res.ok) {
-          return res.json();
-        }
-      })
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         refresh();
       });
@@ -433,11 +431,7 @@ export default function PaymentRequest({ params }) {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => {
-        if (res.ok) {
-          return res.json();
-        }
-      })
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         refresh();
       });
@@ -458,11 +452,7 @@ export default function PaymentRequest({ params }) {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => {
-        if (res.ok) {
-          return res.json();
-        }
-      })
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         refresh();
       });
@@ -482,11 +472,7 @@ export default function PaymentRequest({ params }) {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => {
-        if (res.ok) {
-          return res.json();
-        }
-      })
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         refresh();
       });
@@ -500,6 +486,18 @@ export default function PaymentRequest({ params }) {
       setShowAddApproverForm(false);
       setLevel1Approver(null);
     });
+  }
+
+  function getResultFromServer(res) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push(
+        `/auth?goTo=/system/payment-requests/${params?.id}/&sessionExpired=true`
+      );
+    } else {
+      return res.json();
+    }
   }
 
   return (

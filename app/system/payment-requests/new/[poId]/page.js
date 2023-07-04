@@ -21,6 +21,7 @@ let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
 async function getPoDetails(id) {
   let token = localStorage.getItem('token')
+  let router = useRouter()
   const res = await fetch(`${url}/purchaseOrders/${id}`, {
     headers: {
       Authorization: "Basic " + `${encode(`${apiUsername}:${apiPassword}`)}`,
@@ -30,6 +31,11 @@ async function getPoDetails(id) {
   });
 
   if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push("/auth");
+    } 
     // This will activate the closest `error.js` Error Boundary
     return null;
     // throw new Error("Failed to fetch data");
@@ -133,6 +139,8 @@ export default function NewPaymentRequest({ params }) {
         createdBy: user?._id,
         purchaseOrder: params?.poId,
         docIds: _fileList,
+        budgeted: po?.request?.budgeted || po?.tender?.purchaseRequest?.budgeted || false ,
+        budgetLine: po?.request?.budgetLine?._id || po?.tender?.purchaseRequest?.budgetLine?._id || '' ,
       }),
     })
       .then((res) => {

@@ -515,6 +515,7 @@ const RequestDetails = ({
 
   let [servCategories, setServCategories] = useState([]);
   let [budgetLines, setBudgetLines] = useState([]);
+  
   useEffect(() => {
     refresh();
     let _openConfirmDeliv = [...openConfirmDeliv];
@@ -678,7 +679,7 @@ const RequestDetails = ({
       })
       .catch((err) => {
         messageApi.error({
-          content: "Could not fetch users!",
+          content: "Could not connect to SAP B1!",
         });
       });
   }

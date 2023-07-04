@@ -27,6 +27,7 @@ import "react-quill/dist/quill.snow.css";
 import { encode } from "base-64";
 import html2pdf from "html2pdf.js";
 import ReactDOMServer from "react-dom/server";
+import { useRouter } from "next/navigation";
 
 let modules = {
   toolbar: [
@@ -60,7 +61,7 @@ let url = process.env.NEXT_PUBLIC_BKEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
-async function getPODetails(id) {
+async function getPODetails(id, router) {
   let token = localStorage.getItem("token");
   const res = await fetch(`${url}/purchaseOrders/${id}`, {
     headers: {
@@ -71,6 +72,11 @@ async function getPODetails(id) {
   });
 
   if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push(`/auth?goTo=/system/purchase-orders/${id}&sessionExpired=true`);
+    }
     // This will activate the closest `error.js` Error Boundary
     // console.log(id);
     return null;
@@ -82,12 +88,13 @@ async function getPODetails(id) {
 
 export default function page({ params }) {
   let user = JSON.parse(localStorage.getItem("user"));
+  let router = useRouter()
 
   let [po, setPO] = useState(null);
   const [signing, setSigning] = useState(false);
 
   useEffect(() => {
-    getPODetails(params?.id).then((res) => setPO(res));
+    getPODetails(params?.id, router).then((res) => setPO(res));
   }, [params]);
 
   const columns = [
@@ -130,7 +137,7 @@ export default function page({ params }) {
     let _po = { ...po };
 
     fetch("https://api.ipify.org?format=json")
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         myIpObj = res;
         signatory.ipAddress = res?.ip;
@@ -155,7 +162,7 @@ export default function page({ params }) {
             signingIndex: index,
           }),
         })
-          .then((res) => res.json())
+          .then((res) => getResultFromServer(res))
           .then((res) => {
             setSigning(false);
             // setSignatories([]);
@@ -474,6 +481,18 @@ export default function page({ params }) {
       .from(printElement)
       .save();
   };
+
+  function getResultFromServer(res) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push(
+        `/auth?goTo=/system/purchase-orders/${params?.id}&sessionExpired=true`
+      );
+    } else {
+      return res.json();
+    }
+  }
 
   return (
     <div className="flex flex-col p-3">
