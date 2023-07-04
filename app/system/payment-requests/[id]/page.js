@@ -263,10 +263,13 @@ export default function PaymentRequest({ params }) {
 
             docIds.push(_filenames[0]);
 
-            if (rowIndex === files.length - 1) {
-              action == "paymentProof" && sendProofForRequest(docIds);
-              action == "update" && updateRequest(docIds);
-            }
+            action == "paymentProof" &&
+              rowIndex === filesProof.length - 1 &&
+              sendProofForRequest(docIds);
+            action == "update" &&
+              rowIndex === files.length - 1 &&
+              updateRequest(docIds);
+
           })
           .catch((err) => {
             console.log(err);
@@ -388,7 +391,7 @@ export default function PaymentRequest({ params }) {
       !docIds.includes("")
     ) {
       paymentRequest.docIds = docIds;
-    } 
+    }
     if (paymentRequest.status == "declined") {
       paymentRequest.hod_approvalDate = null;
       paymentRequest.hof_approvalDate = null;
