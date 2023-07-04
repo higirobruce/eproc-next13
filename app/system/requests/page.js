@@ -73,6 +73,7 @@ export default function UserRequests() {
   const [form] = Form.useForm();
   const [onlyMine, setOnlyMine] = useState(true);
   const [myPendingRequest, setMyPendingRequest] = useState(false);
+  const [currentUser, setCurrentUser] = useState('');
   const [sourcingMethod, setSourcingMethod] = useState("");
   let [files, setFiles] = useState([]);
   let token = localStorage.getItem('token')
@@ -109,6 +110,21 @@ export default function UserRequests() {
           content: "Something happened! Please try again.",
         });
       });
+
+    fetch(`${url}/users/${user?._id}`, {
+      method: 'GET',
+      headers: {
+        Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
+        "Content-Type": "application/json",
+      }
+    })
+      .then((res) => res.json())
+      .then((res) => setCurrentUser(res))
+      .catch((err) => messageApi.open({
+        type: "error",
+        content: "Something happened! Please try again.",
+      }))
 
     fetch(`${url}/users/level1Approvers`, {
       method: "GET",
@@ -815,15 +831,17 @@ export default function UserRequests() {
                     }}
                   />
                 </div>
-                <div className="flex flex-row items-center space-x-1">
-                  <div>View my requests only</div>
-                  <Checkbox
-                    checked={onlyMine}
-                    onChange={(e) => {
-                      setOnlyMine(e.target.checked);
-                    }}
-                  />
-                </div>
+                {(currentUser?.permissions?.canApproveAsHod || currentUser?.permissions?.canApproveAsHof || currentUser?.permissions?.canApproveAsPM) && 
+                  <div className="flex flex-row items-center space-x-1">
+                    <div>View my requests only</div>
+                    <Checkbox
+                      checked={onlyMine}
+                      onChange={(e) => {
+                        setOnlyMine(e.target.checked);
+                      }}
+                    />
+                  </div>
+                }
               </div>
             </div>
             <Row className="flex flex-row justify-between items-center space-x-4">

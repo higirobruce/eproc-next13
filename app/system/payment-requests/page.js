@@ -57,6 +57,7 @@ export default function UserRequests() {
   let [searchText, setSearchText] = useState("");
   const [form] = Form.useForm();
   const [onlyMine, setOnlyMine] = useState(true);
+  const [currentUser, setCurrentUser] = useState('');
   const [sourcingMethod, setSourcingMethod] = useState("");
   let [submitting, setSubmitting] = useState(false);
   let token = localStorage.getItem('token')
@@ -112,6 +113,21 @@ export default function UserRequests() {
     }
   }, [searchText]);
 
+  fetch(`${url}/users/${user?._id}`, {
+    method: 'GET',
+    headers: {
+      Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+      token: token,
+      "Content-Type": "application/json",
+    }
+  })
+    .then((res) => res.json())
+    .then((res) => setCurrentUser(res))
+    .catch((err) => messageApi.open({
+      type: "error",
+      content: "Something happened! Please try again.",
+    }))
+
   function refresh() {
     setDataLoaded(false);
     // setSearchStatus("mine");
@@ -162,7 +178,7 @@ export default function UserRequests() {
           <Row className="flex flex-col bg-white px-10 py-3 shadow space-y-2">
             <div className="flex flex-row items-center justify-between">
               <div className="text-xl font-semibold">Payment Requests</div>
-              {user?.userType !== "VENDOR" && (
+              {((user?.userType !== "VENDOR") && (currentUser?.permissions?.canApproveAsHod || currentUser?.permissions?.canApproveAsHof || currentUser?.permissions?.canApproveAsPM)) && (
                 <div className="flex flex-row items-center space-x-1">
                   <div>View my requests only</div>
                   {
