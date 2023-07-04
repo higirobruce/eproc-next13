@@ -72,14 +72,14 @@ export default function UserRequests() {
   let [searchText, setSearchText] = useState("");
   const [form] = Form.useForm();
   const [onlyMine, setOnlyMine] = useState(
-    (!user?.permissions?.canApproveAsHof &&
+    !user?.permissions?.canApproveAsHof &&
       !user?.permissions?.canApproveAsPM &&
-      !user?.permissions?.canApproveAsHod)
+      !user?.permissions?.canApproveAsHod
       ? true
       : false
   );
   const [myPendingRequest, setMyPendingRequest] = useState(false);
-  const [currentUser, setCurrentUser] = useState('');
+  const [currentUser, setCurrentUser] = useState("");
   const [sourcingMethod, setSourcingMethod] = useState("");
   let [files, setFiles] = useState([]);
   let token = localStorage.getItem("token");
@@ -118,19 +118,21 @@ export default function UserRequests() {
       });
 
     fetch(`${url}/users/${user?._id}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
         token: token,
         "Content-Type": "application/json",
-      }
+      },
     })
       .then((res) => res.json())
       .then((res) => setCurrentUser(res))
-      .catch((err) => messageApi.open({
-        type: "error",
-        content: "Something happened! Please try again.",
-      }))
+      .catch((err) =>
+        messageApi.open({
+          type: "error",
+          content: "Something happened! Please try again.",
+        })
+      );
 
     fetch(`${url}/users/level1Approvers`, {
       method: "GET",
@@ -178,8 +180,6 @@ export default function UserRequests() {
       .then((res) => {
         setBudgetLines(res);
       });
-
-   
   }, []);
 
   useEffect(() => {
@@ -240,7 +240,6 @@ export default function UserRequests() {
         setDataLoaded(true);
         setDataset(res);
         setTempDataset(res);
-       
       })
       .catch((err) => {
         messageApi.open({
@@ -843,18 +842,19 @@ export default function UserRequests() {
             <div className="flex flex-row items-center justify-between">
               <div className="text-xl font-semibold">Purchase Requests</div>
 
-              <div className="flex items-center space-x-5">
-                <div className="flex flex-row items-center space-x-1">
-                  <div>My Pending Requests</div>
-                  <Checkbox
-                    checked={myPendingRequest}
-                    onChange={(e) => {
-                      getMyPendingRequest(e.target.checked);
-                    }}
-                  />
-                </div>
-<<<<<<< HEAD
-                {(currentUser?.permissions?.canApproveAsHod || currentUser?.permissions?.canApproveAsHof || currentUser?.permissions?.canApproveAsPM) && 
+              {(currentUser?.permissions?.canApproveAsHod ||
+                currentUser?.permissions?.canApproveAsHof ||
+                currentUser?.permissions?.canApproveAsPM) && (
+                <div className="flex items-center space-x-5">
+                  <div className="flex flex-row items-center space-x-1">
+                    <div>My Pending Requests</div>
+                    <Checkbox
+                      checked={myPendingRequest}
+                      onChange={(e) => {
+                        getMyPendingRequest(e.target.checked);
+                      }}
+                    />
+                  </div>
                   <div className="flex flex-row items-center space-x-1">
                     <div>View my requests only</div>
                     <Checkbox
@@ -864,20 +864,8 @@ export default function UserRequests() {
                       }}
                     />
                   </div>
-                }
-=======
-
-                <div className="flex flex-row items-center space-x-1">
-                  <div>View my requests only</div>
-                  <Checkbox
-                    checked={onlyMine}
-                    onChange={(e) => {
-                      setOnlyMine(e.target.checked);
-                    }}
-                  />
                 </div>
->>>>>>> 75dc241e12da1b2fbea2cc775b55ae28c5a36da9
-              </div>
+              )}
             </div>
             <Row className="flex flex-row justify-between items-center space-x-4">
               <div className="flex-1">
