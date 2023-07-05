@@ -806,15 +806,18 @@ export default function UserRequests() {
 
     if (value == true) {
       const newFilter = tempDataset.filter(
-        (item) => item?.level1Approver?._id == user._id
+        (item) =>
+          item?.level1Approver?._id == user._id ||
+          (item?.status === "approved (hod)" &&
+            user?.permissions?.canApproveAsHof)
       );
 
-      const statusFilter = newFilter.filter((item) =>
-        user?.permissions?.canApproveAsHod
-          ? item.status == "pending"
-          : user?.permissions?.canApproveAsHof
-          ? item.status == "approved (hod)"
-          : item.status == "approved (hof)"
+      const statusFilter = newFilter.filter(
+        (item) =>
+          (user?.permissions?.canApproveAsHod && item.status == "pending") ||
+          (user?.permissions?.canApproveAsHof &&
+            item.status == "approved (hod)") ||
+          (user?.permissions?.canApproveAsPM && item.status == "approved (fd)")
       );
 
       setTempDataset(statusFilter);
@@ -847,18 +850,21 @@ export default function UserRequests() {
                 currentUser?.permissions?.canApproveAsPM) && (
                 <div className="flex items-center space-x-5">
                   <div className="flex flex-row items-center space-x-1">
-                    <div>My Pending Requests</div>
+                    <div>Awaiting my approval</div>
                     <Checkbox
                       checked={myPendingRequest}
+                      disabled={onlyMine}
                       onChange={(e) => {
                         getMyPendingRequest(e.target.checked);
+                        
                       }}
                     />
                   </div>
                   <div className="flex flex-row items-center space-x-1">
-                    <div>View my requests only</div>
+                    <div>My requests</div>
                     <Checkbox
                       checked={onlyMine}
+                      disabled={myPendingRequest}
                       onChange={(e) => {
                         setOnlyMine(e.target.checked);
                       }}

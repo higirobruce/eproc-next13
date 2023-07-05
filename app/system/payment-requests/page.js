@@ -192,7 +192,7 @@ export default function UserRequests() {
               <div className="text-xl font-semibold">Payment Requests</div>
               {((user?.userType !== "VENDOR") && (currentUser?.permissions?.canApproveAsHod || currentUser?.permissions?.canApproveAsHof || currentUser?.permissions?.canApproveAsPM)) && (
                 <div className="flex flex-row items-center space-x-1">
-                  <div>View my requests only</div>
+                  <div>My requests</div>
                   {
                     <Checkbox
                       checked={onlyMine}
