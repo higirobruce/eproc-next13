@@ -53,10 +53,11 @@ export default function NewPaymentRequest() {
           localStorage.removeItem("user");
           router.push("/auth");
         } else {
-          res.json();
+          return res.json();
         }
       })
       .then((res) => {
+        
         setBudgetLines(res);
       })
       .catch((err) => {
@@ -384,10 +385,10 @@ export default function NewPaymentRequest() {
                               .toLowerCase()
                               .includes(inputValue.toLowerCase());
                           }}
-                          options={budgetLines.map((s) => {
+                          options={budgetLines?.map((s) => {
                             return {
                               label: s.description.toUpperCase(),
-                              options: s.budgetlines.map((sub) => {
+                              options: s.budgetlines?.map((sub) => {
                                 return {
                                   label: sub.description,
                                   value: sub._id,

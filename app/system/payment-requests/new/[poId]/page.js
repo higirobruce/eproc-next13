@@ -19,9 +19,8 @@ let url = process.env.NEXT_PUBLIC_BKEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
-async function getPoDetails(id) {
+async function getPoDetails(id, router) {
   let token = localStorage.getItem('token')
-  let router = useRouter()
   const res = await fetch(`${url}/purchaseOrders/${id}`, {
     headers: {
       Authorization: "Basic " + `${encode(`${apiUsername}:${apiPassword}`)}`,
@@ -61,7 +60,7 @@ export default function NewPaymentRequest({ params }) {
   const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
-    getPoDetails(params?.poId).then((res) => {
+    getPoDetails(params?.poId, router).then((res) => {
       setPo(res);
     });
   }, [params]);
