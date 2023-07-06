@@ -47,9 +47,8 @@ let url = process.env.NEXT_PUBLIC_BKEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
-async function getVendorDetails(id) {
+async function getVendorDetails(id, router) {
   let token = localStorage.getItem('token')
-  let router= useRouter()
   const res = await fetch(`${url}/users/vendors/byId/${id}`, {
     headers: {
       Authorization: "Basic " + `${encode(`${apiUsername}:${apiPassword}`)}`,
@@ -95,7 +94,7 @@ export default function page({ params }) {
   const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
   useEffect(() => {
-    getVendorDetails(params?.id).then((res) => {
+    getVendorDetails(params?.id, router).then((res) => {
       setRowData(res[0]?.vendor);
     });
 
