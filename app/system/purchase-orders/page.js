@@ -151,11 +151,13 @@ export default function PurchaseOrders() {
       })
         .then((res) => getResultFromServer(res))
         .then((res) => {
+          console.log(res)
           setPOs(res);
           setTempPOs(res);
           setDataLoaded(true);
         })
         .catch((err) => {
+          console.log(err)
           setDataLoaded(true);
         });
     } else {
@@ -590,6 +592,7 @@ export default function PurchaseOrders() {
   }
 
   function getResultFromServer(res) {
+   
     if (res.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
@@ -597,6 +600,7 @@ export default function PurchaseOrders() {
         `/auth?goTo=/system/purchase-orders/&sessionExpired=true`
       );
     } else {
+      console.log('hereeeee')
       return res.json();
     }
   }
