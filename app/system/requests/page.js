@@ -809,7 +809,8 @@ export default function UserRequests() {
         (item) =>
           item?.level1Approver?._id == user._id ||
           (item?.status === "approved (hod)" &&
-            user?.permissions?.canApproveAsHof)
+            user?.permissions?.canApproveAsHof) ||
+          user?.permissions?.canApproveAsPM
       );
 
       const statusFilter = newFilter.filter(
@@ -856,7 +857,6 @@ export default function UserRequests() {
                       disabled={onlyMine}
                       onChange={(e) => {
                         getMyPendingRequest(e.target.checked);
-                        
                       }}
                     />
                   </div>
