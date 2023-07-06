@@ -204,7 +204,8 @@ export default function Contracts() {
     sections,
     items,
     B1Data,
-    signatories
+    signatories,
+    request
   ) {
     return fetch(`${url}/purchaseOrders/`, {
       method: "POST",
@@ -221,6 +222,7 @@ export default function Contracts() {
         items,
         B1Data,
         signatories,
+        request
       }),
     })
       .then((res) => getResultFromServer(res))
@@ -392,7 +394,8 @@ export default function Contracts() {
                 B1Data_Assets,
                 B1Data_NonAssets,
               },
-              signatories
+              signatories,
+              contract?.request?._id
             );
             setCreatingPo(false);
             setOpenCreatePO(false);
