@@ -19,6 +19,7 @@ import "react-quill/dist/quill.snow.css";
 import { encode } from "base-64";
 import html2pdf from "html2pdf.js";
 import ReactDOMServer from "react-dom/server";
+import { useRouter } from "next/navigation";
 let modules = {
   toolbar: [
     [{ header: [1, 2, false] }],
@@ -51,7 +52,7 @@ let url = process.env.NEXT_PUBLIC_BKEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
-async function getContractDetails(id) {
+async function getContractDetails(id, router) {
   let token = localStorage.getItem("token");
   const res = await fetch(`${url}/contracts/${id}`, {
     headers: {
@@ -62,6 +63,11 @@ async function getContractDetails(id) {
   });
 
   if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push(`/auth?goTo=/system/contracts/${id}&sessionExpired=true`);
+    }
     // This will activate the closest `error.js` Error Boundary
     // console.log(id);
     return null;
@@ -75,6 +81,7 @@ export default function page({ params }) {
   let user = JSON.parse(localStorage.getItem("user"));
   let token = localStorage.getItem("token");
   let [contract, setContract] = useState({});
+  let router = useRouter();
 
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
@@ -84,7 +91,7 @@ export default function page({ params }) {
   const [signing, setSigning] = useState(false);
 
   useEffect(() => {
-    getContractDetails(params?.id).then((res) => setContract(res));
+    getContractDetails(params?.id, router).then((res) => setContract(res));
   }, [params]);
 
   function handleSignContract(signatory, index) {
@@ -94,7 +101,7 @@ export default function page({ params }) {
     let _contract = { ...contract };
 
     fetch("https://api.ipify.org?format=json")
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         myIpObj = res;
         signatory.ipAddress = res?.ip;
@@ -117,7 +124,7 @@ export default function page({ params }) {
             signingIndex: index,
           }),
         })
-          .then((res) => res.json())
+          .then((res) => getResultFromServer(res))
           .then((res) => {
             // setSignatories([]);
             // setSections([{ title: "Set section title", body: "" }]);
@@ -169,12 +176,12 @@ export default function page({ params }) {
 
   const content = () => {
     return (
-      <div className="space-y-10 p-3 overflow-x-scroll bg-white mx-11 my-10 shadow-md">
+      <div className="space-y-5 p-3 overflow-x-scroll bg-white mx-11 my-10 shadow-md">
         {/* Header */}
         <div className="flex flex-row justify-between items-center">
           <Typography.Title level={4} className="flex flex-row items-center">
             <div>
-              CONTRACTOR: {contract?.vendor?.companyName}{" "}
+              CONTRACTOR #{contract?.number}{" "}
               <div>
                 <Popover
                   placement="topLeft"
@@ -183,7 +190,7 @@ export default function page({ params }) {
                   )} - ${moment(contract?.endDate).format("YYYY-MMM-DD")}`}
                 >
                   <div className="text-xs font-thin text-gray-500">
-                    Expires in {moment(contract?.endDate).fromNow()}
+                    Expires {moment(contract?.endDate).fromNow()}
                   </div>
                 </Popover>
               </div>
@@ -266,7 +273,7 @@ export default function page({ params }) {
           </div>
         </div>
         {/* Details */}
-        <div className="flex flex-col space-y-5">
+        <div className="flex flex-col space-y-5 text-sm">
           <Typography.Title level={3}>Details</Typography.Title>
           <div>
             {contract?.sections?.map((s, index) => {
@@ -346,7 +353,7 @@ export default function page({ params }) {
           )} */}
         </div>
         {/* Signatories */}
-        <div className="grid grid-cols-2 gap-5">
+        <div className="grid grid-cols-2 gap-5" id="page2el">
           {contract?.signatories?.map((s, index) => {
             let yetToSign = contract?.signatories?.filter((notS) => {
               return !notS.signed;
@@ -521,9 +528,11 @@ export default function page({ params }) {
                       height={20}
                       src="/icons/icons8-signature-80-2.png"
                     /> */}
-                    <div className="text-gray-400 text-sm">
+                    <div className="text-gray-400 text-lg">
                       {s.signed
                         ? "Signed"
+                        : contract?.status === "draft"
+                        ? "Waiting for Legal's review"
                         : `Waiting for ${yetToSign[0]?.names}'s signature`}
                     </div>
                   </div>
@@ -539,8 +548,37 @@ export default function page({ params }) {
   const generatePDF = () => {
     // const element = document.getElementById("pdf-content");
     const printElement = ReactDOMServer.renderToString(content());
-    html2pdf().from(printElement).save();
+    html2pdf()
+      .set({
+        // pagebreak: { mode: "avoid-all", before: "#page2el" },
+        // margin:[22,10, 15, 21],
+        // filename: "Contract.pdf",
+        // image: { type: "jpeg", quality: 0.98 },
+        // html2canvas: { scale: 2, letterRendering: true },
+        // jsPDF: { unit: "pt", format: "letter", orientation: "portrait" },
+
+        margin: [22, 10, 15, 10], //top, left, buttom, right
+        filename: "Contract.pdf",
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, letterRendering: true },
+        jsPDF: { unit: "mm", format: "A4", orientation: "portrait" },
+        pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+      })
+      .from(printElement)
+      .save();
   };
+
+  function getResultFromServer(res) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push(
+        `/auth?goTo=/system/contracts/${params?.id}&sessionExpired=true`
+      );
+    } else {
+      return res.json();
+    }
+  }
 
   return (
     <div className="flex flex-col p-3">
@@ -555,7 +593,7 @@ export default function page({ params }) {
         <div className="flex flex-row justify-between items-center">
           <Typography.Title level={4} className="flex flex-row items-center">
             <div>
-              CONTRACTOR: {contract?.vendor?.companyName}{" "}
+              CONTRACTOR #{contract?.number}{" "}
               <div>
                 <Popover
                   placement="topLeft"
@@ -564,7 +602,7 @@ export default function page({ params }) {
                   )} - ${moment(contract?.endDate).format("YYYY-MMM-DD")}`}
                 >
                   <div className="text-xs font-thin text-gray-500">
-                    Expires in {moment(contract?.endDate).fromNow()}
+                    Expires {moment(contract?.endDate).fromNow()}
                   </div>
                 </Popover>
               </div>
@@ -874,7 +912,7 @@ export default function page({ params }) {
 
                 {(user?.email === s?.email || user?.tempEmail === s?.email) &&
                   !s?.signed &&
-                  previousSignatorySigned(contract?.signatories, index) && (
+                  previousSignatorySigned(contract?.signatories, index) && contract?.status!=='draft' && (
                     <Popconfirm
                       title="Confirm Contract Signature"
                       onConfirm={() => handleSignContract(s, index)}
@@ -895,7 +933,7 @@ export default function page({ params }) {
                 {((user?.email !== s?.email &&
                   user?.tempEmail !== s?.email &&
                   !s.signed) ||
-                  !previousSignatorySigned(contract?.signatories, index)) && (
+                  !previousSignatorySigned(contract?.signatories, index) || contract?.status=='draft') && (
                   <div className="flex flex-row justify-center space-x-5 items-center border-t-2 bg-gray-50 p-5">
                     <Image
                       width={40}

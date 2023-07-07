@@ -54,7 +54,7 @@ import {
 import moment from "moment";
 import dayjs from "dayjs";
 import Image from "next/image";
-import ItemsTable from "./itemsTableB1";
+import ItemsTable from "./itemsTable";
 import dynamic from "next/dynamic";
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 import "react-quill/dist/quill.snow.css";
@@ -350,6 +350,10 @@ const RequestDetails = ({
   handleRateDelivery,
   refDoc,
   setRefDoc,
+  setFilePaths,fileList,
+  files,
+  setFileList,
+  setFiles
 }) => {
   const [form] = Form.useForm();
   const [size, setSize] = useState("small");
@@ -384,6 +388,7 @@ const RequestDetails = ({
   let [totalTax, setTotTax] = useState(0);
   let [grossTotal, setGrossTotal] = useState(0);
   let [startingDelivery, setStartingDelivery] = useState(false);
+  const [values, setValues] = useState([]);
 
   const [signatories, setSignatories] = useState([]);
   const [docDate, setDocDate] = useState(moment());
@@ -408,6 +413,7 @@ const RequestDetails = ({
   const [deliveredQties, setDeliveredQties] = useState([]);
   const [tenderDocSelected, setTendeDocSelected] = useState(false);
   const [attachSelected, setAttachSelected] = useState(false);
+  
 
   const showPopconfirm = () => {
     setOpen(true);
@@ -472,23 +478,25 @@ const RequestDetails = ({
           {item?.paths?.map((p, i) => {
             return (
               <div key={p}>
-                <Link
-                  href={`${url}/file/termsOfReference/${p}`}
-                  target="_blank"
-                >
-                  <Typography.Link
-                    className="flex flex-row items-center space-x-2"
-                    // onClick={() => {
-                    //   setPreviewAttachment(!previewAttachment);
-                    //   setAttachmentId(p);
-                    // }}
+                {p && (
+                  <Link
+                    href={`${url}/file/termsOfReference/${p}`}
+                    target="_blank"
                   >
-                    <div>supporting doc{i + 1} </div>{" "}
-                    <div>
-                      <PaperClipIcon className="h-4 w-4" />
-                    </div>
-                  </Typography.Link>
-                </Link>
+                    <Typography.Link
+                      className="flex flex-row items-center space-x-2"
+                      // onClick={() => {
+                      //   setPreviewAttachment(!previewAttachment);
+                      //   setAttachmentId(p);
+                      // }}
+                    >
+                      <div>supporting doc{i + 1} </div>{" "}
+                      <div>
+                        <PaperClipIcon className="h-4 w-4" />
+                      </div>
+                    </Typography.Link>
+                  </Link>
+                )}
               </div>
             );
           })}
@@ -507,6 +515,7 @@ const RequestDetails = ({
 
   let [servCategories, setServCategories] = useState([]);
   let [budgetLines, setBudgetLines] = useState([]);
+  
   useEffect(() => {
     refresh();
     let _openConfirmDeliv = [...openConfirmDeliv];
@@ -518,6 +527,34 @@ const RequestDetails = ({
       setOpenConfirmDeliv(_openConfirmDeliv);
       setDeliveredQties(_deliveredQties);
     });
+
+    setValues(data?.items);
+
+    // let _p = data?.items?.map((item) => {
+    //   let _files = [];
+    //   let paths = item?.paths?.map((doc, i) => {
+    //     if (doc) {
+    //       let uid = `rc-upload-${moment().milliseconds()}-${i}`;
+    //       let _url = `${url}/file/termsOfReference/${doc}`;
+    //       let status = "done";
+    //       let name = `supporting doc${i + 1}.pdf`;
+
+    //       return {
+    //         uid,
+    //         url: _url,
+    //         status,
+    //         name,
+    //       };
+    //     }
+    //   });
+
+    //   return paths
+    // });
+
+    // setFiles(_p)
+    // setFilePaths(_p)
+
+    // console.log('Seeeeet Files', _p)
 
     fetch(`${url}/serviceCategories`, {
       method: "GET",
@@ -556,11 +593,12 @@ const RequestDetails = ({
           content: "Connection Error!",
         });
       });
+
+    
   }, [data]);
 
-  useEffect(() => {
-    console.log(data);
-  }, [edit]);
+
+  useEffect(() => {}, [edit]);
 
   useEffect(() => {
     let t = 0;
@@ -641,7 +679,7 @@ const RequestDetails = ({
       })
       .catch((err) => {
         messageApi.error({
-          content: "Could not fetch users!",
+          content: "Could not connect to SAP B1!",
         });
       });
   }
@@ -670,7 +708,6 @@ const RequestDetails = ({
     })
       .then((res) => res.json())
       .then((res) => {
-        console.log(res);
         setVendors(res);
       })
       .catch((err) => {});
@@ -1628,7 +1665,6 @@ const RequestDetails = ({
                       type="primary"
                       icon={<CheckOutlined />}
                       onClick={() => {
-                        console.log(deliveredQties);
                         let _openConfirmDeliv = [...openConfirmDeliv];
                         _openConfirmDeliv[index] = true;
                         setOpenConfirmDeliv(_openConfirmDeliv);
@@ -2138,6 +2174,16 @@ const RequestDetails = ({
               content:
                 "Contract can not be submitted. Please fill in the relevant signatories' details!",
             });
+          } else if (
+            signatories?.filter((s) => {
+              return !s?.onBehalfOf.includes("Irembo");
+            })?.length < 1
+          ) {
+            messageApi.open({
+              type: "error",
+              content:
+                "Contract can not be submitted. Please supply the Vendor's information!",
+            });
           } else if (!contractStartDate || !contractEndDate) {
             messageApi.open({
               type: "error",
@@ -2431,29 +2477,48 @@ const RequestDetails = ({
                 </div>
               );
             })}
-            <div
-              onClick={() => {
-                let signs = [...signatories];
-                let newSignatory =
-                  signs?.length < 2
-                    ? { onBehalfOf: "Irembo Ltd" }
-                    : {
-                        onBehalfOf: vendor?.companyName,
-                        title: vendor?.title,
-                        names: vendor?.contactPersonNames,
-                        email: vendor?.email,
-                      };
-                signs.push(newSignatory);
-                setSignatories(signs);
-              }}
-              className="flex flex-col ring-1 ring-gray-300 rounded pt-5 space-y-3 items-center justify-center cursor-pointer hover:bg-gray-50"
-            >
+            <div className="flex flex-col ring-1 ring-gray-300 rounded py-5 space-y-3 items-center justify-center  hover:bg-gray-50">
               <Image
                 src="/icons/icons8-signature-80.png"
                 width={40}
                 height={40}
               />
-              <div>Add new Signatory</div>
+              <div
+                className="cursor-pointer underline hover:text-blue-600"
+                onClick={() => {
+                  let signs = [...signatories];
+                  let newSignatory = { onBehalfOf: "Irembo Ltd" };
+                  // signs?.length < 2
+                  //   ?
+                  //   : {
+                  //       onBehalfOf: vendor?.companyName,
+                  //       title: vendor?.title,
+                  //       names: vendor?.contactPersonNames,
+                  //       email: vendor?.email,
+                  //     };
+                  signs.push(newSignatory);
+                  setSignatories(signs);
+                }}
+              >
+                Add intenal Signatory
+              </div>
+              <div
+                className="cursor-pointer underline"
+                onClick={() => {
+                  let signs = [...signatories];
+                  let newSignatory = {
+                    onBehalfOf: vendor?.companyName,
+                    title: vendor?.title,
+                    names: vendor?.contactPersonNames,
+                    email: vendor?.email,
+                  };
+
+                  signs.push(newSignatory);
+                  setSignatories(signs);
+                }}
+              >
+                Add external Signatory
+              </div>
             </div>
           </div>
         </div>
@@ -2521,6 +2586,15 @@ const RequestDetails = ({
           else checkDirectPOExists(data);
         }
       });
+  }
+
+  function _setFileList(list) {
+    setFileList(list);
+  }
+
+  function _setFiles(newFileList) {
+    setFiles(newFileList);
+    setFilePaths(newFileList);
   }
 
   return (
@@ -2860,14 +2934,33 @@ const RequestDetails = ({
 
                     {/* Items table */}
                     <div className="p-5">
-                      <Table
-                        size="small"
-                        dataSource={data?.items}
-                        columns={columns}
-                        rowClassName={() => "editable-row"}
-                        bordered
-                        pagination={false}
-                      />
+                      {!edit && (
+                        <Table
+                          size="small"
+                          dataSource={data?.items}
+                          columns={columns}
+                          rowClassName={() => "editable-row"}
+                          bordered
+                          pagination={false}
+                        />
+                      )}
+
+                      {edit && (
+                        <ItemsTable
+                          setDataSource={(v) => {
+                            setValues(v);
+                            let r = { ...data };
+                            r.items = v;
+                            handleUpdateRequest(r);
+                          }}
+                          dataSource={values}
+                          fileList={fileList}
+                          setFileList={_setFileList}
+                          files={files}
+                          setFiles={_setFiles}
+                          editingRequest={true}
+                        />
+                      )}
                     </div>
 
                     {

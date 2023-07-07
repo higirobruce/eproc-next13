@@ -35,7 +35,7 @@ let url = process.env.NEXT_PUBLIC_BKEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
-async function getUserDetails(id) {
+async function getUserDetails(id, router) {
   const res = await fetch(`${url}/users/internalUserById/${id}`, {
     headers: {
       Authorization: "Basic " + `${encode(`${apiUsername}:${apiPassword}`)}`,
@@ -44,6 +44,11 @@ async function getUserDetails(id) {
   });
 
   if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push("/auth");
+    } 
     // This will activate the closest `error.js` Error Boundary
     // console.log(id);
     return null;
@@ -80,9 +85,8 @@ export default function page({ params }) {
   const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
   useEffect(() => {
-    getUserDetails(params?.id).then((res) => {
+    getUserDetails(params?.id, router).then((res) => {
       setRow(res);
-      console.log(res);
     });
 
     fetch(`${url}/dpts`, {
@@ -97,7 +101,7 @@ export default function page({ params }) {
       .then((res) => res.json())
       .then((res) => {
         setDpts(res);
-        console.log(res);
+        
       })
       .catch((err) => {
         messageApi.open({

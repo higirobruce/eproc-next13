@@ -441,7 +441,7 @@ const TenderDetails = ({
       body: JSON.stringify({
         newContract: _contract,
         previousStatus: contract?.status,
-        signingIndex,
+        signingIndex: 0,
       }),
     })
       .then((res) => res.json())
@@ -1431,7 +1431,17 @@ const TenderDetails = ({
               content:
                 "Contract can not be submitted. Please fill in the relevant signatories' details!",
             });
-          } else if (!contractStartDate || !contractEndDate) {
+          } else if (
+            signatories?.filter((s) => {
+              return !s?.onBehalfOf.includes("Irembo")
+            })?.length < 1
+          ) {
+            messageApi.open({
+              type: "error",
+              content:
+                "Contract can not be submitted. Please supply the Vendor's information!",
+            });
+          }else if (!contractStartDate || !contractEndDate) {
             messageApi.open({
               type: "error",
               content:
@@ -1724,29 +1734,48 @@ const TenderDetails = ({
                 </div>
               );
             })}
-            <div
-              onClick={() => {
-                let signs = [...signatories];
-                let newSignatory =
-                  signs?.length < 2
-                    ? { onBehalfOf: "Irembo Ltd" }
-                    : {
-                        onBehalfOf: vendor?.companyName,
-                        title: vendor?.title,
-                        names: vendor?.contactPersonNames,
-                        email: vendor?.email,
-                      };
-                signs.push(newSignatory);
-                setSignatories(signs);
-              }}
-              className="flex flex-col ring-1 ring-gray-300 rounded pt-5 space-y-3 items-center justify-center cursor-pointer hover:bg-gray-50"
-            >
+            <div className="flex flex-col ring-1 ring-gray-300 rounded py-5 space-y-3 items-center justify-center  hover:bg-gray-50">
               <Image
                 src="/icons/icons8-signature-80.png"
                 width={40}
                 height={40}
               />
-              <div>Add new Signatory</div>
+              <div
+              className="cursor-pointer underline hover:text-blue-600"
+                onClick={() => {
+                  let signs = [...signatories];
+                  let newSignatory = { onBehalfOf: "Irembo Ltd" };
+                  // signs?.length < 2
+                  //   ?
+                  //   : {
+                  //       onBehalfOf: vendor?.companyName,
+                  //       title: vendor?.title,
+                  //       names: vendor?.contactPersonNames,
+                  //       email: vendor?.email,
+                  //     };
+                  signs.push(newSignatory);
+                  setSignatories(signs);
+                }}
+              >
+                Add intenal Signatory
+              </div>
+              <div
+              className="cursor-pointer underline"
+                onClick={() => {
+                  let signs = [...signatories];
+                  let newSignatory = {
+                    onBehalfOf: vendor?.companyName,
+                    title: vendor?.title,
+                    names: vendor?.contactPersonNames,
+                    email: vendor?.email,
+                  };
+
+                  signs.push(newSignatory);
+                  setSignatories(signs);
+                }}
+              >
+                Add external Signatory
+              </div>
             </div>
           </div>
         </div>
@@ -2361,7 +2390,7 @@ const TenderDetails = ({
 
                   {(user?.email === s?.email || user?.tempEmail === s?.email) &&
                     !s?.signed &&
-                    previousSignatorySigned(signatories, index) && (
+                    previousSignatorySigned(signatories, index) && contract?.status !=='draft' && (
                       <Popconfirm
                         title="Confirm Contract Signature"
                         onConfirm={() => handleSignContract(s, index)}
@@ -2382,7 +2411,7 @@ const TenderDetails = ({
                   {((user?.email !== s?.email &&
                     user?.tempEmail !== s?.email &&
                     !s.signed) ||
-                    !previousSignatorySigned(signatories, index)) && (
+                    !previousSignatorySigned(signatories, index) || contract?.status=='draft') && (
                     <div className="flex flex-row justify-center space-x-5 items-center border-t-2 bg-gray-50 p-5">
                       <Image
                         width={40}
@@ -3310,6 +3339,12 @@ const TenderDetails = ({
                                     {item?.price.toLocaleString() +
                                       " " +
                                       item?.currency}
+                                  </div>
+                                  <div className="text-xs text-gray-400">
+                                    Comment
+                                  </div>
+                                  <div className="text-xs text-gray-600">
+                                    {item?.comment}
                                   </div>
                                 </div>
 

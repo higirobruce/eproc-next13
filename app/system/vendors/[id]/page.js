@@ -47,7 +47,7 @@ let url = process.env.NEXT_PUBLIC_BKEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
-async function getVendorDetails(id) {
+async function getVendorDetails(id, router) {
   let token = localStorage.getItem('token')
   const res = await fetch(`${url}/users/vendors/byId/${id}`, {
     headers: {
@@ -58,6 +58,11 @@ async function getVendorDetails(id) {
   });
 
   if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push("/auth");
+    }
     // This will activate the closest `error.js` Error Boundary
     // console.log(id);
     return null;
@@ -89,7 +94,7 @@ export default function page({ params }) {
   const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
   useEffect(() => {
-    getVendorDetails(params?.id).then((res) => {
+    getVendorDetails(params?.id, router).then((res) => {
       setRowData(res[0]?.vendor);
     });
 
@@ -127,14 +132,14 @@ export default function page({ params }) {
       .then((res) => res.json())
       .then((res) => {
         if (res.error) {
-          console.log(res);
+          
           setUpdatingId(null);
           messageApi.open({
             type: "error",
             content: res.message,
           });
         } else {
-          console.log(res);
+          
           res.avgRate = rowData.avgRate;
           res.status = "approved";
           setRowData(res);
@@ -166,7 +171,7 @@ export default function page({ params }) {
     })
       .then((res) => res.json())
       .then((res) => {
-        console.log(res);
+        
         res.avgRate = rowData.avgRate;
         setRowData(res);
         setUpdatingId(null);

@@ -149,12 +149,16 @@ const UsersRequestsTable = ({
   });
 
   function getHighLevelStatus(status) {
+    // return status
+
     if (status === "Approved" || status === "Declined") {
       return status;
-    } else if (status === "Approved (pm)") {
-      return "Approved";
-    } else {
-      return "Pending";
+    } else if (status === "Approved (pm)" || status == "Approved (fd)") {
+      return "Pending PROC";
+    } else if (status === "Pending") {
+      return "Pending HOD";
+    } else if (status === "Approved (hod)") {
+      return "Pending FIN";
     }
   }
 
@@ -163,12 +167,12 @@ const UsersRequestsTable = ({
   };
 
   const getTagColor = (status) => {
-    if (status === "Pending") return "yellow";
+    if (status === "Pending HOD") return "yellow";
     else if (status === "Approved") return "green";
-    else if (status === "approved (fd)") return "cyan";
-    else if (status === "approved (pm)") return "geekblue";
-    else if (status === "approved") return "green";
-    else if (status === "Declined") return "red";
+    else if (status === "Approved (fd)" || status === "Pending PROC") return "cyan";
+    else if (status === "Approved (pm)" || status === "Pending PROC") return "geekblue";
+    else if (status === "approved (hod)" || status === "Pending FIN") return "blue";
+    else if (status === "Declined" || status === "Withdrawn") return "red";
   };
 
   useEffect(() => {

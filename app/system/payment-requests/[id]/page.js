@@ -50,8 +50,9 @@ let url = process.env.NEXT_PUBLIC_BKEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
-async function getPaymentRequestDetails(id) {
+async function getPaymentRequestDetails(id, router) {
   let token = localStorage.getItem("token");
+
   const res = await fetch(`${url}/paymentRequests/${id}`, {
     headers: {
       Authorization: "Basic " + `${encode(`${apiUsername}:${apiPassword}`)}`,
@@ -62,7 +63,14 @@ async function getPaymentRequestDetails(id) {
 
   if (!res.ok) {
     // This will activate the closest `error.js` Error Boundary
-    console.log(id);
+
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push(
+        `/auth?goTo=/system/payment-requests/${id}&sessionExpired=true`
+      );
+    }
     return null;
     // throw new Error("Failed to fetch data");
   }
@@ -151,7 +159,7 @@ export default function PaymentRequest({ params }) {
   let [budgeted, setBudgeted] = useState(false);
 
   useEffect(() => {
-    getPaymentRequestDetails(params.id).then((res) => {
+    getPaymentRequestDetails(params.id, router).then((res) => {
       setPaymentRequest(res);
       let _files = [...files];
 
@@ -180,7 +188,6 @@ export default function PaymentRequest({ params }) {
     getApprovers()
       .then((res) => {
         let approversList = res?.filter((a) => a?._id !== user?._id);
-        console.log(res);
         setLevel1Approvers(res);
         let hod = approversList?.filter(
           (a) => a?.department?._id === user?.department
@@ -212,9 +219,7 @@ export default function PaymentRequest({ params }) {
       });
   }, [params]);
 
-  useEffect(() => {
-    console.log(files);
-  }, [files]);
+  useEffect(() => {}, [files]);
 
   function getPoTotalVal() {
     let t = 0;
@@ -373,11 +378,7 @@ export default function PaymentRequest({ params }) {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => {
-        if (res.ok) {
-          return res.json();
-        }
-      })
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         refresh();
       });
@@ -417,11 +418,7 @@ export default function PaymentRequest({ params }) {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => {
-        if (res.ok) {
-          return res.json();
-        }
-      })
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         refresh();
       });
@@ -445,11 +442,7 @@ export default function PaymentRequest({ params }) {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => {
-        if (res.ok) {
-          return res.json();
-        }
-      })
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         refresh();
       });
@@ -470,11 +463,7 @@ export default function PaymentRequest({ params }) {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => {
-        if (res.ok) {
-          return res.json();
-        }
-      })
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         refresh();
       });
@@ -494,11 +483,7 @@ export default function PaymentRequest({ params }) {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => {
-        if (res.ok) {
-          return res.json();
-        }
-      })
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         refresh();
       });
@@ -512,6 +497,18 @@ export default function PaymentRequest({ params }) {
       setShowAddApproverForm(false);
       setLevel1Approver(null);
     });
+  }
+
+  function getResultFromServer(res) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push(
+        `/auth?goTo=/system/payment-requests/${params?.id}/&sessionExpired=true`
+      );
+    } else {
+      return res.json();
+    }
   }
 
   return (
@@ -781,6 +778,7 @@ export default function PaymentRequest({ params }) {
                         value={paymentRequest?.budgeted ? "Yes" : "No"}
                         // style={{ width: "100%" }}
                         placeholder="Please select"
+                        disabled={paymentRequest?.category === "external"}
                         onChange={(value) => {
                           paymentRequest.budgeted = value;
                           if (value === false) paymentRequest.budgetLine = null;
@@ -806,79 +804,83 @@ export default function PaymentRequest({ params }) {
                   </div>
                 )}
 
-                {editRequest && budgeted && (
-                  // <Select
-                  //   // mode="multiple"
-                  //   // allowClear
-                  //   className="ml-3"
-                  //   defaultValue={data?.budgetLine}
-                  //   style={{ width: "100%" }}
-                  //   placeholder="Please select"
-                  //   onChange={(value) => {
-                  //     let r = { ...data };
-                  //     r.budgetLine = value;
-                  //     handleUpdateRequest(r);
-                  //   }}
-                  // >
-                  //   {servCategories?.map((s) => {
-                  //     return (
-                  //       <Select.Option
-                  //         key={s._id}
-                  //         value={s.description}
-                  //       >
-                  //         {s.description}
-                  //       </Select.Option>
-                  //     );
-                  //   })}
-                  // </Select>
+                {editRequest &&
+                  budgeted &&
+                  (
+                    // <Select
+                    //   // mode="multiple"
+                    //   // allowClear
+                    //   className="ml-3"
+                    //   defaultValue={data?.budgetLine}
+                    //   style={{ width: "100%" }}
+                    //   placeholder="Please select"
+                    //   onChange={(value) => {
+                    //     let r = { ...data };
+                    //     r.budgetLine = value;
+                    //     handleUpdateRequest(r);
+                    //   }}
+                    // >
+                    //   {servCategories?.map((s) => {
+                    //     return (
+                    //       <Select.Option
+                    //         key={s._id}
+                    //         value={s.description}
+                    //       >
+                    //         {s.description}
+                    //       </Select.Option>
+                    //     );
+                    //   })}
+                    // </Select>
 
-                  <Form.Item
-                    name="budgetLine"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Budget Line is required",
-                      },
-                    ]}
-                    initialValue={paymentRequest?.budgetLine?._id}
-                  >
-                    <Select
-                      // defaultValue={budgetLine}
-                      // className="ml-3"
-                      placeholder="Select service category"
-                      showSearch
-                      // defaultValue={paymentRequest?.budgetLine?._id}
-                      value={paymentRequest?.budgetLine?._id}
-                      onChange={(value, option) => {
-                        paymentRequest.budgetLine = value;
-                      }}
-                      // filterSort={(optionA, optionB) =>
-                      //   (optionA?.label ?? "")
-                      //     .toLowerCase()
-                      //     .localeCompare(
-                      //       (optionB?.label ?? "").toLowerCase()
-                      //     )
-                      // }
-                      filterOption={(inputValue, option) => {
-                        return option.label
-                          .toLowerCase()
-                          .includes(inputValue.toLowerCase());
-                      }}
-                      options={budgetLines.map((s) => {
-                        return {
-                          label: s.description.toUpperCase(),
-                          options: s.budgetlines.map((sub) => {
-                            return {
-                              label: sub.description,
-                              value: sub._id,
-                              title: sub.description,
-                            };
-                          }),
-                        };
-                      })}
-                    ></Select>
-                  </Form.Item>
-                )}
+                    <Form.Item
+                      name="budgetLine"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Budget Line is required",
+                        },
+                      ]}
+                      initialValue={paymentRequest?.budgetLine?._id}
+                    >
+                      <Select
+                        // defaultValue={budgetLine}
+
+                        // className="ml-3"
+                        placeholder="Select service category"
+                        showSearch
+                        // defaultValue={paymentRequest?.budgetLine?._id}
+                        value={paymentRequest?.budgetLine?._id}
+                        onChange={(value, option) => {
+                          paymentRequest.budgetLine = value;
+                        }}
+                        disabled={paymentRequest?.category === "external"}
+                        // filterSort={(optionA, optionB) =>
+                        //   (optionA?.label ?? "")
+                        //     .toLowerCase()
+                        //     .localeCompare(
+                        //       (optionB?.label ?? "").toLowerCase()
+                        //     )
+                        // }
+                        filterOption={(inputValue, option) => {
+                          return option.label
+                            .toLowerCase()
+                            .includes(inputValue.toLowerCase());
+                        }}
+                        options={budgetLines.map((s) => {
+                          return {
+                            label: s.description.toUpperCase(),
+                            options: s.budgetlines.map((sub) => {
+                              return {
+                                label: sub.description,
+                                value: sub._id,
+                                title: sub.description,
+                              };
+                            }),
+                          };
+                        })}
+                      ></Select>
+                    </Form.Item>
+                  )}
               </div>
 
               {editRequest && (

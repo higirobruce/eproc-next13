@@ -63,7 +63,6 @@ const BidList = ({
   let [evaluationReportId, setEvaluationRptId] = useState(v4());
   let token = localStorage.getItem("token");
   let [fileSelected, setFileSelected] = useState(false);
-  
 
   const appendData = () => {
     fetch(`${url}/submissions/byTender/${tenderId}`, {
@@ -133,7 +132,18 @@ const BidList = ({
                         <div className="text-xs text-gray-400">Bank Info</div>
                         <div className="flex flex-row">
                           <div className="text-xs text-gray-600">
-                            {item?.bankName}-{item?.bankAccountNumber}
+                            {item?.bankName}
+                          </div>
+                        </div>
+
+                        <div className="flex flex-row">
+                          <div className="text-xs text-gray-600">
+                            {item?.bankAccountName}
+                          </div>
+                        </div>
+                        <div className="flex flex-row">
+                          <div className="text-xs text-gray-600">
+                            {item?.bankAccountNumber}
                           </div>
                         </div>
                       </div>
@@ -142,6 +152,10 @@ const BidList = ({
                         <div className="text-xs text-gray-400">Price</div>
                         <div className="text-xs text-gray-600">
                           {item?.price.toLocaleString() + " " + item?.currency}
+                        </div>
+                        <div className="text-xs text-gray-400">Comment</div>
+                        <div className="text-xs text-gray-600">
+                          {item?.comment}
                         </div>
                       </div>
 
@@ -306,8 +320,8 @@ const BidList = ({
           if (fileSelected) {
             setOpenSelectBid(false);
             handleSelectBid(selectedBid, evaluationReportId);
-          }else{
-            messageApi.error('Please first select the evaluation report!')
+          } else {
+            messageApi.error("Please first select the evaluation report!");
           }
         }}
         width={"30%"}

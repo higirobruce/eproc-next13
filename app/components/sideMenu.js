@@ -28,7 +28,6 @@ const SideMenu = ({ setScreen, screen, user }) => {
   if(parts.length>=3){
     pathName = `/${parts[1]}/${parts[2]}`
   }
-  console.log(parts)
   useEffect(()=>{
     setCurrent(pathName.substring(1))
   },[pathName])

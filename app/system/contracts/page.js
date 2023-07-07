@@ -49,6 +49,7 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { encode } from "base-64";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 let modules = {
   toolbar: [
@@ -79,6 +80,7 @@ let formats = [
 ];
 
 export default function Contracts() {
+  let router = useRouter();
   let user = JSON.parse(localStorage.getItem("user"));
   let token = localStorage.getItem("token");
   const [dataLoaded, setDataLoaded] = useState(false);
@@ -202,7 +204,8 @@ export default function Contracts() {
     sections,
     items,
     B1Data,
-    signatories
+    signatories,
+    request
   ) {
     return fetch(`${url}/purchaseOrders/`, {
       method: "POST",
@@ -219,9 +222,10 @@ export default function Contracts() {
         items,
         B1Data,
         signatories,
+        request
       }),
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res1) => {
         if (res1.error) {
           messageApi.open({
@@ -255,7 +259,7 @@ export default function Contracts() {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((body) => {
         if (body?.error) {
           messageApi.error({
@@ -274,13 +278,12 @@ export default function Contracts() {
       })
       .catch((err) => {
         messageApi.error({
-          content: "Could not fetch users!",
+          content: "Could not fetch fixed assets!",
         });
       });
   }
 
   function createPOMOdal() {
-    console.log(items);
     return (
       <Modal
         title="New Purchase Order"
@@ -391,7 +394,8 @@ export default function Contracts() {
                 B1Data_Assets,
                 B1Data_NonAssets,
               },
-              signatories
+              signatories,
+              contract?.request?._id
             );
             setCreatingPo(false);
             setOpenCreatePO(false);
@@ -756,7 +760,7 @@ export default function Contracts() {
           "Content-Type": "application/json",
         },
       })
-        .then((res) => res.json())
+        .then((res) => getResultFromServer(res))
         .then((res) => {
           setContracts(res);
           setTempContracts(res);
@@ -774,7 +778,7 @@ export default function Contracts() {
           "Content-Type": "application/json",
         },
       })
-        .then((res) => res.json())
+        .then((res) => getResultFromServer(res))
         .then((res) => {
           let _contracts = user?.permissions?.canApproveAsLegal
             ? res
@@ -815,7 +819,7 @@ export default function Contracts() {
           <div className="flex flex-row justify-between items-center">
             <Typography.Title level={4} className="flex flex-row items-center">
               <div>
-                CONTRACTOR: {contract?.vendor?.companyName}{" "}
+                CONTRACTOR #{contract?.number}{" "}
                 <div>
                   <Popover
                     placement="topLeft"
@@ -1141,7 +1145,7 @@ export default function Contracts() {
 
                   {(user?.email === s?.email || user?.tempEmail === s?.email) &&
                     !s?.signed &&
-                    previousSignatorySigned(signatories, index) && (
+                    previousSignatorySigned(signatories, index) && contract.status !=='draft' && (
                       <Popconfirm
                         title="Confirm Contract Signature"
                         onConfirm={() => handleSignContract(s, index)}
@@ -1162,7 +1166,7 @@ export default function Contracts() {
                   {((user?.email !== s?.email &&
                     user?.tempEmail !== s?.email &&
                     !s.signed) ||
-                    !previousSignatorySigned(signatories, index)) && (
+                    !previousSignatorySigned(signatories, index) || contract?.status=='draft') && (
                     <div className="flex flex-row justify-center space-x-5 items-center border-t-2 bg-gray-50 p-5">
                       <Image
                         width={40}
@@ -1193,8 +1197,6 @@ export default function Contracts() {
     _contract.signatories = signatories;
     _contract.status = "pending-signature";
 
-    console.log(previousStatus);
-
     fetch(`${url}/contracts/${contract?._id}`, {
       method: "PUT",
       headers: {
@@ -1207,7 +1209,7 @@ export default function Contracts() {
         previousStatus,
       }),
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res1) => {
         setSignatories([]);
         setSections([{ title: "Set section title", body: "" }]);
@@ -1231,7 +1233,7 @@ export default function Contracts() {
     let _contract = { ...contract };
 
     fetch("https://api.ipify.org?format=json")
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         myIpObj = res;
         signatory.ipAddress = res?.ip;
@@ -1254,7 +1256,7 @@ export default function Contracts() {
             signingIndex: index,
           }),
         })
-          .then((res) => res.json())
+          .then((res) => getResultFromServer(res))
           .then((res) => {
             // setSignatories([]);
             // setSections([{ title: "Set section title", body: "" }]);
@@ -1321,7 +1323,7 @@ export default function Contracts() {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         if (res?.error) {
           let _pos = [...contracts];
@@ -1383,6 +1385,16 @@ export default function Contracts() {
     //     </div>
     //   </Modal>
     // );
+  }
+
+  function getResultFromServer(res) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push(`/auth?goTo=/system/contracts&sessionExpired=true`);
+    } else {
+      return res.json();
+    }
   }
 
   return (
@@ -1472,8 +1484,15 @@ export default function Contracts() {
                         {/*  */}
                         <div className="flex flex-col space-y-1">
                           <div className="text-xs text-gray-600">Contract</div>
-                          <div className="font-semibold">
-                            {contract?.number}
+                          <div className="font-semibold flex flex-row items-center space-x-2">
+                            <div>{contract?.number}</div>{" "}
+                            {(user?.userType !== "VENDOR" ||
+                              (documentFullySignedInternally(contract) &&
+                                user?.userType === "VENDOR")) && (
+                              <Link href={`/system/contracts/${contract?._id}`}>
+                                <PrinterOutlined className="text-blue-400 cursor-pointer" />
+                              </Link>
+                            )}
                           </div>
                           {(contract?.tender?.purchaseRequest?._id ||
                             contract?.request?._id) &&

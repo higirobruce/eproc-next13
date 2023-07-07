@@ -149,13 +149,15 @@ export default function PurchaseOrders() {
           "Content-Type": "application/json",
         },
       })
-        .then((res) => res.json())
+        .then((res) => getResultFromServer(res))
         .then((res) => {
+          console.log(res)
           setPOs(res);
           setTempPOs(res);
           setDataLoaded(true);
         })
         .catch((err) => {
+          console.log(err)
           setDataLoaded(true);
         });
     } else {
@@ -168,7 +170,7 @@ export default function PurchaseOrders() {
           "Content-Type": "application/json",
         },
       })
-        .then((res) => res.json())
+        .then((res) => getResultFromServer(res))
         .then((res) => {
           setPOs(res);
           setTempPOs(res);
@@ -200,7 +202,7 @@ export default function PurchaseOrders() {
         <div className="space-y-10 px-20 py-5 overflow-x-scroll">
           <div className="flex flex-row justify-between items-center">
             <Typography.Title level={4} className="flex flex-row items-center">
-              PURCHASE ORDER: {po?.vendor?.companyName}{" "}
+              PURCHASE ORDER #{po?.number}{" "}
             </Typography.Title>
             {/* <Button icon={<PrinterOutlined />}>Print</Button> */}
           </div>
@@ -446,7 +448,7 @@ export default function PurchaseOrders() {
     let _po = { ...po };
 
     fetch("https://api.ipify.org?format=json")
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         myIpObj = res;
         signatory.ipAddress = res?.ip;
@@ -471,7 +473,7 @@ export default function PurchaseOrders() {
             signingIndex: index,
           }),
         })
-          .then((res) => res.json())
+          .then((res) => getResultFromServer(res))
           .then((res) => {
             setSigning(false);
             setSignatories([]);
@@ -525,7 +527,7 @@ export default function PurchaseOrders() {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         if (res?.error) {
           let _pos = [...pOs];
@@ -587,6 +589,20 @@ export default function PurchaseOrders() {
     //     </div>
     //   </Modal>
     // );
+  }
+
+  function getResultFromServer(res) {
+   
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push(
+        `/auth?goTo=/system/purchase-orders/&sessionExpired=true`
+      );
+    } else {
+      console.log('hereeeee')
+      return res.json();
+    }
   }
 
   return (
@@ -702,7 +718,16 @@ export default function PurchaseOrders() {
                           <div className="text-xs text-gray-600">
                             Purchase Order
                           </div>
-                          <div className="font-semibold">{po?.number}</div>
+                          <div className="font-semibold flex flex-row space-x-2">
+                            <div>{po?.number}</div>
+                            {(user?.userType !== "VENDOR" ||
+                              (documentFullySignedInternally(po) &&
+                                user?.userType === "VENDOR")) && (
+                              <Link href={`/system/purchase-orders/${po?._id}`}>
+                                <PrinterOutlined />
+                              </Link>
+                            )}
+                          </div>
                           <div className="text-gray-600">
                             {po?.tender?.purchaseRequest?.description ||
                               po?.request?.description}

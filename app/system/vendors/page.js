@@ -53,7 +53,7 @@ import { motion } from "framer-motion";
 
 export default function Vendors() {
   let user = JSON.parse(localStorage.getItem("user"));
-  let token = localStorage.getItem('token');
+  let token = localStorage.getItem("token");
   const [passwordForm] = Form.useForm();
   const [dataLoaded, setDataLoaded] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
@@ -180,7 +180,15 @@ export default function Vendors() {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          router.push("/auth");
+        } else {
+          return res.json();
+        }
+      })
       .then((res) => {
         setDataLoaded(true);
         setDataset(res);
@@ -223,7 +231,6 @@ export default function Vendors() {
           let elindex = _data[index];
           elindex.status = "approved";
 
-          console.log(_data[index]);
           // Replace item at index using native splice
           _data.splice(index, 1, elindex);
 
@@ -263,7 +270,6 @@ export default function Vendors() {
         let elindex = _data[index];
         elindex.status = res?.status;
 
-        console.log(_data[index]);
         // Replace item at index using native splice
         _data.splice(index, 1, elindex);
 
@@ -299,7 +305,6 @@ export default function Vendors() {
         let elindex = _data[index];
         elindex.status = res?.status;
 
-        console.log(_data[index]);
         // Replace item at index using native splice
         _data.splice(index, 1, elindex);
 
@@ -333,7 +338,6 @@ export default function Vendors() {
         let elindex = _data[index];
         elindex.status = res?.status;
 
-        console.log(_data[index]);
         // Replace item at index using native splice
         _data.splice(index, 1, elindex);
 

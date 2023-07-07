@@ -19,7 +19,7 @@ import {
   message,
 } from "antd";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -63,6 +63,8 @@ const LoginForm = ({ goTo }) => {
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
   let router = useRouter();
+
+  let searchParams = useSearchParams();
 
   const [messageApi, contextHolder] = message.useMessage();
   let [loaded, setLoaded] = useState(false);
@@ -182,6 +184,10 @@ const LoginForm = ({ goTo }) => {
   const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
   useEffect(() => {
+    let sessionExpired = searchParams.get('sessionExpired')
+    if(sessionExpired==true || sessionExpired==='true'){
+      messageApi.info('Session has expired! Please login again!')
+    }
     setLoaded(true);
   }, []);
 

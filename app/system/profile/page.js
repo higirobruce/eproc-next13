@@ -43,8 +43,10 @@ import React, { useEffect, useState } from "react";
 import { encode } from "base-64";
 import PermissionsTable from "../../components/permissionsTable";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function page() {
+  let router = useRouter()
   const [form] = Form.useForm();
   const [dataLoaded, setDataLoaded] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
@@ -85,7 +87,7 @@ export default function page() {
         newPassword: values.newPassword,
       }),
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         setSubmitting(false);
         form.resetFields();
@@ -109,6 +111,19 @@ export default function page() {
           content: "Something happened! Please try again.",
         });
       });
+  }
+
+  function getResultFromServer(res) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push(
+        `/auth?goTo=/system/profile/&sessionExpired=true`
+      );
+      throw Error('Unauthorized')
+    } else {
+      return res.json();
+    }
   }
 
   function buildUser() {
@@ -299,6 +314,18 @@ export default function page() {
                       canCreateRequests={user?.permissions?.canCreateRequests}
                       canEditRequests={user?.permissions?.canEditRequests}
                       canViewRequests={user?.permissions?.canViewRequests}
+                      canApprovePaymentRequests={
+                        user?.permissions?.canApprovePaymentRequests
+                      }
+                      canCreatePaymentRequests={
+                        user?.permissions?.canCreatePaymentRequests
+                      }
+                      canEditPaymentRequests={
+                        user?.permissions?.canEditPaymentRequests
+                      }
+                      canViewPaymentRequests={
+                        user?.permissions?.canViewPaymentRequests
+                      }
                       canApproveTenders={user?.permissions?.canApproveTenders}
                       canCreateTenders={user?.permissions?.canCreateTenders}
                       canEditTenders={user?.permissions?.canEditTenders}
@@ -367,7 +394,7 @@ export default function page() {
                         <Checkbox
                           disabled
                           defaultChecked={user?.permissions?.canApproveAsHof}
-                          onChange={(e) => setCanApproveAsHof(e.target.checked)}
+                          // onChange={(e) => setCanApproveAsHof(e.target.checked)}
                         />
                       </Form.Item>
                       <Form.Item
@@ -377,7 +404,18 @@ export default function page() {
                         <Checkbox
                           disabled
                           defaultChecked={user?.permissions?.canApproveAsPM}
-                          onChange={(e) => setCanApproveAsPM(e.target.checked)}
+                          // onChange={(e) => setCanApproveAsPM(e.target.checked)}
+                        />
+                      </Form.Item>
+
+                      <Form.Item
+                        name="canApproveAsLegal"
+                        label="Can approve as a Legal officer"
+                      >
+                        <Checkbox
+                          disabled
+                          defaultChecked={user?.permissions?.canApproveAsPM}
+                          // onChange={(e) => setCanApproveAsPM(e.target.checked)}
                         />
                       </Form.Item>
                     </Form>
@@ -1017,6 +1055,7 @@ export default function page() {
       </div>
     );
   }
+
 
   function previewAttachmentModal() {
     // return (

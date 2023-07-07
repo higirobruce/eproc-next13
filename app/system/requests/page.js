@@ -71,10 +71,18 @@ export default function UserRequests() {
   let [searchStatus, setSearchStatus] = useState("all");
   let [searchText, setSearchText] = useState("");
   const [form] = Form.useForm();
-  const [onlyMine, setOnlyMine] = useState(true);
+  const [onlyMine, setOnlyMine] = useState(
+    !user?.permissions?.canApproveAsHof &&
+      !user?.permissions?.canApproveAsPM &&
+      !user?.permissions?.canApproveAsHod
+      ? true
+      : false
+  );
+  const [myPendingRequest, setMyPendingRequest] = useState(false);
+  const [currentUser, setCurrentUser] = useState("");
   const [sourcingMethod, setSourcingMethod] = useState("");
   let [files, setFiles] = useState([]);
-  let token = localStorage.getItem('token')
+  let token = localStorage.getItem("token");
 
   useEffect(() => {
     // loadRequests()
@@ -98,7 +106,7 @@ export default function UserRequests() {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         setServiceCategories(res);
       })
@@ -108,6 +116,23 @@ export default function UserRequests() {
           content: "Something happened! Please try again.",
         });
       });
+
+    fetch(`${url}/users/${user?._id}`, {
+      method: "GET",
+      headers: {
+        Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => setCurrentUser(res))
+      .catch((err) =>
+        messageApi.open({
+          type: "error",
+          content: "Something happened! Please try again.",
+        })
+      );
 
     fetch(`${url}/users/level1Approvers`, {
       method: "GET",
@@ -170,7 +195,7 @@ export default function UserRequests() {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         setDataLoaded(true);
         setDataset(res);
@@ -210,7 +235,7 @@ export default function UserRequests() {
     setDataLoaded(false);
     // setSearchStatus("mine");
     loadRequests()
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         setDataLoaded(true);
         setDataset(res);
@@ -250,7 +275,6 @@ export default function UserRequests() {
 
   const save = (_fileList) => {
     if (values && values[0]) {
-      console.log("Received values of form:", values);
       setConfirmLoading(true);
       let user = JSON.parse(localStorage.getItem("user"));
       let _values = [...values];
@@ -277,7 +301,7 @@ export default function UserRequests() {
           level1Approver,
         }),
       })
-        .then((res) => res.json())
+        .then((res) => getResultFromServer(res))
         .then(async (res) => {
           setDueDate(null),
             setDescription(""),
@@ -289,7 +313,7 @@ export default function UserRequests() {
             setFileList([]);
           setFiles([]);
           loadRequests()
-            .then((res) => res.json())
+            .then((res) => getResultFromServer(res))
             .then((res) => {
               setDataLoaded(true);
               setDataset(res);
@@ -300,7 +324,6 @@ export default function UserRequests() {
             .catch((err) => {
               setConfirmLoading(false);
               setOpen(false);
-              console.log(err);
               messageApi.open({
                 type: "error",
                 content: "Something happened! Please try again.",
@@ -315,9 +338,9 @@ export default function UserRequests() {
             content: "Something happened! Please try again.",
           });
         });
-    }else{
-      messageApi.error("Please add atleast one item!")
-      setConfirmLoading(false)
+    } else {
+      messageApi.error("Please add atleast one item!");
+      setConfirmLoading(false);
     }
   };
 
@@ -331,7 +354,7 @@ export default function UserRequests() {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         let _data = [...dataset];
 
@@ -339,8 +362,6 @@ export default function UserRequests() {
         var index = _.findIndex(_data, { _id: id });
         let elindex = _data[index];
         elindex.status = "approved";
-
-        console.log(_data[index]);
         // Replace item at index using native splice
         _data.splice(index, 1, elindex);
 
@@ -370,7 +391,7 @@ export default function UserRequests() {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         let _data = [...dataset];
 
@@ -380,8 +401,6 @@ export default function UserRequests() {
         elindex.status = "declined";
         elindex.reasonForRejection = reason;
         elindex.declinedBy = declinedBy;
-
-        console.log(_data[index]);
         // Replace item at index using native splice
         _data.splice(index, 1, elindex);
 
@@ -411,7 +430,7 @@ export default function UserRequests() {
         status,
       }),
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         loadRequests()
           .then((res) => res.json())
@@ -421,7 +440,6 @@ export default function UserRequests() {
             let r = res.filter((d) => {
               return d._id === rowData?._id;
             });
-            console.log(r);
             setRowData(r[0]);
             setLoadingRowData(false);
             if (status === "withdrawn") setRowData(null);
@@ -465,7 +483,6 @@ export default function UserRequests() {
             let r = res.filter((d) => {
               return d._id === rowData?._id;
             });
-            console.log(r);
             setRowData(r[0]);
           })
           .catch((err) => {
@@ -496,7 +513,7 @@ export default function UserRequests() {
         updates: rowData,
       }),
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         refresh();
 
@@ -505,8 +522,6 @@ export default function UserRequests() {
         });
 
         updateStatus(rowData?._id, "pending");
-
-        console.log(r);
         setRowData(r[0]);
         setLoadingRowData(false);
         setDataLoaded(true);
@@ -521,7 +536,6 @@ export default function UserRequests() {
   }
 
   function handleSetRow(row) {
-    console.log(row);
     setLoadingRowData(true);
     setRowData(row);
     setLoadingRowData(false);
@@ -538,13 +552,12 @@ export default function UserRequests() {
       },
       body: JSON.stringify(tenderData),
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         updateStatus(rowData._id, "approved");
         updateSourcingMethod(rowData._id, sourcingMethod);
       })
       .catch((err) => {
-        console.log(err);
         messageApi.open({
           type: "error",
           content: "Something happened! Please try again.",
@@ -567,11 +580,11 @@ export default function UserRequests() {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         setReload(!reload);
         loadRequests()
-          .then((res) => res.json())
+          .then((res) => getResultFromServer(res))
           .then((res) => {
             setDataset(res);
             setTempDataset(res);
@@ -607,11 +620,11 @@ export default function UserRequests() {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res) => {
         setReload(!reload);
         loadRequests()
-          .then((res) => res.json())
+          .then((res) => getResultFromServer(res))
           .then((res) => {
             setDataset(res);
             setTempDataset(res);
@@ -663,7 +676,7 @@ export default function UserRequests() {
         reqAttachmentDocId,
       }),
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res1) => {
         if (res1.error || res1.code) {
           messageApi.open({
@@ -718,7 +731,7 @@ export default function UserRequests() {
         request: rowData?._id,
       }),
     })
-      .then((res) => res.json())
+      .then((res) => getResultFromServer(res))
       .then((res1) => {
         updateStatus(rowData._id, "approved");
         updateSourcingMethod(rowData._id, sourcingMethod);
@@ -736,7 +749,6 @@ export default function UserRequests() {
   }
 
   function _setFileList(list) {
-    console.log(list);
     setFileList(list);
   }
 
@@ -747,7 +759,7 @@ export default function UserRequests() {
   const handleUpload = (files) => {
     if (files?.length < 1) {
       messageApi.error("Please add at least one doc.");
-      setConfirmLoading(false)
+      setConfirmLoading(false);
     } else {
       files.forEach((filesPerRow, rowIndex) => {
         filesPerRow.map((rowFile, fileIndex) => {
@@ -764,7 +776,7 @@ export default function UserRequests() {
               // "Content-Type": "multipart/form-data",
             },
           })
-            .then((res) => res.json())
+            .then((res) => getResultFromServer(res))
             .then((savedFiles) => {
               let _filenames = savedFiles?.map((f) => {
                 return f?.filename;
@@ -781,7 +793,6 @@ export default function UserRequests() {
               }
             })
             .catch((err) => {
-              console.log(err);
               messageApi.error("upload failed.");
             })
             .finally(() => {});
@@ -790,7 +801,41 @@ export default function UserRequests() {
     }
   };
 
-  
+  const getMyPendingRequest = (value) => {
+    setMyPendingRequest(value);
+
+    if (value == true) {
+      const newFilter = tempDataset.filter(
+        (item) =>
+          item?.level1Approver?._id == user._id ||
+          (item?.status === "approved (hod)" &&
+            user?.permissions?.canApproveAsHof) ||
+          user?.permissions?.canApproveAsPM
+      );
+
+      const statusFilter = newFilter.filter(
+        (item) =>
+          (user?.permissions?.canApproveAsHod && item.status == "pending") ||
+          (user?.permissions?.canApproveAsHof &&
+            item.status == "approved (hod)") ||
+          (user?.permissions?.canApproveAsPM && item.status == "approved (fd)")
+      );
+
+      setTempDataset(statusFilter);
+    } else {
+      refresh();
+    }
+  };
+
+  function getResultFromServer(res) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push("/auth?goTo=/system/requests&sessionExpired=true");
+    } else {
+      return res.json();
+    }
+  }
 
   return !rowData ? (
     <>
@@ -800,15 +845,33 @@ export default function UserRequests() {
           <Row className="flex flex-col bg-white px-10 py-3 shadow space-y-2">
             <div className="flex flex-row items-center justify-between">
               <div className="text-xl font-semibold">Purchase Requests</div>
-              <div className="flex flex-row items-center space-x-1">
-                <div>View my requests only</div>
-                <Checkbox
-                  checked={onlyMine}
-                  onChange={(e) => {
-                    setOnlyMine(e.target.checked);
-                  }}
-                />
-              </div>
+
+              {(currentUser?.permissions?.canApproveAsHod ||
+                currentUser?.permissions?.canApproveAsHof ||
+                currentUser?.permissions?.canApproveAsPM) && (
+                <div className="flex items-center space-x-5">
+                  <div className="flex flex-row items-center space-x-1">
+                    <div>Awaiting my approval</div>
+                    <Checkbox
+                      checked={myPendingRequest}
+                      disabled={onlyMine}
+                      onChange={(e) => {
+                        getMyPendingRequest(e.target.checked);
+                      }}
+                    />
+                  </div>
+                  <div className="flex flex-row items-center space-x-1">
+                    <div>My requests</div>
+                    <Checkbox
+                      checked={onlyMine}
+                      disabled={myPendingRequest}
+                      onChange={(e) => {
+                        setOnlyMine(e.target.checked);
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
             <Row className="flex flex-row justify-between items-center space-x-4">
               <div className="flex-1">
@@ -856,6 +919,7 @@ export default function UserRequests() {
                   icon={<PlusOutlined />}
                   onClick={() => {
                     form.resetFields();
+
                     setOpen(true);
                   }}
                 >
@@ -891,7 +955,6 @@ export default function UserRequests() {
             centered
             open={open}
             onOk={async () => {
-              
               await form.validateFields();
               if (values && values[0]) {
                 let invalidValues = values?.filter(
@@ -901,20 +964,19 @@ export default function UserRequests() {
                     v?.estimatedUnitCost === ""
                 );
                 if (invalidValues?.length == 0) {
-                  setConfirmLoading(true)
+                  setConfirmLoading(true);
                   handleUpload(files);
                 }
-              }else{
-                messageApi.error("Please add atleast one item!")
+              } else {
+                messageApi.error("Please add atleast one item!");
               }
             }}
             onCancel={() => {
               setOpen(false);
               setValues([]);
             }}
-            
             okText="Submit for approval"
-            okButtonProps={{ size: "small", disabled:confirmLoading }}
+            okButtonProps={{ size: "small", disabled: confirmLoading }}
             cancelButtonProps={{ size: "small" }}
             width={1200}
             confirmLoading={confirmLoading}
@@ -1183,9 +1245,9 @@ export default function UserRequests() {
             </div>
           </Modal>
 
-          <div class="absolute -bottom-32 right-10 opacity-10">
+          {/* <div class="absolute -bottom-32 right-10 opacity-10">
             <Image src="/icons/blue icon.png" width={110} height={100} />
-          </div>
+          </div> */}
         </motion.div>
       ) : (
         <div className="flex items-center justify-center flex-1 h-screen">
