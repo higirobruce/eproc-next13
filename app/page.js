@@ -6,10 +6,12 @@ import Router from "next/router";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { getIpAddress } from "./helpers/rtc";
 
 export default function PublicPortal() {
   let router = useRouter()
   let [loaded, setLoaded] = useState(false);
+  
   useEffect(() => {
     setLoaded(true)
   }, []);
