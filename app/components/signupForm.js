@@ -2070,19 +2070,20 @@ const SignupForm = () => {
                             </Tooltip>
                           </div>
                         </div>
+                        
                         <Form.Item
                           name="rdbRegistraction"
                           rules={[
-                            {
-                              validator: (_, value) =>
-                                rdbSelected
-                                  ? Promise.resolve()
-                                  : Promise.reject(
-                                      new Error(
-                                        "Please attach your incorporation document"
-                                      )
-                                    ),
-                            },
+                            // {
+                            //   validator: (_, value) =>
+                            //     rdbSelected
+                            //       ? Promise.resolve()
+                            //       : Promise.reject(
+                            //           new Error(
+                            //             "Please attach your incorporation document"
+                            //           )
+                            //         ),
+                            // },
                           ]}
                         >
                           <UploadRDCerts
