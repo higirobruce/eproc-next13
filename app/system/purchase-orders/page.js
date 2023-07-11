@@ -482,9 +482,10 @@ export default function PurchaseOrders() {
           });
       })
       .catch((err) => {
-        setSigning(false);
-        console.log(err);
-      });
+        messageApi.error('An error occured while trying to get your ip address. Please try again')
+      }).finally(()=>{
+        setSigning(false)
+      })
 
     //call API to sign
   }
