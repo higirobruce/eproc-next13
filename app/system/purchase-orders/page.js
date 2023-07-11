@@ -17,6 +17,7 @@ import {
   Empty,
   Popconfirm,
   Popover,
+  message,
   Tag,
   Tooltip,
   Select,
@@ -34,6 +35,7 @@ import { LockClosedIcon, LockOpenIcon } from "@heroicons/react/24/solid";
 import { PaperClipIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { encode } from "base-64";
 import { useRouter } from "next/navigation";
 // import MyPdfViewer from "../common/pdfViewer";
 
@@ -51,6 +53,7 @@ export default function PurchaseOrders() {
   let [totalValue, setTotalValue] = useState(0);
   let [openViewPO, setOpenViewPO] = useState(false);
   let [startingDelivery, setStartingDelivery] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
   const items = [
     {
       key: "1",
@@ -160,6 +163,27 @@ export default function PurchaseOrders() {
           console.log(err)
           setDataLoaded(true);
         });
+    } else if(searchStatus && searchStatus !== 'all') {
+      fetch(`${url}/purchaseOrders/byStatus/${searchStatus}`, {
+        method: "GET",
+        headers: {
+          Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+          token: token,
+          "Content-Type": "application/json",
+        }
+      })
+      .then((res) => getResultFromServer(res))
+      .then((res) => {
+        setPOs(res);
+        setTempPOs(res);
+        setDataLoaded(true);
+      })
+      .catch((err) => {
+        messageApi.open({
+          type: "error",
+          content: "Something happened! Please try again.",
+        });
+      });
     } else {
       fetch(`${url}/purchaseOrders/`, {
         method: "GET",
@@ -628,7 +652,7 @@ export default function PurchaseOrders() {
                   options={[
                     { value: "all", label: "All" },
                     {
-                      value: "pending",
+                      value: "pending-signature",
                       label: "Pending Signature",
                     },
                     {
