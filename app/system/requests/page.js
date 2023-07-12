@@ -113,7 +113,8 @@ export default function UserRequests() {
       .catch((err) => {
         messageApi.open({
           type: "error",
-          content: "Something happened! Please try again.",
+          content:
+            "Something happened fetching service categories! Please try again.",
         });
       });
 
@@ -127,12 +128,13 @@ export default function UserRequests() {
     })
       .then((res) => res.json())
       .then((res) => setCurrentUser(res))
-      .catch((err) =>
+      .catch((err) => {
+        console.log(err);
         messageApi.open({
           type: "error",
-          content: "Something happened! Please try again.",
-        })
-      );
+          content: "Something happened fetching users! Please try again.",
+        });
+      });
 
     fetch(`${url}/users/level1Approvers`, {
       method: "GET",
@@ -164,7 +166,7 @@ export default function UserRequests() {
       .catch((err) => {
         messageApi.open({
           type: "error",
-          content: "Something happened! Please try again.",
+          content: "Something happened fetching approvers! Please try again.",
         });
       });
 
@@ -179,6 +181,13 @@ export default function UserRequests() {
       .then((res) => res.json())
       .then((res) => {
         setBudgetLines(res);
+      })
+      .catch((err) => {
+        messageApi.open({
+          type: "error",
+          content:
+            "Something happened fetching budget lines! Please try again.",
+        });
       });
   }, []);
 
@@ -1110,7 +1119,9 @@ export default function UserRequests() {
                             setLevel1Approver(value);
                           }}
                           filterOption={(input, option) =>
-                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                            (option?.label ?? "")
+                              .toLowerCase()
+                              .includes(input.toLowerCase())
                           }
                           options={level1Approvers.map((l) => {
                             return {
