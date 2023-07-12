@@ -2623,9 +2623,6 @@ const TenderDetails = ({
 
   function handleSignContract(signatory, index) {
     setSigning(true);
-    let myIpObj = "";
-    signatory.signed = true;
-    let _contract = { ...contract };
 
     fetch("https://api.ipify.org?format=json")
       .then((res) => {
@@ -2636,6 +2633,9 @@ const TenderDetails = ({
         }
       })
       .then((res) => {
+        let myIpObj = "";
+        signatory.signed = true;
+        let _contract = { ...contract };
         myIpObj = res;
         signatory.ipAddress = res?.ip;
         signatory.signedAt = moment();
@@ -2679,19 +2679,19 @@ const TenderDetails = ({
 
   function handleSignPo(signatory, index) {
     setSigning(true);
-    let myIpObj = "";
-    signatory.signed = true;
-    let _po = { ...po };
 
     fetch("https://api.ipify.org?format=json")
-    .then((res) => {
-      if (res.ok) {
-        return res.json();
-      } else {
-        throw Error("");
-      }
-    })
       .then((res) => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          throw Error("");
+        }
+      })
+      .then((res) => {
+        let myIpObj = "";
+        signatory.signed = true;
+        let _po = { ...po };
         myIpObj = res;
         signatory.ipAddress = res?.ip;
         signatory.signedAt = moment();
@@ -2714,7 +2714,13 @@ const TenderDetails = ({
             signingIndex: index,
           }),
         })
-          .then((res) => res.json())
+          .then((res) => {
+            if (res.ok) {
+              return res.json();
+            } else {
+              throw Error("");
+            }
+          })
           .then((res) => {
             setSigning(false);
             setSignatories([]);

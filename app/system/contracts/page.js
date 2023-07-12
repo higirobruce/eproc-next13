@@ -1230,13 +1230,13 @@ export default function Contracts() {
 
   function handleSignContract(signatory, index) {
     setSigning(true);
-    let myIpObj = "";
-    signatory.signed = true;
-    let _contract = { ...contract };
 
     fetch("https://api.ipify.org?format=json")
       .then((res) => getResultFromServer(res))
       .then((res) => {
+        let myIpObj = "";
+        signatory.signed = true;
+        let _contract = { ...contract };
         myIpObj = res;
         signatory.ipAddress = res?.ip;
         signatory.signedAt = moment();

@@ -154,13 +154,13 @@ export default function PurchaseOrders() {
       })
         .then((res) => getResultFromServer(res))
         .then((res) => {
-          console.log(res)
+          console.log(res);
           setPOs(res);
           setTempPOs(res);
           setDataLoaded(true);
         })
         .catch((err) => {
-          console.log(err)
+          console.log(err);
           setDataLoaded(true);
         });
     } else if(searchStatus && searchStatus !== 'all') {
@@ -467,13 +467,13 @@ export default function PurchaseOrders() {
 
   function handleSignPo(signatory, index) {
     setSigning(true);
-    let myIpObj = "";
-    signatory.signed = true;
-    let _po = { ...po };
 
     fetch("https://api.ipify.org?format=json")
       .then((res) => getResultFromServer(res))
       .then((res) => {
+        let myIpObj = "";
+        signatory.signed = true;
+        let _po = { ...po };
         myIpObj = res;
         signatory.ipAddress = res?.ip;
         signatory.signedAt = moment();
@@ -506,10 +506,13 @@ export default function PurchaseOrders() {
           });
       })
       .catch((err) => {
-        messageApi.error('An error occured while trying to get your ip address. Please try again')
-      }).finally(()=>{
-        setSigning(false)
+        messageApi.error(
+          "An error occured while trying to get your ip address. Please try again"
+        );
       })
+      .finally(() => {
+        setSigning(false);
+      });
 
     //call API to sign
   }
@@ -617,15 +620,12 @@ export default function PurchaseOrders() {
   }
 
   function getResultFromServer(res) {
-   
     if (res.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      router.push(
-        `/auth?goTo=/system/purchase-orders/&sessionExpired=true`
-      );
+      router.push(`/auth?goTo=/system/purchase-orders/&sessionExpired=true`);
     } else {
-      console.log('hereeeee')
+      console.log("hereeeee");
       return res.json();
     }
   }

@@ -75,7 +75,9 @@ async function getPODetails(id, router) {
     if (res.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      router.push(`/auth?goTo=/system/purchase-orders/${id}&sessionExpired=true`);
+      router.push(
+        `/auth?goTo=/system/purchase-orders/${id}&sessionExpired=true`
+      );
     }
     // This will activate the closest `error.js` Error Boundary
     // console.log(id);
@@ -88,7 +90,7 @@ async function getPODetails(id, router) {
 
 export default function page({ params }) {
   let user = JSON.parse(localStorage.getItem("user"));
-  let router = useRouter()
+  let router = useRouter();
 
   let [po, setPO] = useState(null);
   const [signing, setSigning] = useState(false);
@@ -132,13 +134,13 @@ export default function page({ params }) {
 
   function handleSignPo(signatory, index) {
     setSigning(true);
-    let myIpObj = "";
-    signatory.signed = true;
-    let _po = { ...po };
 
     fetch("https://api.ipify.org?format=json")
       .then((res) => getResultFromServer(res))
       .then((res) => {
+        let myIpObj = "";
+        signatory.signed = true;
+        let _po = { ...po };
         myIpObj = res;
         signatory.ipAddress = res?.ip;
         signatory.signedAt = moment();
@@ -171,10 +173,13 @@ export default function page({ params }) {
           });
       })
       .catch((err) => {
-        messageApi.error('An error occured while trying to get your ip address. Please try again')
-      }).finally(()=>{
-        setSigning(false)
+        messageApi.error(
+          "An error occured while trying to get your ip address. Please try again"
+        );
       })
+      .finally(() => {
+        setSigning(false);
+      });
 
     //call API to sign
   }
@@ -329,48 +334,28 @@ export default function page({ params }) {
                     <Typography.Text type="secondary">
                       <div className="text-xs">On Behalf of</div>
                     </Typography.Text>
-                    <Typography.Text
-                      strong
-                      
-                    >
-                      {s.onBehalfOf}
-                    </Typography.Text>
+                    <Typography.Text strong>{s.onBehalfOf}</Typography.Text>
                   </div>
 
                   <div className="flex flex-col">
                     <Typography.Text type="secondary">
                       <div className="text-xs">Representative Title</div>
                     </Typography.Text>
-                    <Typography.Text
-                      strong
-                      
-                    >
-                      {s.title}
-                    </Typography.Text>
+                    <Typography.Text strong>{s.title}</Typography.Text>
                   </div>
 
                   <div className="flex flex-col">
                     <Typography.Text type="secondary">
                       <div className="text-xs">Company Representative</div>
                     </Typography.Text>
-                    <Typography.Text
-                      strong
-                      
-                    >
-                      {s.names}
-                    </Typography.Text>
+                    <Typography.Text strong>{s.names}</Typography.Text>
                   </div>
 
                   <div className="flex flex-col">
                     <Typography.Text type="secondary">
                       <div className="text-xs">Email</div>
                     </Typography.Text>
-                    <Typography.Text
-                      strong
-                      
-                    >
-                      {s.email}
-                    </Typography.Text>
+                    <Typography.Text strong>{s.email}</Typography.Text>
                   </div>
 
                   {s.signed && (
