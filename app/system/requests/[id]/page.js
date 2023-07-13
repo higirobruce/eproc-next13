@@ -492,7 +492,7 @@ export default function page({ params }) {
         </div>
         {(rowData?.level1Approver?._id === user?._id ||
           rowData?.createdBy?._id === user?._id) &&
-          rowData?.status !== "approved" && (
+          !rowData?.status.startsWith('approved') && (
             <Switch
               checked={editRequest}
               checkedChildren={<EditOutlined />}
