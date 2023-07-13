@@ -1255,6 +1255,9 @@ export default function PaymentRequest({ params }) {
                     onChange={(value) => {
                       setLevel1Approver(value);
                     }}
+                    filterOption={(input, option) =>
+                      (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                    }
                     options={level1Approvers.map((l) => {
                       return {
                         label: l?.firstName + " " + l?.lastName,
