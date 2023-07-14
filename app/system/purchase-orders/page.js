@@ -613,8 +613,13 @@ export default function PurchaseOrders() {
     let filtered = (tempPOs && tempPOs) || [];
 
     if (searchStatus !== "all") {
-      filtered =
-        tempPOs && tempPOs.filter((item) => item.status == searchStatus);
+      if (searchStatus === "pending-signature")
+        filtered =
+          tempPOs &&
+          tempPOs.filter((item) => item.status == searchStatus || !item.status);
+      else
+        filtered =
+          tempPOs && tempPOs.filter((item) => item.status == searchStatus);
     }
 
     return { length: filtered.length, data: filtered };
@@ -903,7 +908,9 @@ export default function PurchaseOrders() {
 
                           {!documentFullySigned(po) && (
                             <div>
-                              <Tag color="gold">{po?.status || 'pending-signature'}</Tag>
+                              <Tag color="gold">
+                                {po?.status || "pending-signature"}
+                              </Tag>
                             </div>
                           )}
 
