@@ -612,12 +612,13 @@ export default function PurchaseOrders() {
   const getData = () => {
     let filtered = (tempPOs && tempPOs) || [];
 
-    if(searchStatus !== "all") {
-      filtered = tempPOs && tempPOs.filter((item) => item.status == searchStatus)
+    if (searchStatus !== "all") {
+      filtered =
+        tempPOs && tempPOs.filter((item) => item.status == searchStatus);
     }
 
-    return { length: filtered.length, data: filtered}
-  }
+    return { length: filtered.length, data: filtered };
+  };
 
   return (
     <>
@@ -897,6 +898,12 @@ export default function PurchaseOrders() {
                           {documentFullySigned(po) && (
                             <div>
                               <Tag color="green">Signed</Tag>
+                            </div>
+                          )}
+
+                          {!documentFullySigned(po) && (
+                            <div>
+                              <Tag color="gold">{po?.status}</Tag>
                             </div>
                           )}
 
