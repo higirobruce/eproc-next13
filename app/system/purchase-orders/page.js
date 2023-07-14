@@ -163,27 +163,6 @@ export default function PurchaseOrders() {
           console.log(err);
           setDataLoaded(true);
         });
-    } else if(searchStatus && searchStatus !== 'all') {
-      fetch(`${url}/purchaseOrders/byStatus/${searchStatus}`, {
-        method: "GET",
-        headers: {
-          Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
-          token: token,
-          "Content-Type": "application/json",
-        }
-      })
-      .then((res) => getResultFromServer(res))
-      .then((res) => {
-        setPOs(res);
-        setTempPOs(res);
-        setDataLoaded(true);
-      })
-      .catch((err) => {
-        messageApi.open({
-          type: "error",
-          content: "Something happened! Please try again.",
-        });
-      });
     } else {
       fetch(`${url}/purchaseOrders/`, {
         method: "GET",
@@ -630,6 +609,16 @@ export default function PurchaseOrders() {
     }
   }
 
+  const getData = () => {
+    let filtered = (tempPOs && tempPOs) || [];
+
+    if(searchStatus !== "all") {
+      filtered = tempPOs && tempPOs.filter((item) => item.status == searchStatus)
+    }
+
+    return { length: filtered.length, data: filtered}
+  }
+
   return (
     <>
       {dataLoaded && !submitting ? (
@@ -712,14 +701,14 @@ export default function PurchaseOrders() {
             </div>
           </div> */}
 
-          {(tempPOs?.length < 1 || !tempPOs) && <Empty />}
+          {(getData()?.length < 1 || !getData()) && <Empty />}
 
-          {tempPOs && tempPOs?.length >= 1 && (
+          {getData() && getData()?.length >= 1 && (
             <Row className="flex flex-col mx-10">
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{
-                  opacity: tempPOs && tempPOs?.length >= 1 ? 1 : 0,
+                  opacity: getData() && getData()?.length >= 1 ? 1 : 0,
                 }}
                 transition={{
                   duration: 0.3,
@@ -728,7 +717,7 @@ export default function PurchaseOrders() {
                 }}
               >
                 <Col flex={user?.userType !== "VENDOR" ? 7 : 5}>
-                  {tempPOs?.map((po) => {
+                  {getData()?.data?.map((po) => {
                     let t = 0;
                     return (
                       <div
