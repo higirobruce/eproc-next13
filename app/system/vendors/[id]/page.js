@@ -42,13 +42,16 @@ import { encode } from "base-64";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import UploadRDCerts from "@/app/components/uploadRDBCerts";
+import { v4 } from "uuid";
+import UploadVatCerts from "@/app/components/uploadVatCerts";
 
 let url = process.env.NEXT_PUBLIC_BKEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
 async function getVendorDetails(id, router) {
-  let token = localStorage.getItem('token')
+  let token = localStorage.getItem("token");
   const res = await fetch(`${url}/users/vendors/byId/${id}`, {
     headers: {
       Authorization: "Basic " + `${encode(`${apiUsername}:${apiPassword}`)}`,
@@ -74,7 +77,7 @@ async function getVendorDetails(id, router) {
 
 export default function page({ params }) {
   let user = JSON.parse(localStorage.getItem("user"));
-  let token = localStorage.getItem('token');
+  let token = localStorage.getItem("token");
   let router = useRouter();
   const [passwordForm] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
@@ -90,12 +93,25 @@ export default function page({ params }) {
   const [editVendor, setEditVendor] = useState(false);
   let [servCategories, setServCategories] = useState([]);
   let [submitting, setSubmitting] = useState(false);
+  const [rdbCertId, setRdbCertId] = useState(null);
+  const [vatCertId, setVatCertId] = useState(null);
+  const [rdbSelected, setRDBSelected] = useState(false);
+  const [vatSelected, setVatSelected] = useState(false);
+  const [fileUploadStatus, setFileUploadStatus] = useState("");
 
   const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
   useEffect(() => {
+    let uuid = v4();
+    let vatUuid = v4();
     getVendorDetails(params?.id, router).then((res) => {
       setRowData(res[0]?.vendor);
+      setRdbCertId(
+        res[0]?.vendor?.rdbCertId ? res[0]?.vendor?.rdbCertId : uuid
+      );
+      setVatCertId(
+        res[0]?.vendor?.vatCertId ? res[0]?.vendor?.vatCertId : vatUuid
+      );
     });
 
     fetch(`${url}/serviceCategories`, {
@@ -118,6 +134,53 @@ export default function page({ params }) {
       });
   }, [params]);
 
+  useEffect(() => {
+    if (rdbSelected) {
+      updateRDBCert(rdbCertId);
+    }
+  }, [rdbSelected]);
+
+  useEffect(() => {
+    if (vatSelected) {
+      updateVATCert(vatCertId);
+    }
+  }, [vatSelected]);
+
+  function refresh() {
+    let uuid = v4();
+    let vatUuid = v4();
+    getVendorDetails(params?.id, router).then((res) => {
+      setRDBSelected(false);
+      setVatSelected(false);
+      setRowData(res[0]?.vendor);
+      setRdbCertId(
+        res[0]?.vendor?.rdbCertId ? res[0]?.vendor?.rdbCertId : uuid
+      );
+      setVatCertId(
+        res[0]?.vendor?.vatCertId ? res[0]?.vendor?.vatCertId : vatUuid
+      );
+    });
+
+    fetch(`${url}/serviceCategories`, {
+      method: "GET",
+      headers: {
+        Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        setServCategories(res);
+      })
+      .catch((err) => {
+        messageApi.open({
+          type: "error",
+          content: "Connection Error!",
+        });
+      });
+  }
+
   function approveUser(id) {
     setUpdatingId(id);
     console.log(id);
@@ -132,14 +195,12 @@ export default function page({ params }) {
       .then((res) => res.json())
       .then((res) => {
         if (res.error) {
-          
           setUpdatingId(null);
           messageApi.open({
             type: "error",
             content: res.message,
           });
         } else {
-          
           res.avgRate = rowData.avgRate;
           res.status = "approved";
           setRowData(res);
@@ -171,7 +232,6 @@ export default function page({ params }) {
     })
       .then((res) => res.json())
       .then((res) => {
-        
         res.avgRate = rowData.avgRate;
         setRowData(res);
         setUpdatingId(null);
@@ -258,6 +318,61 @@ export default function page({ params }) {
       .then((res) => {
         res.avgRate = rowData.avgRate;
         setRowData(res);
+        refresh();
+      })
+      .catch((err) => {
+        messageApi.open({
+          type: "error",
+          content: "Something happened! Please try again.",
+        });
+      });
+  }
+
+  function updateRDBCert(id) {
+    rowData.rdbCertId = id;
+    fetch(`${url}/users/${rowData?._id}`, {
+      method: "PUT",
+      headers: {
+        Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        newUser: rowData,
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        res.avgRate = rowData.avgRate;
+        setRowData(res);
+        refresh();
+      })
+      .catch((err) => {
+        messageApi.open({
+          type: "error",
+          content: "Something happened! Please try again.",
+        });
+      });
+  }
+
+  function updateVATCert(id) {
+    rowData.vatCertId = id;
+    fetch(`${url}/users/${rowData?._id}`, {
+      method: "PUT",
+      headers: {
+        Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        newUser: rowData,
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        res.avgRate = rowData.avgRate;
+        setRowData(res);
+        refresh();
       })
       .catch((err) => {
         messageApi.open({
@@ -702,25 +817,48 @@ export default function page({ params }) {
                 <div className="flex flex-row items-center space-x-10">
                   <PaperClipOutlined className="text-gray-400" />
                   {rowData?.rdbCertId && (
-                    <Link
-                      href={`${url}/file/rdbCerts/${rowData?.rdbCertId}.pdf`}
-                      target="_blank"
-                    >
-                      <Typography.Link>
-                        Incorporation Certificate
-                      </Typography.Link>
-                    </Link>
+                    <div className="flex flex-row items-center">
+                      <Link
+                        href={`${url}/file/rdbCerts/${rowData?.rdbCertId}.pdf`}
+                        target="_blank"
+                      >
+                        <Typography.Link>
+                          Incorporation Certificate
+                        </Typography.Link>
+                      </Link>
+
+                      <div className="">
+                        <UploadRDCerts
+                          // label="Incorporation Certificate"
+                          iconOnly={true}
+                          setSelected={setRDBSelected}
+                          setId={setRdbCertId}
+                          uuid={rdbCertId}
+                          setStatus={(status) => {}}
+                          uploadingStatus={fileUploadStatus}
+                        />
+                      </div>
+                    </div>
                   )}
 
                   {!rowData?.rdbCertId && (
-                    <Typography.Link>
-                      Incorporation Certificate not found
-                    </Typography.Link>
-                  )}
-
-                  {!rowData?.rdbCertId && (
-                    <div>
-                      <UploadOutlined className="text-blue-500 hover:cursor-pointer" />
+                    <div className="flex flex-col">
+                      {/* <div>
+                        <Typography.Link>
+                          Incorporation Certificate not found
+                        </Typography.Link>
+                      </div> */}
+                      <div className="">
+                        <UploadRDCerts
+                          label="Incorporation Certificate (missing)"
+                          iconOnly={true}
+                          setSelected={setRDBSelected}
+                          setId={setRdbCertId}
+                          uuid={rdbCertId}
+                          setStatus={(status) => {}}
+                          uploadingStatus={fileUploadStatus}
+                        />
+                      </div>
                     </div>
                   )}
                 </div>
@@ -728,21 +866,46 @@ export default function page({ params }) {
                 <div className="flex flex-row items-center space-x-10">
                   <PaperClipOutlined className="text-gray-400" />
                   {rowData?.vatCertId && (
-                    <Link
-                      href={`${url}/file/vatCerts/${rowData?.vatCertId}.pdf`}
-                      target="_blank"
-                    >
-                      <Typography.Link>VAT Certificate</Typography.Link>
-                    </Link>
+                    <div className="flex flex-row items-center">
+                      <Link
+                        href={`${url}/file/vatCerts/${rowData?.vatCertId}.pdf`}
+                        target="_blank"
+                      >
+                        <Typography.Link>VAT Certificate</Typography.Link>
+                      </Link>
+
+                      <div className="">
+                        <UploadVatCerts
+                          // label="Incorporation Certificate"
+                          iconOnly={true}
+                          setSelected={setVatSelected}
+                          setId={setVatCertId}
+                          uuid={vatCertId}
+                          setStatus={(status) => {}}
+                          uploadingStatus={fileUploadStatus}
+                        />
+                      </div>
+                    </div>
                   )}
 
                   {!rowData?.vatCertId && (
-                    <Typography.Link>VAT Certificate not found</Typography.Link>
-                  )}
-
-                  {!rowData?.vatCertId && (
-                    <div>
-                      <UploadOutlined className="text-blue-500 hover:cursor-pointer" />
+                    <div className="flex flex-col">
+                      {/* <div>
+                        <Typography.Link>
+                          Incorporation Certificate not found
+                        </Typography.Link>
+                      </div> */}
+                      <div className="">
+                        <UploadVatCerts
+                          label="VAT Certificate (missing)"
+                          iconOnly={true}
+                          setSelected={setVatSelected}
+                          setId={setVatCertId}
+                          uuid={vatCertId}
+                          setStatus={(status) => {}}
+                          uploadingStatus={fileUploadStatus}
+                        />
+                      </div>
                     </div>
                   )}
                 </div>

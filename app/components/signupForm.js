@@ -2090,6 +2090,7 @@ const SignupForm = () => {
                             uuid={rdbCertId}
                             setSelected={setRDBSelected}
                             setId={setRdbCertId}
+                            iconOnly={false}
                           />
                         </Form.Item>
                       </div>
