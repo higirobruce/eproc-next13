@@ -903,7 +903,7 @@ export default function PurchaseOrders() {
 
                           {!documentFullySigned(po) && (
                             <div>
-                              <Tag color="gold">{po?.status}</Tag>
+                              <Tag color="gold">{po?.status || 'pending-signature'}</Tag>
                             </div>
                           )}
 
