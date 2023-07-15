@@ -14,6 +14,7 @@ import {
   Spin,
   Table,
   Button,
+  message,
 } from "antd";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
@@ -91,6 +92,8 @@ async function getPODetails(id, router) {
 export default function page({ params }) {
   let user = JSON.parse(localStorage.getItem("user"));
   let router = useRouter();
+  let [messageApi, contextHolder] = message.useMessage();
+  let token = localStorage.getItem("token");
 
   let [po, setPO] = useState(null);
   const [signing, setSigning] = useState(false);
@@ -173,6 +176,7 @@ export default function page({ params }) {
           });
       })
       .catch((err) => {
+        console.log(err);
         messageApi.error(
           "An error occured while trying to get your ip address. Please try again"
         );
@@ -482,6 +486,7 @@ export default function page({ params }) {
 
   return (
     <div className="flex flex-col p-3">
+      {contextHolder}
       <Button
         type="primary"
         onClick={() => generatePDF()}
