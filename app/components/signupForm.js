@@ -2091,6 +2091,7 @@ const SignupForm = () => {
                             setSelected={setRDBSelected}
                             setId={setRdbCertId}
                             iconOnly={false}
+                            setStatus={()=>{}}
                           />
                         </Form.Item>
                       </div>
@@ -2101,6 +2102,8 @@ const SignupForm = () => {
                             uuid={vatCertId}
                             setId={setVatCertId}
                             setSelected={setVatSelected}
+                            setStatus={()=>{}}
+                            
                           />
                         </Form.Item>
                       </div>
