@@ -2070,25 +2070,28 @@ const SignupForm = () => {
                             </Tooltip>
                           </div>
                         </div>
+                        
                         <Form.Item
                           name="rdbRegistraction"
                           rules={[
-                            {
-                              validator: (_, value) =>
-                                rdbSelected
-                                  ? Promise.resolve()
-                                  : Promise.reject(
-                                      new Error(
-                                        "Please attach your incorporation document"
-                                      )
-                                    ),
-                            },
+                            // {
+                            //   validator: (_, value) =>
+                            //     rdbSelected
+                            //       ? Promise.resolve()
+                            //       : Promise.reject(
+                            //           new Error(
+                            //             "Please attach your incorporation document"
+                            //           )
+                            //         ),
+                            // },
                           ]}
                         >
                           <UploadRDCerts
                             uuid={rdbCertId}
                             setSelected={setRDBSelected}
                             setId={setRdbCertId}
+                            iconOnly={false}
+                            setStatus={()=>{}}
                           />
                         </Form.Item>
                       </div>
@@ -2099,6 +2102,8 @@ const SignupForm = () => {
                             uuid={vatCertId}
                             setId={setVatCertId}
                             setSelected={setVatSelected}
+                            setStatus={()=>{}}
+                            
                           />
                         </Form.Item>
                       </div>

@@ -17,6 +17,7 @@ import {
   Empty,
   Popconfirm,
   Popover,
+  message,
   Tag,
   Tooltip,
   Select,
@@ -34,6 +35,7 @@ import { LockClosedIcon, LockOpenIcon } from "@heroicons/react/24/solid";
 import { PaperClipIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { encode } from "base-64";
 import { useRouter } from "next/navigation";
 // import MyPdfViewer from "../common/pdfViewer";
 
@@ -51,6 +53,7 @@ export default function PurchaseOrders() {
   let [totalValue, setTotalValue] = useState(0);
   let [openViewPO, setOpenViewPO] = useState(false);
   let [startingDelivery, setStartingDelivery] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
   const items = [
     {
       key: "1",
@@ -151,13 +154,13 @@ export default function PurchaseOrders() {
       })
         .then((res) => getResultFromServer(res))
         .then((res) => {
-          console.log(res)
+          console.log(res);
           setPOs(res);
           setTempPOs(res);
           setDataLoaded(true);
         })
         .catch((err) => {
-          console.log(err)
+          console.log(err);
           setDataLoaded(true);
         });
     } else {
@@ -443,13 +446,13 @@ export default function PurchaseOrders() {
 
   function handleSignPo(signatory, index) {
     setSigning(true);
-    let myIpObj = "";
-    signatory.signed = true;
-    let _po = { ...po };
 
     fetch("https://api.ipify.org?format=json")
       .then((res) => getResultFromServer(res))
       .then((res) => {
+        let myIpObj = "";
+        signatory.signed = true;
+        let _po = { ...po };
         myIpObj = res;
         signatory.ipAddress = res?.ip;
         signatory.signedAt = moment();
@@ -482,8 +485,12 @@ export default function PurchaseOrders() {
           });
       })
       .catch((err) => {
+        messageApi.error(
+          "An error occured while trying to get your ip address. Please try again"
+        );
+      })
+      .finally(() => {
         setSigning(false);
-        console.log(err);
       });
 
     //call API to sign
@@ -592,18 +599,31 @@ export default function PurchaseOrders() {
   }
 
   function getResultFromServer(res) {
-   
     if (res.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      router.push(
-        `/auth?goTo=/system/purchase-orders/&sessionExpired=true`
-      );
+      router.push(`/auth?goTo=/system/purchase-orders/&sessionExpired=true`);
     } else {
-      console.log('hereeeee')
+      console.log("hereeeee");
       return res.json();
     }
   }
+
+  const getData = () => {
+    let filtered = (tempPOs && tempPOs) || [];
+
+    if (searchStatus !== "all") {
+      if (searchStatus === "pending-signature")
+        filtered =
+          tempPOs &&
+          tempPOs.filter((item) => item.status == searchStatus || !item.status);
+      else
+        filtered =
+          tempPOs && tempPOs.filter((item) => item.status == searchStatus);
+    }
+
+    return { length: filtered.length, data: filtered };
+  };
 
   return (
     <>
@@ -628,7 +648,7 @@ export default function PurchaseOrders() {
                   options={[
                     { value: "all", label: "All" },
                     {
-                      value: "pending",
+                      value: "pending-signature",
                       label: "Pending Signature",
                     },
                     {
@@ -687,14 +707,14 @@ export default function PurchaseOrders() {
             </div>
           </div> */}
 
-          {(tempPOs?.length < 1 || !tempPOs) && <Empty />}
+          {(getData()?.length < 1 || !getData()) && <Empty />}
 
-          {tempPOs && tempPOs?.length >= 1 && (
+          {getData() && getData()?.length >= 1 && (
             <Row className="flex flex-col mx-10">
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{
-                  opacity: tempPOs && tempPOs?.length >= 1 ? 1 : 0,
+                  opacity: getData() && getData()?.length >= 1 ? 1 : 0,
                 }}
                 transition={{
                   duration: 0.3,
@@ -703,7 +723,7 @@ export default function PurchaseOrders() {
                 }}
               >
                 <Col flex={user?.userType !== "VENDOR" ? 7 : 5}>
-                  {tempPOs?.map((po) => {
+                  {getData()?.data?.map((po) => {
                     let t = 0;
                     return (
                       <div
@@ -883,6 +903,14 @@ export default function PurchaseOrders() {
                           {documentFullySigned(po) && (
                             <div>
                               <Tag color="green">Signed</Tag>
+                            </div>
+                          )}
+
+                          {!documentFullySigned(po) && (
+                            <div>
+                              <Tag color="gold">
+                                {po?.status || "pending-signature"}
+                              </Tag>
                             </div>
                           )}
 

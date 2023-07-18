@@ -350,10 +350,11 @@ const RequestDetails = ({
   handleRateDelivery,
   refDoc,
   setRefDoc,
-  setFilePaths,fileList,
+  setFilePaths,
+  fileList,
   files,
   setFileList,
-  setFiles
+  setFiles,
 }) => {
   const [form] = Form.useForm();
   const [size, setSize] = useState("small");
@@ -413,7 +414,6 @@ const RequestDetails = ({
   const [deliveredQties, setDeliveredQties] = useState([]);
   const [tenderDocSelected, setTendeDocSelected] = useState(false);
   const [attachSelected, setAttachSelected] = useState(false);
-  
 
   const showPopconfirm = () => {
     setOpen(true);
@@ -515,7 +515,7 @@ const RequestDetails = ({
 
   let [servCategories, setServCategories] = useState([]);
   let [budgetLines, setBudgetLines] = useState([]);
-  
+
   useEffect(() => {
     refresh();
     let _openConfirmDeliv = [...openConfirmDeliv];
@@ -593,10 +593,7 @@ const RequestDetails = ({
           content: "Connection Error!",
         });
       });
-
-    
   }, [data]);
-
 
   useEffect(() => {}, [edit]);
 
@@ -2648,7 +2645,8 @@ const RequestDetails = ({
                           )}
                         <Tag
                           color={
-                            data?.status === "declined"
+                            data?.status === "declined" ||
+                            data?.status === "withdrawn"
                               ? "red"
                               : data?.status === "approved" ||
                                 data?.status === "approved (pm)"
@@ -2658,7 +2656,8 @@ const RequestDetails = ({
                         >
                           {data?.status === "declined" ||
                           data?.status === "approved" ||
-                          data?.status === "approved (pm)"
+                          data?.status === "approved (pm)" ||
+                          data?.status === "withdrawn"
                             ? data?.status
                             : "pending"}
                         </Tag>
@@ -2967,28 +2966,29 @@ const RequestDetails = ({
                       // data?.status !== "approved" &&
                       //   data?.status !== "po created" &&
                       //   data?.status !== "declined" &&
-                      buildApprovalFlow(
-                        currentCode,
-                        changeStatus,
-                        submitTenderData,
-                        setDeadLine,
-                        open,
-                        handleOk,
-                        setReason,
-                        confirmRejectLoading,
-                        handleCancel,
-                        showPopconfirm,
-                        data?.approvalDate,
-                        refDoc,
-                        setRefDoc,
-                        contracts,
-                        submitPOData,
-                        setSelectedContract,
-                        data,
-                        submitContractData,
-                        setTendeDocSelected,
-                        form
-                      )
+                      currentCode !== 5 &&
+                        buildApprovalFlow(
+                          currentCode,
+                          changeStatus,
+                          submitTenderData,
+                          setDeadLine,
+                          open,
+                          handleOk,
+                          setReason,
+                          confirmRejectLoading,
+                          handleCancel,
+                          showPopconfirm,
+                          data?.approvalDate,
+                          refDoc,
+                          setRefDoc,
+                          contracts,
+                          submitPOData,
+                          setSelectedContract,
+                          data,
+                          submitContractData,
+                          setTendeDocSelected,
+                          form
+                        )
                     }
 
                     {/* {po?.status === "started" && (
@@ -3024,138 +3024,143 @@ const RequestDetails = ({
                         );
                       })} */}
 
-                    <div className="ml-3 ">
-                      <div className="text-lg font-bold">Delivery progress</div>
-                      <Button
-                        type="primary"
-                        disabled={
-                          !documentFullySigned(po) ||
-                          po?.status == "started" ||
-                          !po ||
-                          user._id !== data?.createdBy?._id
-                        }
-                        size="small"
-                        loading={startingDelivery}
-                        icon={<PlaySquareOutlined />}
-                        onClick={() => handleStartDelivery(po)}
-                      >
-                        Delivery has started
-                      </Button>
-                    </div>
-                    {data?.items?.map((i, index) => {
-                      let deliveredQty = po?.items[index].deliveredQty || 0;
-                      return (
-                        <div key={i.key} className="m-5">
-                          <div>
-                            {i.title}: {deliveredQty || 0} delivered out of{" "}
-                            {i?.quantity}
+                    {currentCode !== 5 && (
+                      <>
+                        <div className="ml-3 ">
+                          <div className="text-lg font-bold">
+                            Delivery progress
                           </div>
-
-                          {deliveredQty < parseInt(i?.quantity) &&
-                            buildConfirmDeliveryForm(
-                              po,
-                              handleGetProgress,
-                              handleUpdateProgress,
-                              progress,
-                              index,
-                              i?.quantity
-                            )}
+                          <Button
+                            type="primary"
+                            disabled={
+                              !documentFullySigned(po) ||
+                              po?.status == "started" ||
+                              !po ||
+                              user._id !== data?.createdBy?._id
+                            }
+                            size="small"
+                            loading={startingDelivery}
+                            icon={<PlaySquareOutlined />}
+                            onClick={() => handleStartDelivery(po)}
+                          >
+                            Delivery has started
+                          </Button>
                         </div>
-                      );
-                    })}
 
-                    <div className="ml-3 w-1/3">
-                      {/* <div>Delivery progress</div> */}
-                      <Progress
-                        percent={_.round(po?.deliveryProgress, 1) || 0}
-                        size="small"
-                        status="active"
-                      />
-                    </div>
+                        {data?.items?.map((i, index) => {
+                          let deliveredQty = po?.items[index].deliveredQty || 0;
+                          return (
+                            <div key={i.key} className="m-5">
+                              <div>
+                                {i.title}: {deliveredQty || 0} delivered out of{" "}
+                                {i?.quantity}
+                              </div>
 
-                    {/* {data?.status === "approved" &&
+                              {deliveredQty < parseInt(i?.quantity) &&
+                                buildConfirmDeliveryForm(
+                                  po,
+                                  handleGetProgress,
+                                  handleUpdateProgress,
+                                  progress,
+                                  index,
+                                  i?.quantity
+                                )}
+                            </div>
+                          );
+                        })}
+
+                        <div className="ml-3 w-1/3">
+                          {/* <div>Delivery progress</div> */}
+                          <Progress
+                            percent={_.round(po?.deliveryProgress, 1) || 0}
+                            size="small"
+                            status="active"
+                          />
+                        </div>
+
+                        {/* {data?.status === "approved" &&
                       (tender || po) &&
                       buildWorkflow(currentStep, tender, po)} */}
 
-                    {po &&
-                      _.round(po?.deliveryProgress, 1) >= 100 &&
-                      !po.rate && (
-                        <div className="justify-center items-center w-full flex flex-col space-y-3">
-                          <Divider></Divider>
-                          <Typography.Title level={5}>
-                            Supplier & Delivery Rate
-                          </Typography.Title>
-                          <Rate
-                            // allowHalf
-                            disabled={user?._id !== data?.createdBy?._id}
-                            defaultValue={po?.rate || rate}
-                            tooltips={[
-                              "Very bad",
-                              "Bad",
-                              "Good",
-                              "Very good",
-                              "Excellent",
-                            ]}
-                            onChange={(value) => setRate(value)}
-                            // onChange={(value) => handleRateDelivery(po, value)}
-                          />
+                        {po &&
+                          _.round(po?.deliveryProgress, 1) >= 100 &&
+                          !po.rate && (
+                            <div className="justify-center items-center w-full flex flex-col space-y-3">
+                              <Divider></Divider>
+                              <Typography.Title level={5}>
+                                Supplier & Delivery Rate
+                              </Typography.Title>
+                              <Rate
+                                // allowHalf
+                                disabled={user?._id !== data?.createdBy?._id}
+                                defaultValue={po?.rate || rate}
+                                tooltips={[
+                                  "Very bad",
+                                  "Bad",
+                                  "Good",
+                                  "Very good",
+                                  "Excellent",
+                                ]}
+                                onChange={(value) => setRate(value)}
+                                // onChange={(value) => handleRateDelivery(po, value)}
+                              />
 
-                          <Typography.Title level={5}>
-                            Give a comment on your rating
-                          </Typography.Title>
-                          <Input.TextArea
-                            className="w-1/3"
-                            value={comment}
-                            onChange={(v) => setComment(v.target.value)}
-                          />
+                              <Typography.Title level={5}>
+                                Give a comment on your rating
+                              </Typography.Title>
+                              <Input.TextArea
+                                className="w-1/3"
+                                value={comment}
+                                onChange={(v) => setComment(v.target.value)}
+                              />
 
-                          <div>
-                            <Button
-                              type="primary"
-                              onClick={() =>
-                                handleRateDelivery(po, rate, comment)
-                              }
-                            >
-                              Submit my rate and review
-                            </Button>
-                          </div>
-                        </div>
-                      )}
+                              <div>
+                                <Button
+                                  type="primary"
+                                  onClick={() =>
+                                    handleRateDelivery(po, rate, comment)
+                                  }
+                                >
+                                  Submit my rate and review
+                                </Button>
+                              </div>
+                            </div>
+                          )}
 
-                    {po &&
-                      _.round(po?.deliveryProgress, 1) >= 100 &&
-                      po.rate && (
-                        <div className="w-full flex flex-col space-y-3">
-                          <Divider></Divider>
-                          <Typography.Title level={5}>
-                            Supplier & Delivery Rate
-                          </Typography.Title>
-                          <Rate
-                            // allowHalf
-                            disabled={true}
-                            defaultValue={po?.rate || rate}
-                            tooltips={[
-                              "Very bad",
-                              "Bad",
-                              "Good",
-                              "Very good",
-                              "Excellent",
-                            ]}
-                          />
+                        {po &&
+                          _.round(po?.deliveryProgress, 1) >= 100 &&
+                          po.rate && (
+                            <div className="w-full flex flex-col space-y-3">
+                              <Divider></Divider>
+                              <Typography.Title level={5}>
+                                Supplier & Delivery Rate
+                              </Typography.Title>
+                              <Rate
+                                // allowHalf
+                                disabled={true}
+                                defaultValue={po?.rate || rate}
+                                tooltips={[
+                                  "Very bad",
+                                  "Bad",
+                                  "Good",
+                                  "Very good",
+                                  "Excellent",
+                                ]}
+                              />
 
-                          <div className="flex flex-row">
-                            <Typography.Text>
-                              {data?.createdBy?.firstName}{" "}
-                              {data?.createdBy?.lastName} commented:
-                            </Typography.Text>
-                            <Typography.Text code>
-                              {po.rateComment}
-                            </Typography.Text>
-                          </div>
-                        </div>
-                      )}
+                              <div className="flex flex-row">
+                                <Typography.Text>
+                                  {data?.createdBy?.firstName}{" "}
+                                  {data?.createdBy?.lastName} commented:
+                                </Typography.Text>
+                                <Typography.Text code>
+                                  {po.rateComment}
+                                </Typography.Text>
+                              </div>
+                            </div>
+                          )}
 
-                    {/* {po && po.deliveryProgress >= 100 && po.rate && (
+                        {/* {po && po.deliveryProgress >= 100 && po.rate && (
                       <div className="justify-center items-center w-full flex flex-col space-y-3">
                         <Divider></Divider>
                         <Typography.Title level={5}>
@@ -3181,6 +3186,8 @@ const RequestDetails = ({
                         </Typography.Text>
                       </div>
                     )} */}
+                      </>
+                    )}
 
                     {data?.status === "declined" && (
                       <div className="flex flex-col mt-5 space-y-1">
@@ -3193,6 +3200,14 @@ const RequestDetails = ({
                             message={data?.reasonForRejection}
                             type="error"
                           />
+                        </div>
+                      </div>
+                    )}
+
+                    {data?.status === "withdrawn" && (
+                      <div className="flex flex-col mt-5 space-y-1">
+                        <div className="text-xs font-semibold ml-3  text-red-500">
+                          The request was witdrawn
                         </div>
                       </div>
                     )}

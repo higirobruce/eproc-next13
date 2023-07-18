@@ -318,6 +318,12 @@ export default function page({ params }) {
 
   function updateRequest() {
     setLoadingRowData(true);
+    let newStatus =
+      rowData?.status == "withdrawn" || rowData?.status == "declined"
+        ? "pending"
+        : rowData?.status;
+
+    rowData.status = newStatus;
     fetch(`${url}/requests/${rowData?._id}`, {
       method: "PUT",
       headers: {
@@ -414,7 +420,9 @@ export default function page({ params }) {
     if (res.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      router.push(`/auth?goTo=/system/requests/${params?.id}&sessionExpired=true`);
+      router.push(
+        `/auth?goTo=/system/requests/${params?.id}&sessionExpired=true`
+      );
     } else {
       return res.json();
     }
@@ -492,7 +500,7 @@ export default function page({ params }) {
         </div>
         {(rowData?.level1Approver?._id === user?._id ||
           rowData?.createdBy?._id === user?._id) &&
-          rowData?.status !== "approved" && (
+          !rowData?.status.startsWith("approved") && (
             <Switch
               checked={editRequest}
               checkedChildren={<EditOutlined />}

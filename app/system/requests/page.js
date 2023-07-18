@@ -113,7 +113,8 @@ export default function UserRequests() {
       .catch((err) => {
         messageApi.open({
           type: "error",
-          content: "Something happened! Please try again.",
+          content:
+            "Something happened fetching service categories! Please try again.",
         });
       });
 
@@ -127,12 +128,13 @@ export default function UserRequests() {
     })
       .then((res) => res.json())
       .then((res) => setCurrentUser(res))
-      .catch((err) =>
+      .catch((err) => {
+        console.log(err);
         messageApi.open({
           type: "error",
-          content: "Something happened! Please try again.",
-        })
-      );
+          content: "Something happened fetching users! Please try again.",
+        });
+      });
 
     fetch(`${url}/users/level1Approvers`, {
       method: "GET",
@@ -164,7 +166,7 @@ export default function UserRequests() {
       .catch((err) => {
         messageApi.open({
           type: "error",
-          content: "Something happened! Please try again.",
+          content: "Something happened fetching approvers! Please try again.",
         });
       });
 
@@ -179,6 +181,13 @@ export default function UserRequests() {
       .then((res) => res.json())
       .then((res) => {
         setBudgetLines(res);
+      })
+      .catch((err) => {
+        messageApi.open({
+          type: "error",
+          content:
+            "Something happened fetching budget lines! Please try again.",
+        });
       });
   }, []);
 
@@ -218,6 +227,9 @@ export default function UserRequests() {
       let filtered = _dataSet.filter((d) => {
         return (
           d?.number.toString().indexOf(searchText) > -1 ||
+          d?.title
+            .toLowerCase()
+            .indexOf(searchText.toLowerCase()) > -1 ||
           d?.createdBy?.firstName
             .toLowerCase()
             .indexOf(searchText.toLowerCase()) > -1 ||
@@ -1076,7 +1088,7 @@ export default function UserRequests() {
                               .includes(inputValue.toLowerCase())
                           }
                           // defaultValue="RWF"
-                          options={serviceCategories.map((s) => {
+                          options={[...serviceCategories, {description: 'Others'}].map((s) => {
                             return {
                               value: s.description,
                               label: s.description,
@@ -1109,6 +1121,11 @@ export default function UserRequests() {
                           onChange={(value) => {
                             setLevel1Approver(value);
                           }}
+                          filterOption={(input, option) =>
+                            (option?.label ?? "")
+                              .toLowerCase()
+                              .includes(input.toLowerCase())
+                          }
                           options={level1Approvers.map((l) => {
                             return {
                               label: l?.firstName + " " + l?.lastName,

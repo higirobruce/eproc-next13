@@ -1433,7 +1433,7 @@ const TenderDetails = ({
             });
           } else if (
             signatories?.filter((s) => {
-              return !s?.onBehalfOf.includes("Irembo")
+              return !s?.onBehalfOf.includes("Irembo");
             })?.length < 1
           ) {
             messageApi.open({
@@ -1441,7 +1441,7 @@ const TenderDetails = ({
               content:
                 "Contract can not be submitted. Please supply the Vendor's information!",
             });
-          }else if (!contractStartDate || !contractEndDate) {
+          } else if (!contractStartDate || !contractEndDate) {
             messageApi.open({
               type: "error",
               content:
@@ -1741,7 +1741,7 @@ const TenderDetails = ({
                 height={40}
               />
               <div
-              className="cursor-pointer underline hover:text-blue-600"
+                className="cursor-pointer underline hover:text-blue-600"
                 onClick={() => {
                   let signs = [...signatories];
                   let newSignatory = { onBehalfOf: "Irembo Ltd" };
@@ -1760,7 +1760,7 @@ const TenderDetails = ({
                 Add intenal Signatory
               </div>
               <div
-              className="cursor-pointer underline"
+                className="cursor-pointer underline"
                 onClick={() => {
                   let signs = [...signatories];
                   let newSignatory = {
@@ -2390,7 +2390,8 @@ const TenderDetails = ({
 
                   {(user?.email === s?.email || user?.tempEmail === s?.email) &&
                     !s?.signed &&
-                    previousSignatorySigned(signatories, index) && contract?.status !=='draft' && (
+                    previousSignatorySigned(signatories, index) &&
+                    contract?.status !== "draft" && (
                       <Popconfirm
                         title="Confirm Contract Signature"
                         onConfirm={() => handleSignContract(s, index)}
@@ -2411,7 +2412,8 @@ const TenderDetails = ({
                   {((user?.email !== s?.email &&
                     user?.tempEmail !== s?.email &&
                     !s.signed) ||
-                    !previousSignatorySigned(signatories, index) || contract?.status=='draft') && (
+                    !previousSignatorySigned(signatories, index) ||
+                    contract?.status == "draft") && (
                     <div className="flex flex-row justify-center space-x-5 items-center border-t-2 bg-gray-50 p-5">
                       <Image
                         width={40}
@@ -2621,13 +2623,19 @@ const TenderDetails = ({
 
   function handleSignContract(signatory, index) {
     setSigning(true);
-    let myIpObj = "";
-    signatory.signed = true;
-    let _contract = { ...contract };
 
     fetch("https://api.ipify.org?format=json")
-      .then((res) => res.json())
       .then((res) => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          throw Error("");
+        }
+      })
+      .then((res) => {
+        let myIpObj = "";
+        signatory.signed = true;
+        let _contract = { ...contract };
         myIpObj = res;
         signatory.ipAddress = res?.ip;
         signatory.signedAt = moment();
@@ -2658,7 +2666,12 @@ const TenderDetails = ({
           });
       })
       .catch((err) => {
-        console.log(err);
+        messageApi.error(
+          "An error occured while trying to get your ip address. Please try again"
+        );
+      })
+      .finally(() => {
+        setSigning(false);
       });
 
     //call API to sign
@@ -2666,13 +2679,19 @@ const TenderDetails = ({
 
   function handleSignPo(signatory, index) {
     setSigning(true);
-    let myIpObj = "";
-    signatory.signed = true;
-    let _po = { ...po };
 
     fetch("https://api.ipify.org?format=json")
-      .then((res) => res.json())
       .then((res) => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          throw Error("");
+        }
+      })
+      .then((res) => {
+        let myIpObj = "";
+        signatory.signed = true;
+        let _po = { ...po };
         myIpObj = res;
         signatory.ipAddress = res?.ip;
         signatory.signedAt = moment();
@@ -2695,7 +2714,13 @@ const TenderDetails = ({
             signingIndex: index,
           }),
         })
-          .then((res) => res.json())
+          .then((res) => {
+            if (res.ok) {
+              return res.json();
+            } else {
+              throw Error("");
+            }
+          })
           .then((res) => {
             setSigning(false);
             setSignatories([]);
@@ -2704,8 +2729,12 @@ const TenderDetails = ({
           });
       })
       .catch((err) => {
+        messageApi.error(
+          "An error occured while trying to get your ip address. Please try again"
+        );
+      })
+      .finally(() => {
         setSigning(false);
-        console.log(err);
       });
 
     //call API to sign

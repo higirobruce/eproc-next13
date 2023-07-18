@@ -100,6 +100,9 @@ export default function UserRequests() {
         return (
           d?.number.toString().indexOf(searchText) > -1 ||
           d?.purchaseOrder?.number.toString().indexOf(searchText) > -1 ||
+          d?.title
+            ?.toLowerCase()
+            .indexOf(searchText?.toLowerCase()) > -1 ||
           d?.createdBy?.firstName
             ?.toLowerCase()
             .indexOf(searchText?.toLowerCase()) > -1 ||
