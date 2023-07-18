@@ -218,6 +218,9 @@ export default function UserRequests() {
       let filtered = _dataSet.filter((d) => {
         return (
           d?.number.toString().indexOf(searchText) > -1 ||
+          d?.title
+            .toLowerCase()
+            .indexOf(searchText.toLowerCase()) > -1 ||
           d?.createdBy?.firstName
             .toLowerCase()
             .indexOf(searchText.toLowerCase()) > -1 ||
@@ -1076,7 +1079,7 @@ export default function UserRequests() {
                               .includes(inputValue.toLowerCase())
                           }
                           // defaultValue="RWF"
-                          options={serviceCategories.map((s) => {
+                          options={[...serviceCategories, {description: 'Others'}].map((s) => {
                             return {
                               value: s.description,
                               label: s.description,
