@@ -44,9 +44,12 @@ import { encode } from "base-64";
 import PermissionsTable from "../../components/permissionsTable";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import UploadRDCerts from "@/app/components/uploadRDBCerts";
+import UploadVatCerts from "@/app/components/uploadVatCerts";
+import { v4 } from "uuid";
 
 export default function page() {
-  let router = useRouter()
+  let router = useRouter();
   const [form] = Form.useForm();
   const [dataLoaded, setDataLoaded] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
@@ -54,6 +57,7 @@ export default function page() {
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
   let user = JSON.parse(localStorage.getItem("user"));
+  let token = localStorage.getItem("token");
   let [dataset, setDataset] = useState([]);
   let [updatingId, setUpdatingId] = useState("");
   let [row, setRow] = useState(null);
@@ -70,9 +74,29 @@ export default function page() {
 
   let [submitting, setSubmitting] = useState(false);
 
+  const [rdbCertId, setRdbCertId] = useState(
+    user?.rdbCertId ? user?.rdbCertId : v4()
+  );
+  const [vatCertId, setVatCertId] = useState(
+    user?.vatCertId ? user?.vatCertId : v4()
+  );
+  const [rdbSelected, setRDBSelected] = useState(false);
+  const [vatSelected, setVatSelected] = useState(false);
+  const [fileUploadStatus, setFileUploadStatus] = useState("");
+
   const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
-  return <div>{user?.userType === "VENDOR" ? buildVendor() : buildUser()}</div>;
+  useEffect(() => {
+    if (rdbSelected) {
+      updateRDBCert(rdbCertId);
+    }
+  }, [rdbSelected]);
+
+  useEffect(() => {
+    if (vatSelected) {
+      updateVATCert(vatCertId);
+    }
+  }, [vatSelected]);
 
   function onFinish(values) {
     setSubmitting(true);
@@ -117,10 +141,8 @@ export default function page() {
     if (res.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      router.push(
-        `/auth?goTo=/system/profile/&sessionExpired=true`
-      );
-      throw Error('Unauthorized')
+      router.push(`/auth?goTo=/system/profile/&sessionExpired=true`);
+      throw Error("Unauthorized");
     } else {
       return res.json();
     }
@@ -829,7 +851,8 @@ export default function page() {
                 </div>
               </div>
 
-              <div className="bg-white ring-1 ring-gray-100 rounded shadow p-5">
+              {/* Attachements */}
+              {/* <div className="bg-white ring-1 ring-gray-100 rounded shadow p-5">
                 <div className="text-xl font-semibold mb-5 flex flex-row justify-between items-center">
                   <div>Attachements</div>
                 </div>
@@ -867,6 +890,110 @@ export default function page() {
                       <Typography.Link>
                         VAT certificate not available
                       </Typography.Link>
+                    )}
+                  </div>
+                </div>
+              </div> */}
+
+              {/* Attachements */}
+              <div className="bg-white ring-1 ring-gray-100 rounded shadow p-5">
+                <div className="text-xl font-semibold mb-5 flex flex-row justify-between items-center">
+                  <div>Attachements</div>
+                </div>
+                <div className="flex flex-col space-y-2">
+                  <div className="flex flex-row items-center space-x-10">
+                    <PaperClipOutlined className="text-gray-400" />
+                    {user?.rdbCertId && (
+                      <div className="flex flex-row items-center">
+                        <Link
+                          href={`${url}/file/rdbCerts/${user?.rdbCertId}.pdf`}
+                          target="_blank"
+                        >
+                          <Typography.Link>
+                            Incorporation Certificate
+                          </Typography.Link>
+                        </Link>
+
+                        <div className="">
+                          <UploadRDCerts
+                            // label="Incorporation Certificate"
+                            iconOnly={true}
+                            setSelected={setRDBSelected}
+                            setId={setRdbCertId}
+                            uuid={rdbCertId}
+                            setStatus={(status) => {}}
+                            uploadingStatus={fileUploadStatus}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {!user?.rdbCertId && (
+                      <div className="flex flex-col">
+                        {/* <div>
+                        <Typography.Link>
+                          Incorporation Certificate not found
+                        </Typography.Link>
+                      </div> */}
+                        <div className="">
+                          <UploadRDCerts
+                            label="Incorporation Certificate (missing)"
+                            iconOnly={true}
+                            setSelected={setRDBSelected}
+                            setId={setRdbCertId}
+                            uuid={rdbCertId}
+                            setStatus={(status) => {}}
+                            uploadingStatus={fileUploadStatus}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex flex-row items-center space-x-10">
+                    <PaperClipOutlined className="text-gray-400" />
+                    {user?.vatCertId && (
+                      <div className="flex flex-row items-center">
+                        <Link
+                          href={`${url}/file/vatCerts/${user?.vatCertId}.pdf`}
+                          target="_blank"
+                        >
+                          <Typography.Link>VAT Certificate</Typography.Link>
+                        </Link>
+
+                        <div className="">
+                          <UploadVatCerts
+                            // label="Incorporation Certificate"
+                            iconOnly={true}
+                            setSelected={setVatSelected}
+                            setId={setVatCertId}
+                            uuid={vatCertId}
+                            setStatus={(status) => {}}
+                            uploadingStatus={fileUploadStatus}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {!user?.vatCertId && (
+                      <div className="flex flex-col">
+                        {/* <div>
+                        <Typography.Link>
+                          Incorporation Certificate not found
+                        </Typography.Link>
+                      </div> */}
+                        <div className="">
+                          <UploadVatCerts
+                            label="VAT Certificate (missing)"
+                            iconOnly={true}
+                            setSelected={setVatSelected}
+                            setId={setVatCertId}
+                            uuid={vatCertId}
+                            setStatus={(status) => {}}
+                            uploadingStatus={fileUploadStatus}
+                          />
+                        </div>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -1056,7 +1183,6 @@ export default function page() {
     );
   }
 
-
   function previewAttachmentModal() {
     // return (
     //   <Modal
@@ -1074,4 +1200,64 @@ export default function page() {
     //   </Modal>
     // );
   }
+
+  function updateRDBCert(id) {
+    user.rdbCertId = id;
+    fetch(`${url}/users/${user?._id}`, {
+      method: "PUT",
+      headers: {
+        Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        newUser: user,
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        res.avgRate = user.avgRate;
+        localStorage.setItem("user", JSON.stringify(res));
+        user = res;
+        setRowData(res);
+        // refresh();
+      })
+      .catch((err) => {
+        messageApi.open({
+          type: "error",
+          content: "Something happened! Please try again.",
+        });
+      });
+  }
+
+  function updateVATCert(id) {
+    user.vatCertId = id;
+    fetch(`${url}/users/${user?._id}`, {
+      method: "PUT",
+      headers: {
+        Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        newUser: user,
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        res.avgRate = user.avgRate;
+        localStorage.setItem("user", JSON.stringify(res));
+        user = res;
+        setRowData(res);
+        // refresh();
+      })
+      .catch((err) => {
+        messageApi.open({
+          type: "error",
+          content: "Something happened! Please try again.",
+        });
+      });
+  }
+
+  return <div>{user?.userType === "VENDOR" ? buildVendor() : buildUser()}</div>;
 }

@@ -154,13 +154,13 @@ export default function PurchaseOrders() {
       })
         .then((res) => getResultFromServer(res))
         .then((res) => {
-          console.log(res)
+          console.log(res);
           setPOs(res);
           setTempPOs(res);
           setDataLoaded(true);
         })
         .catch((err) => {
-          console.log(err)
+          console.log(err);
           setDataLoaded(true);
         });
     } else {
@@ -446,13 +446,13 @@ export default function PurchaseOrders() {
 
   function handleSignPo(signatory, index) {
     setSigning(true);
-    let myIpObj = "";
-    signatory.signed = true;
-    let _po = { ...po };
 
     fetch("https://api.ipify.org?format=json")
       .then((res) => getResultFromServer(res))
       .then((res) => {
+        let myIpObj = "";
+        signatory.signed = true;
+        let _po = { ...po };
         myIpObj = res;
         signatory.ipAddress = res?.ip;
         signatory.signedAt = moment();
@@ -485,8 +485,12 @@ export default function PurchaseOrders() {
           });
       })
       .catch((err) => {
+        messageApi.error(
+          "An error occured while trying to get your ip address. Please try again"
+        );
+      })
+      .finally(() => {
         setSigning(false);
-        console.log(err);
       });
 
     //call API to sign
@@ -595,15 +599,12 @@ export default function PurchaseOrders() {
   }
 
   function getResultFromServer(res) {
-   
     if (res.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      router.push(
-        `/auth?goTo=/system/purchase-orders/&sessionExpired=true`
-      );
+      router.push(`/auth?goTo=/system/purchase-orders/&sessionExpired=true`);
     } else {
-      console.log('hereeeee')
+      console.log("hereeeee");
       return res.json();
     }
   }
@@ -611,12 +612,18 @@ export default function PurchaseOrders() {
   const getData = () => {
     let filtered = (tempPOs && tempPOs) || [];
 
-    if(searchStatus !== "all") {
-      filtered = tempPOs && tempPOs.filter((item) => item.status == searchStatus)
+    if (searchStatus !== "all") {
+      if (searchStatus === "pending-signature")
+        filtered =
+          tempPOs &&
+          tempPOs.filter((item) => item.status == searchStatus || !item.status);
+      else
+        filtered =
+          tempPOs && tempPOs.filter((item) => item.status == searchStatus);
     }
 
-    return { length: filtered.length, data: filtered}
-  }
+    return { length: filtered.length, data: filtered };
+  };
 
   return (
     <>
@@ -896,6 +903,14 @@ export default function PurchaseOrders() {
                           {documentFullySigned(po) && (
                             <div>
                               <Tag color="green">Signed</Tag>
+                            </div>
+                          )}
+
+                          {!documentFullySigned(po) && (
+                            <div>
+                              <Tag color="gold">
+                                {po?.status || "pending-signature"}
+                              </Tag>
                             </div>
                           )}
 

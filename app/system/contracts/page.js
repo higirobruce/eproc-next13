@@ -222,7 +222,7 @@ export default function Contracts() {
         items,
         B1Data,
         signatories,
-        request
+        request,
       }),
     })
       .then((res) => getResultFromServer(res))
@@ -1145,7 +1145,8 @@ export default function Contracts() {
 
                   {(user?.email === s?.email || user?.tempEmail === s?.email) &&
                     !s?.signed &&
-                    previousSignatorySigned(signatories, index) && contract.status !=='draft' && (
+                    previousSignatorySigned(signatories, index) &&
+                    contract.status !== "draft" && (
                       <Popconfirm
                         title="Confirm Contract Signature"
                         onConfirm={() => handleSignContract(s, index)}
@@ -1166,7 +1167,8 @@ export default function Contracts() {
                   {((user?.email !== s?.email &&
                     user?.tempEmail !== s?.email &&
                     !s.signed) ||
-                    !previousSignatorySigned(signatories, index) || contract?.status=='draft') && (
+                    !previousSignatorySigned(signatories, index) ||
+                    contract?.status == "draft") && (
                     <div className="flex flex-row justify-center space-x-5 items-center border-t-2 bg-gray-50 p-5">
                       <Image
                         width={40}
@@ -1228,13 +1230,13 @@ export default function Contracts() {
 
   function handleSignContract(signatory, index) {
     setSigning(true);
-    let myIpObj = "";
-    signatory.signed = true;
-    let _contract = { ...contract };
 
     fetch("https://api.ipify.org?format=json")
       .then((res) => getResultFromServer(res))
       .then((res) => {
+        let myIpObj = "";
+        signatory.signed = true;
+        let _contract = { ...contract };
         myIpObj = res;
         signatory.ipAddress = res?.ip;
         signatory.signedAt = moment();
@@ -1266,7 +1268,11 @@ export default function Contracts() {
           });
       })
       .catch((err) => {
-        console.log(err);
+        messageApi.error(
+          "An error occured while trying to get your ip address. Please try again"
+        );
+      })
+      .finally(() => {
         setSigning(false);
       });
 
@@ -1393,7 +1399,11 @@ export default function Contracts() {
       localStorage.removeItem("user");
       router.push(`/auth?goTo=/system/contracts&sessionExpired=true`);
     } else {
-      return res.json();
+      if (res.ok) {
+        return res.json();
+      } else {
+        throw Error("");
+      }
     }
   }
 

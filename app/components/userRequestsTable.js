@@ -151,7 +151,7 @@ const UsersRequestsTable = ({
   function getHighLevelStatus(status) {
     // return status
 
-    if (status === "Approved" || status === "Declined") {
+    if (status === "Approved" || status === "Declined" || status=='Withdrawn') {
       return status;
     } else if (status === "Approved (pm)" || status == "Approved (fd)") {
       return "Pending PROC";
