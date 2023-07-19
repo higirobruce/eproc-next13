@@ -274,7 +274,6 @@ export default function PaymentRequest({ params }) {
             action == "update" &&
               rowIndex === files.length - 1 &&
               updateRequest(docIds);
-
           })
           .catch((err) => {
             console.log(err);
@@ -547,7 +546,8 @@ export default function PaymentRequest({ params }) {
         </div>
         {((paymentRequest?.createdBy?._id === user?._id &&
           (paymentRequest?.status == "pending-review" ||
-            paymentRequest?.status == "declined")) ||
+            paymentRequest?.status == "declined" ||
+            paymentRequest?.status.includes("pending-approval"))) ||
           ((paymentRequest?.approver?._id === user?._id ||
             user?.permissions?.canApproveAsHof) &&
             (paymentRequest?.status.includes("pending-review") ||
@@ -804,83 +804,81 @@ export default function PaymentRequest({ params }) {
                   </div>
                 )}
 
-                {editRequest &&
-                  budgeted &&
-                  (
-                    // <Select
-                    //   // mode="multiple"
-                    //   // allowClear
-                    //   className="ml-3"
-                    //   defaultValue={data?.budgetLine}
-                    //   style={{ width: "100%" }}
-                    //   placeholder="Please select"
-                    //   onChange={(value) => {
-                    //     let r = { ...data };
-                    //     r.budgetLine = value;
-                    //     handleUpdateRequest(r);
-                    //   }}
-                    // >
-                    //   {servCategories?.map((s) => {
-                    //     return (
-                    //       <Select.Option
-                    //         key={s._id}
-                    //         value={s.description}
-                    //       >
-                    //         {s.description}
-                    //       </Select.Option>
-                    //     );
-                    //   })}
-                    // </Select>
+                {editRequest && budgeted && (
+                  // <Select
+                  //   // mode="multiple"
+                  //   // allowClear
+                  //   className="ml-3"
+                  //   defaultValue={data?.budgetLine}
+                  //   style={{ width: "100%" }}
+                  //   placeholder="Please select"
+                  //   onChange={(value) => {
+                  //     let r = { ...data };
+                  //     r.budgetLine = value;
+                  //     handleUpdateRequest(r);
+                  //   }}
+                  // >
+                  //   {servCategories?.map((s) => {
+                  //     return (
+                  //       <Select.Option
+                  //         key={s._id}
+                  //         value={s.description}
+                  //       >
+                  //         {s.description}
+                  //       </Select.Option>
+                  //     );
+                  //   })}
+                  // </Select>
 
-                    <Form.Item
-                      name="budgetLine"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Budget Line is required",
-                        },
-                      ]}
-                      initialValue={paymentRequest?.budgetLine?._id}
-                    >
-                      <Select
-                        // defaultValue={budgetLine}
+                  <Form.Item
+                    name="budgetLine"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Budget Line is required",
+                      },
+                    ]}
+                    initialValue={paymentRequest?.budgetLine?._id}
+                  >
+                    <Select
+                      // defaultValue={budgetLine}
 
-                        // className="ml-3"
-                        placeholder="Select service category"
-                        showSearch
-                        // defaultValue={paymentRequest?.budgetLine?._id}
-                        value={paymentRequest?.budgetLine?._id}
-                        onChange={(value, option) => {
-                          paymentRequest.budgetLine = value;
-                        }}
-                        disabled={paymentRequest?.category === "external"}
-                        // filterSort={(optionA, optionB) =>
-                        //   (optionA?.label ?? "")
-                        //     .toLowerCase()
-                        //     .localeCompare(
-                        //       (optionB?.label ?? "").toLowerCase()
-                        //     )
-                        // }
-                        filterOption={(inputValue, option) => {
-                          return option.label
-                            .toLowerCase()
-                            .includes(inputValue.toLowerCase());
-                        }}
-                        options={budgetLines.map((s) => {
-                          return {
-                            label: s.description.toUpperCase(),
-                            options: s.budgetlines.map((sub) => {
-                              return {
-                                label: sub.description,
-                                value: sub._id,
-                                title: sub.description,
-                              };
-                            }),
-                          };
-                        })}
-                      ></Select>
-                    </Form.Item>
-                  )}
+                      // className="ml-3"
+                      placeholder="Select service category"
+                      showSearch
+                      // defaultValue={paymentRequest?.budgetLine?._id}
+                      value={paymentRequest?.budgetLine?._id}
+                      onChange={(value, option) => {
+                        paymentRequest.budgetLine = value;
+                      }}
+                      disabled={paymentRequest?.category === "external"}
+                      // filterSort={(optionA, optionB) =>
+                      //   (optionA?.label ?? "")
+                      //     .toLowerCase()
+                      //     .localeCompare(
+                      //       (optionB?.label ?? "").toLowerCase()
+                      //     )
+                      // }
+                      filterOption={(inputValue, option) => {
+                        return option.label
+                          .toLowerCase()
+                          .includes(inputValue.toLowerCase());
+                      }}
+                      options={budgetLines.map((s) => {
+                        return {
+                          label: s.description.toUpperCase(),
+                          options: s.budgetlines.map((sub) => {
+                            return {
+                              label: sub.description,
+                              value: sub._id,
+                              title: sub.description,
+                            };
+                          }),
+                        };
+                      })}
+                    ></Select>
+                  </Form.Item>
+                )}
               </div>
 
               {editRequest && (
@@ -1256,7 +1254,9 @@ export default function PaymentRequest({ params }) {
                       setLevel1Approver(value);
                     }}
                     filterOption={(input, option) =>
-                      (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                      (option?.label ?? "")
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
                     }
                     options={level1Approvers.map((l) => {
                       return {
