@@ -42,7 +42,7 @@ export default function SystemLayout({ children }) {
               <Layout.Sider width={200}>
                 <SideMenu
                   user={JSON.parse(loggedInUser)}
-                  className="h-screen sticky top-0"
+                  className="h-screen fixed top-0"
                 />
               </Layout.Sider>
             </div>

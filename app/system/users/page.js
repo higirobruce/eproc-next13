@@ -688,7 +688,7 @@ export default function Users() {
              
             </Row>
           </Row> */}
-          <Row className="flex flex-col space-y-2 bg-white px-10 py-3 shadow">
+          <Row className="flex flex-col custom-sticky space-y-2 bg-white px-10 py-3 shadow">
             <div className="flex flex-row justify-between items-center">
               <div className="text-xl font-semibold">Internal Users List</div>
             </div>
