@@ -56,7 +56,14 @@ export default function UserRequests() {
   let [searchStatus, setSearchStatus] = useState("all");
   let [searchText, setSearchText] = useState("");
   const [form] = Form.useForm();
-  const [onlyMine, setOnlyMine] = useState(true);
+  const [onlyMine, setOnlyMine] = useState(
+    !user?.permissions?.canApproveAsHof &&
+    !user?.permissions?.canApproveAsPM &&
+    !user?.permissions?.canApproveAsHod
+    ? true
+    : false
+  );
+  const [myPendingRequest, setMyPendingRequest] = useState(false);
   const [currentUser, setCurrentUser] = useState('');
   const [sourcingMethod, setSourcingMethod] = useState("");
   let [submitting, setSubmitting] = useState(false);
@@ -169,6 +176,25 @@ export default function UserRequests() {
     });
   }
 
+  const getMyPendingRequest = (value) => {
+    setMyPendingRequest(value);
+    if(value) {
+      const statusFilter = tempDataset.filter((item) => (
+        user?.permissions?.canApproveAsHod ? 
+          (user._id == item?.approver?._id && item.status == 'review')
+        :
+        user?.permissions?.canApproveAsHof ? 
+          (user._id == item?.approver?._id && item.status == 'approved (hod)')
+        : 
+        tempDataset
+      ))
+
+      setTempDataset(statusFilter);
+    } else {
+      refresh();
+    }
+  };
+
   function getResultFromServer(res) {
     if (res.status === 401) {
       localStorage.removeItem("token");
@@ -194,16 +220,28 @@ export default function UserRequests() {
             <div className="flex flex-row items-center justify-between">
               <div className="text-xl font-semibold">Payment Requests</div>
               {((user?.userType !== "VENDOR") && (currentUser?.permissions?.canApproveAsHod || currentUser?.permissions?.canApproveAsHof || currentUser?.permissions?.canApproveAsPM)) && (
-                <div className="flex flex-row items-center space-x-1">
-                  <div>My requests</div>
-                  {
+                <div className="flex items-center space-x-3">
+                  <div className="flex flex-row items-center space-x-1">
+                    <div>Awaiting my approval</div>
                     <Checkbox
-                      checked={onlyMine}
+                      checked={myPendingRequest}
+                      disabled={onlyMine}
                       onChange={(e) => {
-                        setOnlyMine(e.target.checked);
+                        getMyPendingRequest(e.target.checked);
                       }}
                     />
-                  }
+                  </div>  
+                  <div className="flex flex-row items-center space-x-1">
+                    <div>My requests</div>
+                    {
+                      <Checkbox
+                        checked={onlyMine}
+                        onChange={(e) => {
+                          setOnlyMine(e.target.checked);
+                        }}
+                      />
+                    }
+                  </div>
                 </div>
               )}
             </div>
