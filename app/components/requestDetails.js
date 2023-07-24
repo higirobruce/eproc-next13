@@ -54,7 +54,8 @@ import {
 import moment from "moment";
 import dayjs from "dayjs";
 import Image from "next/image";
-import ItemsTable from "./itemsTableB1";
+import ItemsTable from "./itemsTable";
+import ItemsTableB1 from "./itemsTableB1";
 import dynamic from "next/dynamic";
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 import "react-quill/dist/quill.snow.css";
@@ -1932,7 +1933,7 @@ const RequestDetails = ({
                 </div>
               </div>
             )}
-            <ItemsTable
+            <ItemsTableB1
               dataSource={items}
               setDataSource={setItems}
               assetOptions={assetOptions}
