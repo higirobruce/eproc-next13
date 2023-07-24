@@ -411,7 +411,7 @@ export default function Vendors() {
       {contextHolder}
       {
         <div className="flex flex-col transition-opacity ease-in-out duration-1000 flex-1 space-y-1 h-full">
-          <Row className="flex flex-col space-y-2 bg-white px-10 py-3 shadow">
+          <Row className="flex flex-col custom-sticky space-y-2 bg-white px-10 py-3 shadow">
             <div className="flex flex-row justify-between items-center">
               <div className="text-xl font-semibold">Vendors List</div>
             </div>

@@ -278,7 +278,7 @@ export default function Tenders() {
       {contextHolder}
       {dataLoaded ? (
         <motion.div className="flex flex-col transition-opacity ease-in-out duration-1000 flex-1 space-y-10 h-full">
-          <Row className="flex flex-col space-y-2 bg-white px-10 py-3 shadow">
+          <Row className="flex flex-col custom-sticky space-y-2 bg-white px-10 py-3 shadow">
             <div className="flex flex-row justify-between items-center">
               <div className="text-xl font-semibold">Tenders</div>
             </div>

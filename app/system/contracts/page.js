@@ -1416,7 +1416,7 @@ export default function Contracts() {
         <div className="flex flex-col transition-opacity ease-in-out duration-1000 flex-1 space-y-10 h-full pb-10">
           {viewContractMOdal()}
 
-          <Row className="flex flex-col space-y-2 bg-white px-10 py-3 shadow stick top-0">
+          <Row className="flex flex-col custom-sticky space-y-2 bg-white px-10 py-3 shadow stick top-0">
             <div className="flex flex-row justify-between items-center">
               <div className="text-xl font-semibold">Contracts List</div>
             </div>

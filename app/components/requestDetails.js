@@ -54,7 +54,7 @@ import {
 import moment from "moment";
 import dayjs from "dayjs";
 import Image from "next/image";
-import ItemsTable from "./itemsTable";
+import ItemsTable from "./itemsTableB1";
 import dynamic from "next/dynamic";
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 import "react-quill/dist/quill.snow.css";
