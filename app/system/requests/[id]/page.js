@@ -11,6 +11,7 @@ import {
 } from "@ant-design/icons";
 import RequestDetails from "../../../components/requestDetails";
 import { motion } from "framer-motion";
+import moment from "moment";
 
 let url = process.env.NEXT_PUBLIC_BKEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
@@ -58,10 +59,41 @@ export default function page({ params }) {
   let [files, setFiles] = useState([]);
 
   useEffect(() => {
-    geRequestDetails(params?.id, router, messageApi).then((res) => {
+    loadData();
+  }, []);
+
+  function loadData() {
+    geRequestDetails(params?.id, router, messageApi).then(async (res) => {
+      let itemFiles = await res?.items?.map(async (item) => {
+        let paths = await item?.paths?.map(async (path, i) => {
+          let uid = `rc-upload-${moment().milliseconds()}-${i}`;
+          let _url = `${url}/file/termsOfReference/${path}`;
+          let status = "done";
+          let name = `supporting doc${i + 1}.pdf`;
+
+          let reader = new FileReader();
+          const r = await fetch(_url);
+          const blob = await r.blob();
+          let p = new File([blob], name, { uid });
+          p.uid = uid;
+          return p;
+        });
+        let ps = await Promise.all(paths).then((values) => {
+          return values;
+        });
+
+        return ps;
+        // return paths;
+      });
+      console.log(
+        "Item Files",
+        await Promise.all(itemFiles).then((values) => values)
+      );
+      setFileList(await Promise.all(itemFiles).then((values) => values));
+      setFiles(await Promise.all(itemFiles).then((values) => values));
       setRowData(res);
     });
-  }, []);
+  }
 
   function updateStatus(id, status) {
     setLoadingRowData(true);
@@ -316,7 +348,7 @@ export default function page({ params }) {
       });
   }
 
-  function updateRequest() {
+  function updateRequest(_files) {
     setLoadingRowData(true);
     let newStatus =
       rowData?.status == "withdrawn" || rowData?.status == "declined"
@@ -324,6 +356,20 @@ export default function page({ params }) {
         : rowData?.status;
 
     rowData.status = newStatus;
+
+    let reqItems = [...rowData.items];
+    reqItems.map((v, index) => {
+      if (_files[index].every((item) => typeof item === "string")) {
+        v.paths = _files[index];
+        return v;
+      } else {
+        messageApi.error('Something went wrong! Please try again.')
+      }
+    });
+
+    console.log("Haaaaaa", _files);
+    // rowData.items = reqItems;
+
     fetch(`${url}/requests/${rowData?._id}`, {
       method: "PUT",
       headers: {
@@ -337,7 +383,7 @@ export default function page({ params }) {
     })
       .then((res) => getResultFromServer(res))
       .then((res) => {
-        setRowData(res);
+        loadData();
         setLoadingRowData(false);
       })
       .catch((err) => {
@@ -353,12 +399,12 @@ export default function page({ params }) {
   }
 
   useEffect(() => {
-    console.log("Files chaaaaanged");
-    console.log(files);
+    console.log("Files chaaaaanged", files);
   }, [files]);
 
-  const handleUpload = (myFiles) => {
-    let _filesPaths = [...myFiles];
+  const handleUpload = () => {
+    let _filesPaths = [...files];
+    let __filePaths = [..._filesPaths];
 
     let i = 0;
     let _totalFilesInitial = rowData?.items?.map((item) => {
@@ -367,11 +413,11 @@ export default function page({ params }) {
       });
     });
 
-    if (_filesPaths?.length < 1) {
+    if (__filePaths?.length < 1) {
       messageApi.error("Please add at least one doc.");
       // setConfirmLoading(false);
     } else {
-      _filesPaths.forEach((filesPerRow, rowIndex) => {
+      __filePaths.forEach((filesPerRow, rowIndex) => {
         filesPerRow?.map((rowFile, fileIndex) => {
           const formData = new FormData();
           formData.append("files[]", rowFile);
@@ -393,17 +439,15 @@ export default function page({ params }) {
                 return f?.filename;
               });
 
-              let _files = [..._filesPaths];
+              let _files = [...__filePaths];
               _files[rowIndex][fileIndex] = _filenames[0];
 
-              console.log("File Naeeeeemememee", savedFiles);
-
               if (
-                rowIndex === _filesPaths?.length - 1 &&
+                rowIndex === __filePaths?.length - 1 &&
                 fileIndex === filesPerRow.length - 1
               ) {
                 // save(_files);
-                updateRequest();
+                updateRequest(_files);
               }
             })
             .catch((err) => {
@@ -484,7 +528,8 @@ export default function page({ params }) {
                 icon={<SaveOutlined />}
                 type="primary"
                 onClick={() => {
-                  updateRequest();
+                  // updateRequest();
+                  handleUpload();
                 }}
               >
                 Save
