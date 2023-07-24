@@ -58,13 +58,13 @@ export default function UserRequests() {
   const [form] = Form.useForm();
   const [onlyMine, setOnlyMine] = useState(
     !user?.permissions?.canApproveAsHof &&
-    !user?.permissions?.canApproveAsPM &&
-    !user?.permissions?.canApproveAsHod
-    ? true
-    : false
+      !user?.permissions?.canApproveAsPM &&
+      !user?.permissions?.canApproveAsHod
+      ? true
+      : false
   );
   const [myPendingRequest, setMyPendingRequest] = useState(false);
-  const [currentUser, setCurrentUser] = useState('');
+  const [currentUser, setCurrentUser] = useState("");
   const [sourcingMethod, setSourcingMethod] = useState("");
   let [submitting, setSubmitting] = useState(false);
   let token = localStorage.getItem("token");
@@ -107,9 +107,7 @@ export default function UserRequests() {
         return (
           d?.number.toString().indexOf(searchText) > -1 ||
           d?.purchaseOrder?.number.toString().indexOf(searchText) > -1 ||
-          d?.title
-            ?.toLowerCase()
-            .indexOf(searchText?.toLowerCase()) > -1 ||
+          d?.title?.toLowerCase().indexOf(searchText?.toLowerCase()) > -1 ||
           d?.createdBy?.firstName
             ?.toLowerCase()
             .indexOf(searchText?.toLowerCase()) > -1 ||
@@ -124,19 +122,21 @@ export default function UserRequests() {
   }, [searchText]);
 
   fetch(`${url}/users/${user?._id}`, {
-    method: 'GET',
+    method: "GET",
     headers: {
       Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
       token: token,
       "Content-Type": "application/json",
-    }
+    },
   })
     .then((res) => res.json())
     .then((res) => setCurrentUser(res))
-    .catch((err) => messageApi.open({
-      type: "error",
-      content: "Something happened! Please try again.",
-    }))
+    .catch((err) =>
+      messageApi.open({
+        type: "error",
+        content: "Something happened! Please try again.",
+      })
+    );
 
   function refresh() {
     setDataLoaded(false);
@@ -178,16 +178,14 @@ export default function UserRequests() {
 
   const getMyPendingRequest = (value) => {
     setMyPendingRequest(value);
-    if(value) {
-      const statusFilter = tempDataset.filter((item) => (
-        user?.permissions?.canApproveAsHod ? 
-          (user._id == item?.approver?._id && item.status == 'review')
-        :
-        user?.permissions?.canApproveAsHof ? 
-          (user._id == item?.approver?._id && item.status == 'approved (hod)')
-        : 
-        tempDataset
-      ))
+    if (value) {
+      const statusFilter = tempDataset.filter((item) =>
+        user?.permissions?.canApproveAsHof
+          ? item.status == "approved (hod)"
+          : user?.permissions?.canApproveAsHod
+          ? user._id == item?.approver?._id && item.status == "reviewed"
+          : tempDataset
+      );
 
       setTempDataset(statusFilter);
     } else {
@@ -199,9 +197,7 @@ export default function UserRequests() {
     if (res.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      router.push(
-        `/auth?goTo=/system/payment-requests/&sessionExpired=true`
-      );
+      router.push(`/auth?goTo=/system/payment-requests/&sessionExpired=true`);
     } else {
       return res.json();
     }
@@ -219,31 +215,34 @@ export default function UserRequests() {
           <Row className="flex flex-col custom-sticky bg-white px-10 py-3 shadow space-y-2">
             <div className="flex flex-row items-center justify-between">
               <div className="text-xl font-semibold">Payment Requests</div>
-              {((user?.userType !== "VENDOR") && (currentUser?.permissions?.canApproveAsHod || currentUser?.permissions?.canApproveAsHof || currentUser?.permissions?.canApproveAsPM)) && (
-                <div className="flex items-center space-x-3">
-                  <div className="flex flex-row items-center space-x-1">
-                    <div>Awaiting my approval</div>
-                    <Checkbox
-                      checked={myPendingRequest}
-                      disabled={onlyMine}
-                      onChange={(e) => {
-                        getMyPendingRequest(e.target.checked);
-                      }}
-                    />
-                  </div>  
-                  <div className="flex flex-row items-center space-x-1">
-                    <div>My requests</div>
-                    {
+              {user?.userType !== "VENDOR" &&
+                (currentUser?.permissions?.canApproveAsHod ||
+                  currentUser?.permissions?.canApproveAsHof ||
+                  currentUser?.permissions?.canApproveAsPM) && (
+                  <div className="flex items-center space-x-3">
+                    <div className="flex flex-row items-center space-x-1">
+                      <div>Awaiting my approval</div>
                       <Checkbox
-                        checked={onlyMine}
+                        checked={myPendingRequest}
+                        disabled={onlyMine}
                         onChange={(e) => {
-                          setOnlyMine(e.target.checked);
+                          getMyPendingRequest(e.target.checked);
                         }}
                       />
-                    }
+                    </div>
+                    <div className="flex flex-row items-center space-x-1">
+                      <div>My requests</div>
+                      {
+                        <Checkbox
+                          checked={onlyMine}
+                          onChange={(e) => {
+                            setOnlyMine(e.target.checked);
+                          }}
+                        />
+                      }
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
             <Row className="flex flex-row justify-between items-center space-x-4">
               <div className="flex-1">
