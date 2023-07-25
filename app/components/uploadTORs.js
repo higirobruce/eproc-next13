@@ -80,13 +80,18 @@ function UploadTORs({
     },
     onRemove: (file) => {
       // const index = files[uuid]?.indexOf(file?.uid);
-      const index = files[uuid]?.findIndex(item => item.uid === file?.uid);
+      const index = files[uuid]?.findIndex((item) => item.uid === file?.uid);
 
-      const allFiles = files.slice()
-      const newFileList = files[uuid]?.slice();
-      let nullIndex = newFileList.indexOf(null);
-      newFileList?.splice(index, 1);
-      newFileList?.splice(nullIndex, 1);
+      const allFiles = [...files];
+
+      console.log(
+        "Remaining files",
+        allFiles[uuid]?.filter(f=>f.uid !== file?.uid)
+      );
+      const newFileList = allFiles[uuid]?.filter(f=>f.uid !== file?.uid)
+      // let nullIndex = newFileList.indexOf(null);
+      // newFileList?.splice(index, 1);
+      // newFileList?.splice(nullIndex, 1);
       // setFileList(newFileList);
       // let _files = [...files];
 
@@ -97,8 +102,8 @@ function UploadTORs({
       // _newFileList.splice(_index, 1);
 
       // console.log(_newFileList)
-      allFiles[uuid] = newFileList
-      setFiles(allFiles);
+      allFiles[uuid] = newFileList;
+      setFiles(allFiles.filter(f=>f.length>0));
     },
     // multiple: false,
     // showUploadList: {

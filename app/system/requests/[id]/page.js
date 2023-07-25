@@ -131,8 +131,8 @@ export default function page({ params }) {
       });
       console.log(
         "Item Files",
-        // await Promise.all(itemFiles).then((values) => values)
-        await Promise.all(items).then((values) => values)
+        await Promise.all(itemFiles).then((values) => values)
+        // await Promise.all(items).then((values) => values)
       );
       setFileList(
         await Promise.all(itemFiles).then((values) => values.filter(Boolean))
@@ -407,17 +407,22 @@ export default function page({ params }) {
     rowData.status = newStatus;
 
     let reqItems = [...rowData.items];
-    reqItems.map((v, index) => {
-      if (_files[index].every((item) => typeof item === "string")) {
-        v.paths = _files[index];
-        return v;
+    reqItems?.map((v, index) => {
+      if (_files?.length > index) {
+        if (_files[index]?.every((item) => typeof item === "string")) {
+          v.paths = _files[index];
+          return v;
+        } else {
+          console.log("Uploooooodiiing", _files[index]);
+          messageApi.error("Something went wrong! Please try again.");
+        }
       } else {
-        messageApi.error("Something went wrong! Please try again.");
-        messageApi.error("Something went wrong! Please try again.");
+        v.paths = null;
+        return v;
       }
     });
 
-    console.log("Haaaaaa", _files);
+    console.log("Haaaaaa", reqItems);
     // rowData.items = reqItems;
 
     fetch(`${url}/requests/${rowData?._id}`, {
@@ -456,6 +461,9 @@ export default function page({ params }) {
     let _filesPaths = [...files];
     let __filePaths = [..._filesPaths];
 
+    let _f = __filePaths.filter((f) => f.length > 0);
+    console.log("Uploading files", _f);
+
     let i = 0;
     let _totalFilesInitial = rowData?.items?.map((item) => {
       item?.paths?.map((p) => {
@@ -467,12 +475,12 @@ export default function page({ params }) {
       messageApi.error("Please add at least one doc.");
       // setConfirmLoading(false);
     } else {
-      __filePaths.forEach((filesPerRow, rowIndex) => {
+      _f.forEach((filesPerRow, rowIndex) => {
         filesPerRow?.map((rowFile, fileIndex) => {
           const formData = new FormData();
           formData.append("files[]", rowFile);
 
-          console.log("Form data", formData);
+          console.log("Row File", rowFile);
           // You can use any AJAX library you like
           fetch(`${url}/uploads/termsOfReference/`, {
             method: "POST",
@@ -491,11 +499,11 @@ export default function page({ params }) {
 
               console.log(_filenames);
 
-              let _files = [...__filePaths];
+              let _files = [..._f];
               _files[rowIndex][fileIndex] = _filenames[0];
 
               if (
-                rowIndex === __filePaths?.length - 1 &&
+                rowIndex === _f?.length - 1 &&
                 fileIndex === filesPerRow.length - 1
               ) {
                 // save(_files);
