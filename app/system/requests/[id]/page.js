@@ -463,7 +463,7 @@ export default function page({ params }) {
       });
     });
 
-    if (__filePaths?.length < 1) {
+    if (files?.every((child) => child.length < 1)) {
       messageApi.error("Please add at least one doc.");
       // setConfirmLoading(false);
     } else {
