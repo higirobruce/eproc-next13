@@ -478,27 +478,40 @@ const RequestDetails = ({
         <div className="flex flex-col">
           {item?.paths?.map((p, i) => {
             return (
-              <div key={p}>
+              <>
                 {p && (
-                  <Link
-                    href={`${url}/file/termsOfReference/${p}`}
-                    target="_blank"
-                  >
-                    <Typography.Link
-                      className="flex flex-row items-center space-x-2"
-                      // onClick={() => {
-                      //   setPreviewAttachment(!previewAttachment);
-                      //   setAttachmentId(p);
-                      // }}
-                    >
-                      <div>supporting doc{i + 1} </div>{" "}
-                      <div>
-                        <PaperClipIcon className="h-4 w-4" />
-                      </div>
-                    </Typography.Link>
-                  </Link>
+                  <div key={p}>
+                    {p && (
+                      <Link
+                        href={`${url}/file/termsOfReference/${p}`}
+                        target="_blank"
+                      >
+                        <Typography.Link
+                          className="flex flex-row items-center space-x-2"
+                          // onClick={() => {
+                          //   setPreviewAttachment(!previewAttachment);
+                          //   setAttachmentId(p);
+                          // }}
+                        >
+                          <div>supporting doc{i + 1} </div>{" "}
+                          <div>
+                            <PaperClipIcon className="h-4 w-4" />
+                          </div>
+                        </Typography.Link>
+                      </Link>
+                    )}
+                  </div>
                 )}
-              </div>
+
+                {!p && (
+                  <div className="items-center justify-center flex flex-col">
+                    <div>
+                      <RectangleStackIcon className="h-5 w-5 text-gray-200" />
+                    </div>
+                    <div className="text-xs text-gray-400">No docs found</div>
+                  </div>
+                )}
+              </>
             );
           })}
           {(!item?.paths || item?.paths?.length < 1) && (
