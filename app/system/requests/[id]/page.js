@@ -500,6 +500,7 @@ export default function page({ params }) {
   };
 
   function getResultFromServer(res) {
+    console.log('Resssss', res)
     if (res.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
