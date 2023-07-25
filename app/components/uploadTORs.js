@@ -73,6 +73,8 @@ function UploadTORs({
         setLoading(false);
         if (status == "error") {
           messageApi.error("Failed to upload the file!");
+        } else if (status == "removed") {
+          messageApi.success("File removed!");
         } else {
           messageApi.success("Successfully uploaded the file!");
         }
