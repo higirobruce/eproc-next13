@@ -42,24 +42,6 @@ async function geRequestDetails(id, router, messageApi) {
   return res.json();
 }
 
-export async function fileExists(filepath) {
-  return await fetch(`${filepath}`)
-    .then((res) => res.json())
-    .then((res) => {
-      // alert(filepath);
-      if (res === true || res == "true") {
-        console.log("Exists: ", res);
-        return true;
-      } else {
-        return false;
-      }
-    })
-    .catch((err) => {
-      console.log("Error", err);
-      return false;
-    });
-}
-
 export default function page({ params }) {
   let router = useRouter();
   const [messageApi, contextHolder] = message.useMessage();
@@ -86,7 +68,6 @@ export default function page({ params }) {
         let paths = await item?.paths?.map(async (path, i) => {
           let uid = `rc-upload-${moment().milliseconds()}-${i}`;
           let _url = `${url}/file/termsOfReference/${path}`;
-          let exists = await fileExists(`${url}/check/file/termsOfReference/${path}`);
           let status = "done";
           let name = `supporting doc${i + 1}.pdf`;
 
@@ -95,7 +76,6 @@ export default function page({ params }) {
           const blob = await r.blob();
           let p = new File([blob], name, { uid });
           p.uid = uid;
-          p.exists = exists
           return p;
         });
         let ps = await Promise.all(paths).then((values) => {
@@ -105,26 +85,9 @@ export default function page({ params }) {
         return ps;
         // return paths;
       });
-
-      let items = await res?.items?.map(async (item) => {
-        let paths = await item?.paths?.map(async (path, i) => {
-          let uid = `rc-upload-${moment().milliseconds()}-${i}`;
-          let _url = `${url}/file/termsOfReference/${path}`;
-          let exists = await fileExists(`${url}/check/file/termsOfReference/${path}`);
-          if(exists)
-          return path
-          else return null
-        });
-        let ps = await Promise.all(paths).then((values) => {
-          item.paths = values
-          return item;
-        });
-        return ps;
-        // return paths;
-      });
       console.log(
         "Item Files",
-        await Promise.all(items).then((values) => values)
+        await Promise.all(itemFiles).then((values) => values)
       );
       setFileList(await Promise.all(itemFiles).then((values) => values));
       setFiles(await Promise.all(itemFiles).then((values) => values));
@@ -400,7 +363,7 @@ export default function page({ params }) {
         v.paths = _files[index];
         return v;
       } else {
-        messageApi.error("Something went wrong! Please try again.");
+        messageApi.error('Something went wrong! Please try again.')
       }
     });
 
