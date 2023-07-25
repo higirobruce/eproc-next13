@@ -86,7 +86,9 @@ export default function page({ params }) {
         let paths = await item?.paths?.map(async (path, i) => {
           let uid = `rc-upload-${moment().milliseconds()}-${i}`;
           let _url = `${url}/file/termsOfReference/${path}`;
-          let exists = await fileExists(`${url}/check/file/termsOfReference/${path}`);
+          let exists = await fileExists(
+            `${url}/check/file/termsOfReference/${path}`
+          );
           let status = "done";
           let name = `supporting doc${i + 1}.pdf`;
 
@@ -95,12 +97,14 @@ export default function page({ params }) {
           const blob = await r.blob();
           let p = new File([blob], name, { uid });
           p.uid = uid;
-          p.exists = exists
+          p.exists = exists;
           return p;
         });
-        let ps = paths ? await Promise.all(paths).then((values) => {
-          return values;
-        }): null;
+        let ps = paths
+          ? await Promise.all(paths).then((values) => {
+              return values;
+            })
+          : null;
 
         return ps;
         // return paths;
@@ -110,15 +114,18 @@ export default function page({ params }) {
         let paths = await item?.paths?.map(async (path, i) => {
           let uid = `rc-upload-${moment().milliseconds()}-${i}`;
           let _url = `${url}/file/termsOfReference/${path}`;
-          let exists = await fileExists(`${url}/check/file/termsOfReference/${path}`);
-          if(exists)
-          return path
-          else return null
+          let exists = await fileExists(
+            `${url}/check/file/termsOfReference/${path}`
+          );
+          if (exists) return path;
+          else return null;
         });
-        let ps = paths ? await Promise.all(paths).then((values) => {
-          item.paths = values
-          return item;
-        }): null;
+        let ps = paths
+          ? await Promise.all(paths).then((values) => {
+              item.paths = values;
+              return item;
+            })
+          : null;
         return ps;
         // return paths;
       });
@@ -127,8 +134,12 @@ export default function page({ params }) {
         // await Promise.all(itemFiles).then((values) => values)
         await Promise.all(items).then((values) => values)
       );
-      setFileList(await Promise.all(itemFiles).then((values) => values));
-      setFiles(await Promise.all(itemFiles).then((values) => values));
+      setFileList(
+        await Promise.all(itemFiles).then((values) => values.filter(Boolean))
+      );
+      setFiles(
+        await Promise.all(itemFiles).then((values) => values.filter(Boolean))
+      );
       setRowData(res);
     });
   }
@@ -401,7 +412,7 @@ export default function page({ params }) {
         v.paths = _files[index];
         return v;
       } else {
-        messageApi.error('Something went wrong! Please try again.')
+        messageApi.error("Something went wrong! Please try again.");
         messageApi.error("Something went wrong! Please try again.");
       }
     });
@@ -478,6 +489,8 @@ export default function page({ params }) {
                 return f?.filename;
               });
 
+              console.log(_filenames);
+
               let _files = [...__filePaths];
               _files[rowIndex][fileIndex] = _filenames[0];
 
@@ -500,7 +513,6 @@ export default function page({ params }) {
   };
 
   function getResultFromServer(res) {
-    console.log('Resssss', res)
     if (res.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");

@@ -84,9 +84,9 @@ function UploadTORs({
 
       const allFiles = files.slice()
       const newFileList = files[uuid]?.slice();
-      // let nullIndex = newFileList.indexOf(null);
+      let nullIndex = newFileList.indexOf(null);
       newFileList?.splice(index, 1);
-      // newFileList?.splice(nullIndex, 1);
+      newFileList?.splice(nullIndex, 1);
       // setFileList(newFileList);
       // let _files = [...files];
 
