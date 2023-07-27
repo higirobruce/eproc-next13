@@ -414,7 +414,9 @@ export default function page({ params }) {
           return v;
         } else {
           // console.log("Uploooooodiiing", _files[index]);
-          // messageApi.error("Something went wrong! Please try again.");
+          // messageApi.error("Something went wrong! Please try again.");\
+          v.paths = null;
+          return v;
         }
       } else {
         v.paths = null;
@@ -438,6 +440,8 @@ export default function page({ params }) {
     })
       .then((res) => getResultFromServer(res))
       .then((res) => {
+        // setFileList([])
+        // setFiles([])
         loadData();
         setLoadingRowData(false);
       })
@@ -460,6 +464,8 @@ export default function page({ params }) {
   const handleUpload = () => {
     let _filesPaths = [...files];
     let __filePaths = [..._filesPaths];
+
+    let _files = [...files];
 
     let _f = __filePaths.filter((f) => f.length > 0);
     console.log("Uploading files", _f);
@@ -499,22 +505,18 @@ export default function page({ params }) {
 
               console.log(_filenames);
 
-              let _files = [...files];
+             
               _files[rowIndex][fileIndex] = _filenames[0];
 
-              if (
-                rowIndex === files?.length - 1 &&
-                fileIndex === filesPerRow.length - 1
-              ) {
-                // save(_files);
-                updateRequest(_files);
-              }
+              
             })
             .catch((err) => {
               console.log(err);
               messageApi.error("upload failed.");
             })
-            .finally(() => {});
+            .finally(() => {
+              updateRequest(_files);
+            });
         });
       });
     }
