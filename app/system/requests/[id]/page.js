@@ -413,8 +413,8 @@ export default function page({ params }) {
           v.paths = _files[index];
           return v;
         } else {
-          console.log("Uploooooodiiing", _files[index]);
-          messageApi.error("Something went wrong! Please try again.");
+          // console.log("Uploooooodiiing", _files[index]);
+          // messageApi.error("Something went wrong! Please try again.");
         }
       } else {
         v.paths = null;
@@ -475,7 +475,7 @@ export default function page({ params }) {
       messageApi.error("Please add at least one doc.");
       // setConfirmLoading(false);
     } else {
-      _f.forEach((filesPerRow, rowIndex) => {
+      files.forEach((filesPerRow, rowIndex) => {
         filesPerRow?.map((rowFile, fileIndex) => {
           const formData = new FormData();
           formData.append("files[]", rowFile);
@@ -499,11 +499,11 @@ export default function page({ params }) {
 
               console.log(_filenames);
 
-              let _files = [..._f];
+              let _files = [...files];
               _files[rowIndex][fileIndex] = _filenames[0];
 
               if (
-                rowIndex === _f?.length - 1 &&
+                rowIndex === files?.length - 1 &&
                 fileIndex === filesPerRow.length - 1
               ) {
                 // save(_files);
