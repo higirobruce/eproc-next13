@@ -135,10 +135,10 @@ export default function page({ params }) {
         // await Promise.all(items).then((values) => values)
       );
       setFileList(
-        await Promise.all(itemFiles).then((values) => values.filter(Boolean))
+        await Promise.all(itemFiles).then((values) => values)
       );
       setFiles(
-        await Promise.all(itemFiles).then((values) => values.filter(Boolean))
+        await Promise.all(itemFiles).then((values) => values)
       );
       setRowData(res);
     });
