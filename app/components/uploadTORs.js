@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { UploadOutlined } from "@ant-design/icons";
+import { LoadingOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Upload, message } from "antd";
 
 function UploadTORs({
@@ -11,13 +11,17 @@ function UploadTORs({
   files,
   setFiles,
   itemFiles,
-  disabled
+  disabled,
+  setStatus,
+  iconOnly,
 }) {
   const [messageApi, contextHolder] = message.useMessage();
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
   let [uploading, setUploading] = useState(false);
+
+  let [loading, setLoading] = useState(false);
   // let [files, setFiles] = useState([]);
 
   // const handleUpload = () => {
@@ -61,24 +65,49 @@ function UploadTORs({
   // };
 
   const props = {
+    onChange: ({ file, fileList }) => {
+      let status = file.status;
+      setStatus(status);
+      if (status == "uploading") setLoading(true);
+      else {
+        setLoading(false);
+        if (status == "error") {
+          messageApi.error("Failed to upload the file!");
+        } else if (status == "removed") {
+          messageApi.success("File removed!");
+        } else {
+          messageApi.success("Successfully uploaded the file!");
+        }
+      }
+    },
     onRemove: (file) => {
-      const index = files[uuid + 1]?.indexOf(file?.uid);
+      // const index = files[uuid]?.indexOf(file?.uid);
+     
+      const allFiles = [...files];
 
-      const newFileList = files[uuid + 1]?.slice();
-      let nullIndex = newFileList.indexOf(null);
-      newFileList?.splice(index, 1);
-      newFileList?.splice(nullIndex, 1);
+      console.log("Removing", uuid)
+      console.log(
+        "Remaining files",
+        allFiles[uuid]?.filter((f) => f?.uid !== file?.uid)
+      );
+      const newFileList = allFiles[uuid]?.filter(
+        (f) => f?.uid !== file?.uid
+      );
+      // let nullIndex = newFileList.indexOf(null);
+      // newFileList?.splice(index, 1);
+      // newFileList?.splice(nullIndex, 1);
       // setFileList(newFileList);
-      let _files = [...files];
+      // let _files = [...files];
 
-      _files[uuid + 1] = newFileList;
+      // _files[uuid] = newFileList;
 
       // const _index = files.indexOf(file);
       // const _newFileList = files.slice();
       // _newFileList.splice(_index, 1);
 
       // console.log(_newFileList)
-      setFiles(_files);
+      allFiles[uuid] = newFileList;
+      setFiles(allFiles);
     },
     // multiple: false,
     // showUploadList: {
@@ -98,11 +127,12 @@ function UploadTORs({
         // setFileList(_fileList);
         // setFiles([...files, file]);
         let _f = [...files];
-        let f = _f[uuid + 1];
+        let f = _f[uuid];
         if (f) {
           f.push(file);
         } else _f.push([file]);
 
+        console.log('My Files', _f)
         setFiles(_f);
 
         // return isPDF || Upload.LIST_IGNORE;
@@ -138,22 +168,31 @@ function UploadTORs({
   return (
     <>
       {contextHolder}
-      <Upload {...props} defaultFileList={[...itemFiles]} disabled={disabled}>
-        <Button disabled={disabled}>{label ? label : "Select file"}</Button>
-      </Upload>
-
-      {/* <Button
-        type="primary"
-        onClick={handleUpload}
-        disabled={files.length === 0}
-        loading={uploading}
-        icon={<UploadOutlined />}
-        style={{
-          marginTop: 16,
-        }}
+      <Upload
+        {...props}
+        headers={{}}
+        showUploadList={!iconOnly}
+        defaultFileList={itemFiles}
       >
-        {uploading ? "Uploading" : "Start Upload"}
-      </Button> */}
+        {iconOnly && (
+          <div className="flex flex-row space-x-10 items-center text-blue-500 ">
+            <div>{label}</div>
+
+            {!loading ? (
+              <UploadOutlined className="hover:cursor-pointer" />
+            ) : (
+              <Spin
+                spinning={true}
+                indicator={<LoadingOutlined />}
+                size="small"
+              />
+            )}
+          </div>
+        )}
+        {!iconOnly && (
+          <Button icon={<UploadOutlined />}>{label ? label : "Upload"}</Button>
+        )}
+      </Upload>
     </>
   );
 }

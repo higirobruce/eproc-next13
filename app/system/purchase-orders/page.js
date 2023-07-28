@@ -53,6 +53,7 @@ export default function PurchaseOrders() {
   let [totalValue, setTotalValue] = useState(0);
   let [openViewPO, setOpenViewPO] = useState(false);
   let [startingDelivery, setStartingDelivery] = useState(false);
+  let [readyToSign, setReadyToSign] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
   const items = [
     {
@@ -199,6 +200,14 @@ export default function PurchaseOrders() {
           setOpenViewPO(false);
         }}
         onCancel={() => setOpenViewPO(false)}
+        footer={!readyToSign ? [
+          <Button key="back" onClick={() => setOpenViewPO(false)}>
+            Cancel
+          </Button>,
+          <Button key="submit" type="primary" onClick={() => setOpenViewPO(false)}>
+            Ok
+        </Button>
+        ] : []}
         width={"80%"}
         bodyStyle={{ maxHeight: "700px", overflow: "scroll" }}
       >
@@ -399,6 +408,7 @@ export default function PurchaseOrders() {
                       <Popconfirm
                         title="Confirm Contract Signature"
                         onConfirm={() => handleSignPo(s, index)}
+                        onOpenChange={() => setReadyToSign(prevState => !prevState)}
                       >
                         <div className="flex flex-row justify-center space-x-5 items-center border-t-2 bg-blue-50 p-5 cursor-pointer hover:opacity-75">
                           <Image
@@ -632,7 +642,7 @@ export default function PurchaseOrders() {
           {viewPOMOdal()}
 
           {previewAttachmentModal()}
-          <Row className="flex flex-col space-y-2 bg-white px-10 py-3 shadow">
+          <Row className="flex flex-col custom-sticky space-y-2 bg-white px-10 py-3 shadow">
             <div className="flex flex-row justify-between items-center">
               <div className="text-xl font-semibold">Purchase Orders List</div>
             </div>

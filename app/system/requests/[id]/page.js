@@ -11,6 +11,7 @@ import {
 } from "@ant-design/icons";
 import RequestDetails from "../../../components/requestDetails";
 import { motion } from "framer-motion";
+import moment from "moment";
 
 let url = process.env.NEXT_PUBLIC_BKEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
@@ -41,6 +42,24 @@ async function geRequestDetails(id, router, messageApi) {
   return res.json();
 }
 
+export async function fileExists(filepath) {
+  return await fetch(`${filepath}`)
+    .then((res) => res.json())
+    .then((res) => {
+      // alert(filepath);
+      if (res === true || res == "true") {
+        console.log("Exists: ", res);
+        return true;
+      } else {
+        return false;
+      }
+    })
+    .catch((err) => {
+      console.log("Error", err);
+      return false;
+    });
+}
+
 export default function page({ params }) {
   let router = useRouter();
   const [messageApi, contextHolder] = message.useMessage();
@@ -58,10 +77,72 @@ export default function page({ params }) {
   let [files, setFiles] = useState([]);
 
   useEffect(() => {
-    geRequestDetails(params?.id, router, messageApi).then((res) => {
+    loadData();
+  }, []);
+
+  function loadData() {
+    geRequestDetails(params?.id, router, messageApi).then(async (res) => {
+      let itemFiles = await res?.items?.map(async (item) => {
+        let paths = await item?.paths?.map(async (path, i) => {
+          let uid = `rc-upload-${moment().milliseconds()}-${i}`;
+          let _url = `${url}/file/termsOfReference/${path}`;
+          let exists = await fileExists(
+            `${url}/check/file/termsOfReference/${path}`
+          );
+          let status = "done";
+          let name = `supporting doc${i + 1}.pdf`;
+
+          let reader = new FileReader();
+          const r = await fetch(_url);
+          const blob = await r.blob();
+          let p = new File([blob], name, { uid });
+          p.uid = uid;
+          p.exists = exists;
+          return p;
+        });
+        let ps = paths
+          ? await Promise.all(paths).then((values) => {
+              return values;
+            })
+          : null;
+
+        return ps;
+        // return paths;
+      });
+
+      let items = await res?.items?.map(async (item) => {
+        let paths = await item?.paths?.map(async (path, i) => {
+          let uid = `rc-upload-${moment().milliseconds()}-${i}`;
+          let _url = `${url}/file/termsOfReference/${path}`;
+          let exists = await fileExists(
+            `${url}/check/file/termsOfReference/${path}`
+          );
+          if (exists) return path;
+          else return null;
+        });
+        let ps = paths
+          ? await Promise.all(paths).then((values) => {
+              item.paths = values;
+              return item;
+            })
+          : null;
+        return ps;
+        // return paths;
+      });
+      console.log(
+        "Item Files",
+        await Promise.all(itemFiles).then((values) => values)
+        // await Promise.all(items).then((values) => values)
+      );
+      setFileList(
+        await Promise.all(itemFiles).then((values) => values)
+      );
+      setFiles(
+        await Promise.all(itemFiles).then((values) => values)
+      );
       setRowData(res);
     });
-  }, []);
+  }
 
   function updateStatus(id, status) {
     setLoadingRowData(true);
@@ -316,7 +397,7 @@ export default function page({ params }) {
       });
   }
 
-  function updateRequest() {
+  function updateRequest(_files) {
     setLoadingRowData(true);
     let newStatus =
       rowData?.status == "withdrawn" || rowData?.status == "declined"
@@ -324,6 +405,28 @@ export default function page({ params }) {
         : rowData?.status;
 
     rowData.status = newStatus;
+
+    let reqItems = [...rowData.items];
+    reqItems?.map((v, index) => {
+      if (_files?.length > index) {
+        if (_files[index]?.every((item) => typeof item === "string")) {
+          v.paths = _files[index];
+          return v;
+        } else {
+          // console.log("Uploooooodiiing", _files[index]);
+          // messageApi.error("Something went wrong! Please try again.");\
+          v.paths = null;
+          return v;
+        }
+      } else {
+        v.paths = null;
+        return v;
+      }
+    });
+
+    console.log("Haaaaaa", reqItems);
+    // rowData.items = reqItems;
+
     fetch(`${url}/requests/${rowData?._id}`, {
       method: "PUT",
       headers: {
@@ -337,7 +440,9 @@ export default function page({ params }) {
     })
       .then((res) => getResultFromServer(res))
       .then((res) => {
-        setRowData(res);
+        // setFileList([])
+        // setFiles([])
+        loadData();
         setLoadingRowData(false);
       })
       .catch((err) => {
@@ -353,12 +458,17 @@ export default function page({ params }) {
   }
 
   useEffect(() => {
-    console.log("Files chaaaaanged");
-    console.log(files);
+    console.log("Files chaaaaanged", files);
   }, [files]);
 
-  const handleUpload = (myFiles) => {
-    let _filesPaths = [...myFiles];
+  const handleUpload = () => {
+    let _filesPaths = [...files];
+    let __filePaths = [..._filesPaths];
+
+    let _files = [...files];
+
+    let _f = __filePaths.filter((f) => f.length > 0);
+    console.log("Uploading files", _f);
 
     let i = 0;
     let _totalFilesInitial = rowData?.items?.map((item) => {
@@ -367,16 +477,16 @@ export default function page({ params }) {
       });
     });
 
-    if (_filesPaths?.length < 1) {
+    if (files?.every((child) => child.length < 1)) {
       messageApi.error("Please add at least one doc.");
       // setConfirmLoading(false);
     } else {
-      _filesPaths.forEach((filesPerRow, rowIndex) => {
+      files.forEach((filesPerRow, rowIndex) => {
         filesPerRow?.map((rowFile, fileIndex) => {
           const formData = new FormData();
           formData.append("files[]", rowFile);
 
-          console.log("Form data", formData);
+          console.log("Row File", rowFile);
           // You can use any AJAX library you like
           fetch(`${url}/uploads/termsOfReference/`, {
             method: "POST",
@@ -393,24 +503,20 @@ export default function page({ params }) {
                 return f?.filename;
               });
 
-              let _files = [..._filesPaths];
+              console.log(_filenames);
+
+             
               _files[rowIndex][fileIndex] = _filenames[0];
 
-              console.log("File Naeeeeemememee", savedFiles);
-
-              if (
-                rowIndex === _filesPaths?.length - 1 &&
-                fileIndex === filesPerRow.length - 1
-              ) {
-                // save(_files);
-                updateRequest();
-              }
+              
             })
             .catch((err) => {
               console.log(err);
               messageApi.error("upload failed.");
             })
-            .finally(() => {});
+            .finally(() => {
+              updateRequest(_files);
+            });
         });
       });
     }
@@ -484,7 +590,8 @@ export default function page({ params }) {
                 icon={<SaveOutlined />}
                 type="primary"
                 onClick={() => {
-                  updateRequest();
+                  // updateRequest();
+                  handleUpload();
                 }}
               >
                 Save

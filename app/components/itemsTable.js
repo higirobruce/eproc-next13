@@ -187,25 +187,7 @@ const ItemsTable = ({
       ),
       dataIndex: "attachements",
       width: "20%",
-      render: (_, record) => {
-        let _files = [];
-
-        record?.paths?.map((doc, i) => {
-          if (doc) {
-            let uid = `rc-upload-${moment().milliseconds()}-${i}`;
-            let _url = `${url}/file/termsOfReference/${doc}`;
-            let status = "done";
-            let name = `supporting doc${i + 1}.pdf`;
-
-            _files.push({
-              uid,
-              url: _url,
-              status,
-              name,
-            });
-          }
-        });
-
+      render: (_, record, index) => {
         return dataSource.length >= 1 ? (
           <UploadTORs
             uuid={record?.key - 1}
@@ -213,8 +195,10 @@ const ItemsTable = ({
             fileList={fileList}
             files={files}
             setFiles={setFiles}
-            itemFiles={_files}
+            itemFiles={files[index]}
             disabled={editingRequest}
+            setStatus={()=>{}}
+            iconOnly={false}
           />
         ) : null;
       },

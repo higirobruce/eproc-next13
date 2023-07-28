@@ -164,9 +164,7 @@ const SideMenu = ({ setScreen, screen, user }) => {
     <Menu
       onClick={onClick}
       className="h-full"
-      style={{
-        // height: "100%",
-        // borderRight: 0,
+      style={{top: '63px',width: '100%',position: 'fixed'
       }}
       selectedKeys={[current]}
       mode="vertical"

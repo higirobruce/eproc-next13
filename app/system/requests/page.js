@@ -668,50 +668,53 @@ export default function UserRequests() {
     request,
     reqAttachmentDocId
   ) {
-    return fetch(`${url}/purchaseOrders/`, {
-      method: "POST",
-      headers: {
-        Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
-        token: token,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        vendor,
-        tender,
-        createdBy,
-        sections,
-        items,
-        B1Data,
-        request: rowData?._id,
-        signatories,
-        request,
-        reqAttachmentDocId,
-      }),
-    })
-      .then((res) => getResultFromServer(res))
-      .then((res1) => {
-        if (res1.error || res1.code) {
-          messageApi.open({
-            type: "error",
-            content: res1.message?.value,
-          });
-        } else {
-          updateStatus(rowData._id, "approved");
-          updateSourcingMethod(rowData._id, sourcingMethod);
-          messageApi.open({
-            type: "success",
-            content: "PO created!",
-          });
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoadingRowData(false);
-        messageApi.open({
-          type: "error",
-          content: JSON.stringify(err),
-        });
-      });
+
+    console.log(B1Data)
+    return true
+    // return fetch(`${url}/purchaseOrders/`, {
+    //   method: "POST",
+    //   headers: {
+    //     Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+    //     token: token,
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({
+    //     vendor,
+    //     tender,
+    //     createdBy,
+    //     sections,
+    //     items,
+    //     B1Data,
+    //     request: rowData?._id,
+    //     signatories,
+    //     request,
+    //     reqAttachmentDocId,
+    //   }),
+    // })
+    //   .then((res) => getResultFromServer(res))
+    //   .then((res1) => {
+    //     if (res1.error || res1.code) {
+    //       messageApi.open({
+    //         type: "error",
+    //         content: res1.message?.value,
+    //       });
+    //     } else {
+    //       updateStatus(rowData._id, "approved");
+    //       updateSourcingMethod(rowData._id, sourcingMethod);
+    //       messageApi.open({
+    //         type: "success",
+    //         content: "PO created!",
+    //       });
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     console.error(err);
+    //     setLoadingRowData(false);
+    //     messageApi.open({
+    //       type: "error",
+    //       content: JSON.stringify(err),
+    //     });
+    //   });
   }
 
   function createContract(
@@ -854,7 +857,7 @@ export default function UserRequests() {
       {contextHolder}
       {dataLoaded ? (
         <motion.div className="flex flex-col transition-opacity ease-in-out duration-1000 flex-1 space-y-10 h-full pb-10">
-          <Row className="flex flex-col bg-white px-10 py-3 shadow space-y-2">
+          <Row className="flex flex-col custom-sticky bg-white px-10 py-3 shadow space-y-2">
             <div className="flex flex-row items-center justify-between">
               <div className="text-xl font-semibold">Purchase Requests</div>
 
