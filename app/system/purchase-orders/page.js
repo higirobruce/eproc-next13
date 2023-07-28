@@ -214,7 +214,14 @@ export default function PurchaseOrders() {
         <div className="space-y-10 px-20 py-5 overflow-x-scroll">
           <div className="flex flex-row justify-between items-center">
             <Typography.Title level={4} className="flex flex-row items-center">
-              PURCHASE ORDER #{po?.number}{" "}
+              PURCHASE ORDER #{po?.number}{" "} &nbsp;
+              {(user?.userType !== "VENDOR" ||
+                (documentFullySignedInternally(po) &&
+                  user?.userType === "VENDOR")) && (
+                  <Link href={`/system/purchase-orders/${po?._id}`}>
+                    <PrinterOutlined />
+                  </Link>
+              )}
             </Typography.Title>
             {/* <Button icon={<PrinterOutlined />}>Print</Button> */}
           </div>
