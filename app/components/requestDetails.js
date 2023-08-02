@@ -2117,7 +2117,58 @@ const RequestDetails = ({
                 );
               })}
               {/* New Signatory */}
-              <div
+              <div className="flex flex-col ring-1 ring-gray-300 rounded py-5 space-y-3 items-center justify-center  hover:bg-gray-50">
+                <Image
+                  src="/icons/icons8-signature-80.png"
+                  width={40}
+                  height={40}
+                />
+                <div
+                  className="cursor-pointer underline hover:text-blue-600"
+                  onClick={() => {
+                    let signs = [...signatories];
+                    let newSignatory = { onBehalfOf: "Irembo Ltd" };
+                    // signs?.length < 2
+                    //   ?
+                    //   : {
+                    //       onBehalfOf: vendor?.companyName,
+                    //       title: vendor?.title,
+                    //       names: vendor?.contactPersonNames,
+                    //       email: vendor?.email,
+                    //     };
+                    let nSignatories = signs.length;
+                    let lastSignatory = signs[nSignatories - 1];
+                    let lastIsIrembo =
+                      lastSignatory?.onBehalfOf === "Irembo Ltd";
+                    if (lastIsIrembo) signs.push(newSignatory);
+                    else {
+                      signs.splice(lastSignatory - 1, 0, newSignatory);
+                    }
+                    setSignatories(signs);
+                  }}
+                >
+                  Add intenal Signatory
+                </div>
+                <div
+                  className="cursor-pointer underline"
+                  onClick={() => {
+                    let signs = [...signatories];
+                    let newSignatory = {
+                      onBehalfOf: vendor?.companyName,
+                      title: vendor?.title,
+                      names: vendor?.contactPersonNames,
+                      email: vendor?.email,
+                    };
+
+                    signs.push(newSignatory);
+                    setSignatories(signs);
+                  }}
+                >
+                  Add external Signatory
+                </div>
+              </div>
+
+              {/* <div
                 onClick={() => {
                   let signs = [...signatories];
                   let newSignatory =
@@ -2141,7 +2192,7 @@ const RequestDetails = ({
                   height={40}
                 />
                 <div>Add new Signatory</div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
@@ -2494,7 +2545,14 @@ const RequestDetails = ({
                   //       names: vendor?.contactPersonNames,
                   //       email: vendor?.email,
                   //     };
-                  signs.push(newSignatory);
+                  let nSignatories = signs.length;
+                  let lastSignatory = signs[nSignatories - 1];
+                  let lastIsIrembo = lastSignatory?.onBehalfOf === "Irembo Ltd";
+                  if (lastIsIrembo) signs.push(newSignatory);
+                  else {
+                    signs.splice(lastSignatory - 1, 0, newSignatory);
+                  }
+                  // signs.push(newSignatory);
                   setSignatories(signs);
                 }}
               >
