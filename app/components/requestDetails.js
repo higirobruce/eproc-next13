@@ -1585,7 +1585,7 @@ const RequestDetails = ({
     qty
   ) {
     // let [op, setOp] = useState(false);
-    let _deliverdQty = po?.items[index].deliveredQty || 0;
+    let _deliverdQty = po?.items[index]?.deliveredQty || 0;
     return (
       <div className="mt-2 ">
         {
@@ -3049,7 +3049,7 @@ const RequestDetails = ({
                         </div>
 
                         {data?.items?.map((i, index) => {
-                          let deliveredQty = po?.items[index].deliveredQty || 0;
+                          let deliveredQty = po?.items[index]?.deliveredQty || 0;
                           return (
                             <div key={i.key} className="m-5">
                               <div>
