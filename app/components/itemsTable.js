@@ -167,6 +167,11 @@ const ItemsTable = ({
                 label: "EUR",
                 key: "EUR",
               },
+              {
+                value: "GBP",
+                label: "GBP",
+                key: "GBP",
+              },
             ]}
           />
         );
