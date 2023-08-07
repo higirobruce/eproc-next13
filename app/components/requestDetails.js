@@ -3094,7 +3094,7 @@ const RequestDetails = ({
                             disabled={
                               !documentFullySigned(po) ||
                               po?.status == "started" ||
-                              !po ||
+                              !po?.status ||
                               user._id !== data?.createdBy?._id
                             }
                             size="small"
