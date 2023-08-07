@@ -215,11 +215,12 @@ export default function UserRequests() {
           <Row className="flex flex-col custom-sticky bg-white px-10 py-3 shadow space-y-2">
             <div className="flex flex-row items-center justify-between">
               <div className="text-xl font-semibold">Payment Requests</div>
-              {user?.userType !== "VENDOR" &&
-                (currentUser?.permissions?.canApproveAsHod ||
-                  currentUser?.permissions?.canApproveAsHof ||
-                  currentUser?.permissions?.canApproveAsPM) && (
-                  <div className="flex items-center space-x-3">
+
+              <div className="flex items-center space-x-3">
+                {user?.userType !== "VENDOR" &&
+                  (currentUser?.permissions?.canApproveAsHod ||
+                    currentUser?.permissions?.canApproveAsHof ||
+                    currentUser?.permissions?.canApproveAsPM) && (
                     <div className="flex flex-row items-center space-x-1">
                       <div>Awaiting my approval</div>
                       <Checkbox
@@ -230,19 +231,19 @@ export default function UserRequests() {
                         }}
                       />
                     </div>
-                    <div className="flex flex-row items-center space-x-1">
-                      <div>My requests</div>
-                      {
-                        <Checkbox
-                          checked={onlyMine}
-                          onChange={(e) => {
-                            setOnlyMine(e.target.checked);
-                          }}
-                        />
-                      }
-                    </div>
-                  </div>
-                )}
+                  )}
+                <div className="flex flex-row items-center space-x-1">
+                  <div>My requests</div>
+                  {
+                    <Checkbox
+                      checked={onlyMine}
+                      onChange={(e) => {
+                        setOnlyMine(e.target.checked);
+                      }}
+                    />
+                  }
+                </div>
+              </div>
             </div>
             <Row className="flex flex-row justify-between items-center space-x-4">
               <div className="flex-1">
