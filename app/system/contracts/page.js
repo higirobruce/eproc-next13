@@ -227,13 +227,13 @@ export default function Contracts() {
     })
       .then((res) => getResultFromServer(res))
       .then((res1) => {
+        console.log(res1)
         if (res1.error) {
-          messageApi.open({
-            type: "error",
-            content: res1?.error?.message?.value
+          messageApi.error(
+            res1?.error?.message?.value
               ? res1?.error?.message?.value
-              : res1?.message,
-          });
+              : res1?.message
+          );
         } else {
           getContracts();
           setOpenCreatePO(false);
@@ -1451,11 +1451,7 @@ export default function Contracts() {
       localStorage.removeItem("user");
       router.push(`/auth?goTo=/system/contracts&sessionExpired=true`);
     } else {
-      if (res.ok) {
-        return res.json();
-      } else {
-        throw Error("");
-      }
+      return res.json();
     }
   }
 

@@ -304,11 +304,9 @@ export default function page({ params }) {
     })
       .then((res) => getResultFromServer(res))
       .then((res1) => {
+        console.log(res1.error)
         if (res1.error || res1.code) {
-          messageApi.open({
-            type: "error",
-            content: res1.message?.value,
-          });
+          messageApi.error(res1.error?.message?.value)
         } else {
           updateStatus(rowData._id, "approved");
           updateSourcingMethod(rowData._id, sourcingMethod);
