@@ -40,6 +40,7 @@ import { useRouter } from "next/navigation";
 // import MyPdfViewer from "../common/pdfViewer";
 
 export default function PurchaseOrders() {
+  let taxRate = 0.18;
   let user = JSON.parse(localStorage.getItem("user"));
   let token = localStorage.getItem("token");
   let router = useRouter();
@@ -835,7 +836,12 @@ export default function PurchaseOrders() {
                           </div>
                           <div className="font-semibold">
                             {po?.items?.map((i) => {
-                              let lTot = i?.quantity * i?.estimatedUnitCost;
+                              let lTot = 
+                                i?.taxGroup == 'I1' ? 
+                                  (i?.quantity * i?.estimatedUnitCost) + (i?.quantity * i?.estimatedUnitCost) * taxRate
+                                :  
+                                  i?.quantity * i?.estimatedUnitCost;
+
                               t = t + lTot;
                             })}{" "}
                             {t.toLocaleString()} RWF
