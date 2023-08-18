@@ -1767,9 +1767,10 @@ const RequestDetails = ({
             items?.filter(
               (i) =>
                 i.quantity <= 0 ||
-                i.estimatedUnitCost <= 0 ||
-                !i.quantity ||
-                !i.estimatedUnitCost
+                // i.estimatedUnitCost <= 0 ||
+                !i.quantity 
+                // ||
+                // !i.estimatedUnitCost
             )?.length >= 1
           ) {
             messageApi.open({
