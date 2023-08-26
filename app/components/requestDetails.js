@@ -1670,8 +1670,7 @@ const RequestDetails = ({
                       disabled={
                         po?.status !== "started" ||
                         deliveredQties[index] > qty ||
-                        data?.createdBy?._id !== user?._id ||
-                        !user?.permissions.canApproveAsPM
+                        (data?.createdBy?._id !== user?._id && !user?.permissions.canApproveAsPM)
                       }
                     >
                       Confirm
@@ -3090,6 +3089,7 @@ const RequestDetails = ({
                           <div className="text-lg font-bold">
                             Delivery progress
                           </div>
+                          {console.log('Data ', data)}
                           <Button
                             type="primary"
                             disabled={
