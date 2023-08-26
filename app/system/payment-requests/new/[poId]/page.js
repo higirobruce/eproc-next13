@@ -20,7 +20,7 @@ let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
 async function getPoDetails(id, router) {
-  let token = localStorage.getItem('token')
+  let token = localStorage.getItem("token");
   const res = await fetch(`${url}/purchaseOrders/${id}`, {
     headers: {
       Authorization: "Basic " + `${encode(`${apiUsername}:${apiPassword}`)}`,
@@ -34,7 +34,7 @@ async function getPoDetails(id, router) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       router.push("/auth");
-    } 
+    }
     // This will activate the closest `error.js` Error Boundary
     return null;
     // throw new Error("Failed to fetch data");
@@ -45,7 +45,7 @@ async function getPoDetails(id, router) {
 
 export default function NewPaymentRequest({ params }) {
   let user = JSON.parse(localStorage.getItem("user"));
-  let token = localStorage.getItem('token')
+  let token = localStorage.getItem("token");
   let [po, setPo] = useState(null);
   let router = useRouter();
   let [form] = Form.useForm();
@@ -65,8 +65,7 @@ export default function NewPaymentRequest({ params }) {
     });
   }, [params]);
 
-  useEffect(() => {
-  }, [files]);
+  useEffect(() => {}, [files]);
 
   function getPoTotalVal() {
     let t = 0;
@@ -84,62 +83,74 @@ export default function NewPaymentRequest({ params }) {
   }
 
   const handleUpload = () => {
+    setSubmitting(true);
+
     if (files?.length < 1) {
       messageApi.error("Please add at least one doc.");
       setSubmitting(false);
     } else {
       let docIds = [];
-      files.forEach((fileToSave, rowIndex) => {
-        const formData = new FormData();
-        formData.append("files[]", fileToSave);
-
-        // You can use any AJAX library you like
-        fetch(`${url}/uploads/paymentRequests/`, {
-          method: "POST",
-          body: formData,
-          headers: {
-            Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
-            token: token
-            // "Content-Type": "multipart/form-data",
-          },
-        })
-          .then((res) => res.json())
-          .then((savedFiles) => {
-            let _filenames = savedFiles?.map((f) => {
-              return f?.filename;
-            });
-
-            docIds.push(_filenames[0]);
-
-            if (rowIndex === files.length - 1) {
-              save(docIds);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-            messageApi.error("upload failed.");
-          })
-          .finally(() => {});
+      const formData = new FormData();
+      files.forEach((f) => {
+        formData.append("files[]", f);
       });
+
+      // You can use any AJAX library you like
+      fetch(`${url}/uploads/paymentRequests/`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+          token: token,
+          // "Content-Type": "multipart/form-data",
+        },
+      })
+        .then((res) => res.json())
+        .then((savedFiles) => {
+          let _filenames = savedFiles?.map((f) => {
+            return f?.filename;
+          });
+
+          // docIds.push(_filenames[0]);
+
+          save(_filenames);
+        })
+        .catch((err) => {
+          console.log(err);
+          messageApi.error("upload failed.");
+        })
+        .finally(() => {
+          // setSubmitting(false);
+        });
     }
   };
 
   const save = (_fileList) => {
-    setSubmitting(true)
+    setSubmitting(true);
     fetch(`${url}/paymentRequests/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: "", token:token },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "",
+        token: token,
+      },
       body: JSON.stringify({
         title,
         description,
         amount,
         currency,
-        category: 'external',
+        category: "external",
         createdBy: user?._id,
         purchaseOrder: params?.poId,
         docIds: _fileList,
-        budgeted: po?.request?.budgeted || po?.tender?.purchaseRequest?.budgeted || false ,
-        budgetLine: po?.request?.budgetLine?._id || po?.tender?.purchaseRequest?.budgetLine?._id || '' ,
+        budgeted:
+          po?.request?.budgeted ||
+          po?.tender?.purchaseRequest?.budgeted ||
+          false,
+        budgetLine:
+          po?.request?.budgetLine?._id ||
+          po?.tender?.purchaseRequest?.budgetLine?._id ||
+          "",
       }),
     })
       .then((res) => {
