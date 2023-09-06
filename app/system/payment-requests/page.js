@@ -121,7 +121,8 @@ export default function UserRequests() {
     }
   }, [searchText]);
 
-  fetch(`${url}/users/${user?._id}`, {
+  useEffect(() => {
+    fetch(`${url}/users/${user?._id}`, {
     method: "GET",
     headers: {
       Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
@@ -137,6 +138,7 @@ export default function UserRequests() {
         content: "Something happened! Please try again.",
       })
     );
+  }, [])
 
   function refresh() {
     setDataLoaded(false);

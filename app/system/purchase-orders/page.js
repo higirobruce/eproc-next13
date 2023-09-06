@@ -37,6 +37,9 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { encode } from "base-64";
 import { useRouter } from "next/navigation";
+import { content } from "@/app/utils/requestContent";
+import html2pdf from "html2pdf.js";
+import ReactDOMServer from "react-dom/server";
 // import MyPdfViewer from "../common/pdfViewer";
 
 export default function PurchaseOrders() {
@@ -219,9 +222,9 @@ export default function PurchaseOrders() {
               {(user?.userType !== "VENDOR" ||
                 (documentFullySignedInternally(po) &&
                   user?.userType === "VENDOR")) && (
-                  <Link href={`/system/purchase-orders/${po?._id}`}>
-                    <PrinterOutlined />
-                  </Link>
+                    <span className="text-blue-600">
+                      <PrinterOutlined onClick={() => generatePDF(po)} />
+                    </span>
               )}
             </Typography.Title>
             {/* <Button icon={<PrinterOutlined />}>Print</Button> */}
@@ -643,6 +646,23 @@ export default function PurchaseOrders() {
     return { length: filtered.length, data: filtered };
   };
 
+  const generatePDF = (po) => {
+    // const element = document.getElementById("pdf-content");
+    const printElement = ReactDOMServer.renderToString(content(po, signing, user));
+    html2pdf()
+      .set({
+        // pagebreak: { mode: "avoid-all", before: "#page2el" },
+        margin: [22, 10, 15, 22],
+        filename: "Contract.pdf",
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, letterRendering: true },
+        jsPDF: { unit: "pt", format: "letter", orientation: "portrait" },
+        pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+      })
+      .from(printElement)
+      .save();
+  };
+
   return (
     <>
       {dataLoaded && !submitting ? (
@@ -761,9 +781,9 @@ export default function PurchaseOrders() {
                             {(user?.userType !== "VENDOR" ||
                               (documentFullySignedInternally(po) &&
                                 user?.userType === "VENDOR")) && (
-                              <Link href={`/system/purchase-orders/${po?._id}`}>
-                                <PrinterOutlined />
-                              </Link>
+                                  <span className="text-blue-600">
+                                    <PrinterOutlined onClick={() => generatePDF(po)} />
+                                  </span>
                             )}
                           </div>
                           <div className="text-gray-600">
