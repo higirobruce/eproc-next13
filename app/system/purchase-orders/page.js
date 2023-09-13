@@ -38,7 +38,6 @@ import { motion } from "framer-motion";
 import { encode } from "base-64";
 import { useRouter } from "next/navigation";
 import { content } from "@/app/utils/requestContent";
-import html2pdf from "html2pdf.js";
 import ReactDOMServer from "react-dom/server";
 // import MyPdfViewer from "../common/pdfViewer";
 
@@ -646,7 +645,8 @@ export default function PurchaseOrders() {
     return { length: filtered.length, data: filtered };
   };
 
-  const generatePDF = (po) => {
+  const generatePDF = async (po) => {
+    const html2pdf  = (await import ("html2pdf.js")).default;
     // const element = document.getElementById("pdf-content");
     const printElement = ReactDOMServer.renderToString(content(po, signing, user));
     html2pdf()
