@@ -18,11 +18,11 @@ import TendersByDep from "@/app/components/tendersByDep";
 import { LoadingOutlined } from "@ant-design/icons";
 import { encode } from "base-64";
 import { useRouter } from "next/navigation";
-import {motion} from "framer-motion";
+import { motion } from "framer-motion";
 
 export default function page() {
   const [dataLoaded, setDataLoaded] = useState(false);
-  let token = localStorage.getItem('token')
+  let token = localStorage.getItem("token");
   const [requests, setRequests] = useState([]);
   const [tenders, setTenders] = useState([]);
   const [contracts, setContracts] = useState([]);
@@ -50,13 +50,15 @@ export default function page() {
           .then((res) => getResultFromServer(res))
           .then((res) => {
             // alert(JSON.stringify(res))
-            setAvgBids(Math.round(res[0]?.avg*100)/100);
+            setAvgBids(Math.round(res[0]?.avg * 100) / 100);
           });
         loadTendersStats()
           .then((res) => getResultFromServer(res))
           .then((res) => {
-            setOpenTenders(Math.round((res?.open / res?.total) * 100)/100);
-            setClosedTenders(Math.round((res?.closed / res?.total) * 100)/100);
+            setOpenTenders(Math.round((res?.open / res?.total) * 100) / 100);
+            setClosedTenders(
+              Math.round((res?.closed / res?.total) * 100) / 100
+            );
           });
       })
       .catch((err) => {
@@ -75,13 +77,10 @@ export default function page() {
           .then((resBudg) => {
             let _budgeted = resBudg?.filter((r) => r._id === true);
             let _unbudgeted = resBudg?.filter((r) => r._id === false);
-            let total = setBudgeted(
-              Math.round((_budgeted[0]?.count / res?.length) * 100)
-            );
-            setUnbudgeted(
-              Math.round((_unbudgeted[0]?.count / res?.length) * 100)
-            );
-            setDataLoaded(true)
+            let _total = _budgeted[0]?.count + _unbudgeted[0]?.count;
+            setBudgeted(Math.round((_budgeted[0]?.count / _total) * 100));
+            setUnbudgeted(Math.round((_unbudgeted[0]?.count / _total) * 100));
+            setDataLoaded(true);
           });
       })
       .catch((err) => {
@@ -220,10 +219,8 @@ export default function page() {
     if (res.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      router.push(
-        `/auth?goTo=/system/dashboard/&sessionExpired=true`
-      );
-      throw Error('Unauthorized')
+      router.push(`/auth?goTo=/system/dashboard/&sessionExpired=true`);
+      throw Error("Unauthorized");
     } else {
       return res.json();
     }
@@ -235,14 +232,13 @@ export default function page() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{
-            opacity: dataLoaded?1:0,
+            opacity: dataLoaded ? 1 : 0,
           }}
           transition={{
             duration: 0.3,
-            type:'tween',
-            ease:'circOut'
+            type: "tween",
+            ease: "circOut",
           }}
-          
           className="flex flex-col flex-1 space-y-10 h-full pb-10"
         >
           <div className="grid md:grid-cols-5 gap-4 p-5">
