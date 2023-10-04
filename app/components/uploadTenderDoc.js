@@ -3,7 +3,7 @@ import React from "react";
 import { UploadOutlined } from "@ant-design/icons";
 import { Button, Upload, message, UploadFile } from "antd";
 
-function UploadTenderDoc({ label, uuid, setTendeDocSelected}) {
+function UploadTenderDoc({ label, uuid, setTendeDocSelected, files, updateTender}) {
   const [messageApi, contextHolder] = message.useMessage();
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
@@ -53,8 +53,8 @@ function UploadTenderDoc({ label, uuid, setTendeDocSelected}) {
   return (
     <>
       {contextHolder}
-      <Upload {...props} headers={{}} maxCount={1}>
-        <Button icon={<UploadOutlined />}>{label ? label : "Upload"}</Button>
+      <Upload {...props} headers={{}} maxCount={1} defaultFileList={[...files]}>
+        <Button icon={<UploadOutlined />} onClick={()=>updateTender(uuid)}>{label ? label : "Upload"}</Button>
       </Upload>
     </>
   );

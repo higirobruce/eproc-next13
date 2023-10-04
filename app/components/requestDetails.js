@@ -215,6 +215,7 @@ function buildTenderForm(
           <UploadTenderDoc
             uuid={docId}
             setTendeDocSelected={setTendeDocSelected}
+            updateTender={()=>{}}
           />
         </Form.Item>
         <Form.Item

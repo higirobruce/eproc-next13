@@ -61,6 +61,7 @@ import {
   LockOpenIcon,
 } from "@heroicons/react/24/solid";
 import Link from "next/link";
+import UploadTenderDoc from "./uploadTenderDoc";
 // import MyPdfViewer from "./pdfViewer";
 // import { PDFDownloadLink } from "@react-pdf/renderer";
 // import MyDocument from "./MyDocument";
@@ -104,6 +105,7 @@ const TenderDetails = ({
   handleSendInvitation,
   user,
   handleSendEvalApproval,
+  editing,
 }) => {
   const [form] = Form.useForm();
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
@@ -153,6 +155,8 @@ const TenderDetails = ({
   let [sections, setSections] = useState([
     { title: "Set section title", body: "" },
   ]);
+
+  let [files, setFiles] = useState([]);
 
   const itemColumns =
     user?.userType !== "VENDOR"
@@ -343,6 +347,7 @@ const TenderDetails = ({
     setOtherDocId(v4());
     setDeadLine(moment(data?.submissionDeadLine));
     getFixedAssets();
+    getFile(data?.docId);
   }, [data]);
 
   useEffect(() => {
@@ -381,6 +386,38 @@ const TenderDetails = ({
     if (editContract) {
     }
   }, [editContract]);
+
+  const getBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+
+  async function getFile(doc) {
+    let uid = `rc-upload-${moment().milliseconds()}`;
+    let _url = `${url}/file/tenderDocs/${doc}.pdf`;
+    let status = "done";
+    let name = `Tender doc.pdf`;
+
+    let _files = [];
+
+    let response = await fetch(_url);
+    let data = await response.blob();
+    getBase64(data).then((res) => {
+      let newFile = new File([data], name, {
+        uid,
+        url: _url,
+        status,
+        name,
+        // type:'pdf'
+      });
+
+      _files.push(newFile);
+      setFiles(_files);
+    });
+  }
 
   function handleCreateContract(
     vendor,
@@ -1033,9 +1070,9 @@ const TenderDetails = ({
               (i) =>
                 i.quantity <= 0 ||
                 // i.estimatedUnitCost <= 0 ||
-                !i.quantity 
-                // ||
-                // !i.estimatedUnitCost
+                !i.quantity
+              // ||
+              // !i.estimatedUnitCost
             )?.length >= 1
           ) {
             messageApi.open({
@@ -2570,14 +2607,39 @@ const TenderDetails = ({
             </div>
           </div>
 
-          <Link
-            href={`${url}/file/tenderDocs/${data?.docId}.pdf`}
-            target="_blank"
-          >
-            <Typography.Link>
-              <FileTextOutlined /> Tender document
-            </Typography.Link>
-          </Link>
+          {!editing && (
+            <Link
+              href={`${url}/file/tenderDocs/${data?.docId}.pdf`}
+              target="_blank"
+            >
+              <Typography.Link>
+                <FileTextOutlined /> Tender document
+              </Typography.Link>
+            </Link>
+          )}
+
+          {editing && (
+            <div className="overflow-x-auto flex flex-col space-y-10">
+              <UploadTenderDoc
+                files={files}
+                label="Upload tender doc"
+                uuid={data?.docId}
+                updateTender={(uuid) => {
+                  fetch(`${url}/tenders/${data?._id}`, {
+                    method: "PUT",
+                    headers: {
+                      Authorization:
+                        "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ docId: uuid }),
+                  }).finally(() => {
+                    messageApi.info("Done uploading the file");
+                  })
+                }}
+              />
+            </div>
+          )}
 
           <div className="flex flex-col space-y-2 items-start">
             <div className="flex flex-row space-x-3">
@@ -2888,7 +2950,7 @@ const TenderDetails = ({
             </Tabs.TabPane>
             {user?.userType !== "VENDOR" && (
               <>
-                <Tabs.TabPane tab="Bids list" key="2">
+                <Tabs.TabPane tab="Bids list" disabled={editing} key="2">
                   <div className="flex flex-col space-y-2 p-3">
                     {buildTabHeader()}
                     {/* Evaluators section */}
@@ -3067,7 +3129,7 @@ const TenderDetails = ({
                     </div>
                   </div>
                 </Tabs.TabPane>
-                <Tabs.TabPane tab="Tender award" key="3">
+                <Tabs.TabPane tab="Tender award" disabled={editing} key="3">
                   <div className="flex flex-col space-y-5 p-3">
                     {buildTabHeader()}
                     <Divider></Divider>
@@ -3370,7 +3432,7 @@ const TenderDetails = ({
             )}
 
             {user?.userType === "VENDOR" && (
-              <Tabs.TabPane tab="My Bid" key="2">
+              <Tabs.TabPane tab="My Bid" disabled={editing} key="2">
                 <div className="flex flex-col space-y-5 p-3">
                   {buildTabHeader()}
                   {bidList?.filter((d) => d?.createdBy?._id === user?._id)
@@ -3549,7 +3611,7 @@ const TenderDetails = ({
 
             {user?.userType === "VENDOR" &&
               contract?.vendor?._id === user?._id && (
-                <Tabs.TabPane tab="Tender award" key="3">
+                <Tabs.TabPane tab="Tender award" disabled={editing} key="3">
                   <div className="flex flex-col space-y-5 p-3">
                     {buildTabHeader()}
                     {bidList?.filter((d) => d.status === "awarded").length >=
