@@ -92,7 +92,7 @@ const ItemList = ({ handleSetValues }) => {
                             {
                               value: "GBP",
                               label: "GBP",
-                              key: "GBP",
+                              key:"GBP"
                             },
                           ]}
                         ></Select>

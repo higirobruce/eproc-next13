@@ -304,6 +304,7 @@ export default function page({ params }) {
     })
       .then((res) => getResultFromServer(res))
       .then((res1) => {
+        console.log(res1.error)
         if (res1.error || res1.code) {
 
           let response = res1.error || res1.code
