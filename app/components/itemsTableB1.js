@@ -1,5 +1,13 @@
 "use client";
-import { Button, Form, Input, InputNumber, Popconfirm, Select, Table } from "antd";
+import {
+  Button,
+  Form,
+  Input,
+  InputNumber,
+  Popconfirm,
+  Select,
+  Table,
+} from "antd";
 import React, { useContext, useEffect, useRef, useState } from "react";
 
 const EditableContext = React.createContext(null);
@@ -191,9 +199,14 @@ const ItemsTable = ({ setDataSource, dataSource, assetOptions }) => {
       ),
     },
     {
-      title: "Price (RWF)",
+      title: "Price",
       dataIndex: "estimatedUnitCost",
       editable: true,
+      render: (_, item) => {
+        return <div>
+          {item.currency + " " + item.estimatedUnitCost.toLocaleString()}
+        </div>;
+      },
     },
     // {
     //   title: "Action",

@@ -306,7 +306,13 @@ export default function page({ params }) {
       .then((res1) => {
         console.log(res1.error)
         if (res1.error || res1.code) {
-          messageApi.error(res1.error?.message?.value)
+
+          let response = res1.error || res1.code
+          console.log(res1.error || res1.code)
+          messageApi.open({
+            type: "error",
+            content: response?.message?.value,
+          });
         } else {
           updateStatus(rowData._id, "approved");
           updateSourcingMethod(rowData._id, sourcingMethod);

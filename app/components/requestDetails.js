@@ -1586,7 +1586,7 @@ const RequestDetails = ({
     qty
   ) {
     // let [op, setOp] = useState(false);
-    let _deliverdQty = po?.items[index].deliveredQty || 0;
+    let _deliverdQty = po?.items[index]?.deliveredQty || 0;
     return (
       <div className="mt-2 ">
         {
@@ -1940,13 +1940,13 @@ const RequestDetails = ({
               assetOptions={assetOptions}
             />
             <Typography.Title level={5} className="self-end">
-              Total (Tax Excl.): {totalVal?.toLocaleString()} RWF
+              Total (Tax Excl.): {items[0]?.currency + ' ' + totalVal?.toLocaleString()} 
             </Typography.Title>
             <Typography.Title level={5} className="self-end">
-              Total Tax: {totalTax?.toLocaleString()} RWF
+              Total Tax: {items[0]?.currency + ' ' + totalTax?.toLocaleString()} 
             </Typography.Title>
             <Typography.Title level={4} className="self-end">
-              Gross Total: {grossTotal?.toLocaleString()} RWF
+              Gross Total: {items[0]?.currency + ' ' + grossTotal?.toLocaleString()}
             </Typography.Title>
 
             {/* Sections */}
@@ -3109,7 +3109,7 @@ const RequestDetails = ({
                         </div>
 
                         {data?.items?.map((i, index) => {
-                          let deliveredQty = po?.items[index].deliveredQty || 0;
+                          let deliveredQty = po?.items[index]?.deliveredQty || 0;
                           return (
                             <div key={i.key} className="m-5">
                               <div>

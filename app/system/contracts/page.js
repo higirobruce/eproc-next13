@@ -540,13 +540,13 @@ export default function Contracts() {
               assetOptions={assetOptions}
             />
             <Typography.Title level={5} className="self-end">
-              Total (Tax Excl.): {totalVal?.toLocaleString()} RWF
+              Total (Tax Excl.): {items[0]?.currency + ' ' + totalVal?.toLocaleString()} 
             </Typography.Title>
             <Typography.Title level={5} className="self-end">
-              Total Tax: {totalTax?.toLocaleString()} RWF
+              Total Tax: {items[0]?.currency + ' ' + totalTax?.toLocaleString()} 
             </Typography.Title>
             <Typography.Title level={4} className="self-end">
-              Gross Total: {grossTotal?.toLocaleString()} RWF
+              Gross Total: {items[0]?.currency + ' ' + grossTotal?.toLocaleString()} 
             </Typography.Title>
 
             {/* Sections */}
