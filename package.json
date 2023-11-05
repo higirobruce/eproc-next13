@@ -8,6 +8,7 @@
     "start": "node server.js",
     "lint": "next lint"
   },
+  
   "dependencies": {
     "@ant-design/icons": "^5.0.1",
     "@heroicons/react": "^2.0.18",
