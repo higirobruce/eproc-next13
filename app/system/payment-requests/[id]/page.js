@@ -716,11 +716,6 @@ export default function PaymentRequest({ params }) {
                                     label: "EUR",
                                     key: "EUR",
                                   },
-                                  {
-                                    value: "GBP",
-                                    label: "GBP",
-                                    key: "GBP",
-                                  },
                                 ]}
                               ></Select>
                             </Form.Item>
