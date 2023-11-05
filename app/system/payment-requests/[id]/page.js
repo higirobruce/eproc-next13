@@ -165,25 +165,41 @@ export default function PaymentRequest({ params }) {
 
       let _paymentRequest = res;
 
-      _paymentRequest?.docIds?.map((doc, i) => {
+      _paymentRequest?.docIds?.map(async (doc, i) => {
         let uid = `rc-upload-${moment().milliseconds()}-${i}`;
         let _url = `${url}/file/paymentRequests/${doc}`;
         let status = "done";
         let name = `Invoice ${i + 1}.pdf`;
 
-        _files.push({
-          uid,
-          url: _url,
-          status,
-          name,
+        let response = await fetch(_url);
+        let data = await response.blob();
+        getBase64(data).then((res) => {
+          let newFile = new File([data], name, {
+            uid,
+            url: _url,
+            status,
+            name,
+            // type:'pdf'
+          });
+
+          console.log(newFile);
+          _files.push(newFile);
+          setFiles(_files);
         });
-        setFiles(_files);
       });
 
       let statusCode = getRequestStatusCode(res?.status);
       setCurrentCode(statusCode);
       setBudgeted(res?.budgeted);
     });
+
+    const getBase64 = (file) =>
+      new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+      });
 
     getApprovers()
       .then((res) => {
@@ -219,7 +235,9 @@ export default function PaymentRequest({ params }) {
       });
   }, [params]);
 
-  useEffect(() => {}, [files]);
+  useEffect(() => {
+    console.log(files);
+  }, [files]);
 
   function getPoTotalVal() {
     let t = 0;
@@ -241,48 +259,42 @@ export default function PaymentRequest({ params }) {
       messageApi.error("Please add at least one doc.");
     } else {
       setSaving(true);
-      let docIds = [];
+
       let _files = [];
       if (action === "paymentProof") _files = [...filesProof];
       if (action === "update") _files = [...files];
 
+      const formData = new FormData();
       _files.forEach((fileToSave, rowIndex) => {
-        const formData = new FormData();
         formData.append("files[]", fileToSave);
-
-        // You can use any AJAX library you like
-        fetch(`${url}/uploads/paymentRequests/`, {
-          method: "POST",
-          body: formData,
-          headers: {
-            Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
-            token: token,
-            // "Content-Type": "multipart/form-data",
-          },
-        })
-          .then((res) => res.json())
-          .then((savedFiles) => {
-            let _filenames = savedFiles?.map((f) => {
-              return f?.filename;
-            });
-
-            docIds.push(_filenames[0]);
-
-            action == "paymentProof" &&
-              rowIndex === filesProof.length - 1 &&
-              sendProofForRequest(docIds);
-            action == "update" &&
-              rowIndex === files.length - 1 &&
-              updateRequest(docIds);
-          })
-          .catch((err) => {
-            console.log(err);
-            messageApi.error("upload failed.");
-          })
-          .finally(() => {
-            setSaving(false);
-          });
       });
+
+      // You can use any AJAX library you like
+      fetch(`${url}/uploads/paymentRequests/`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+          token: token,
+          // "Content-Type": "multipart/form-data",
+        },
+      })
+        .then((res) => res.json())
+        .then((savedFiles) => {
+          let _filenames = savedFiles?.map((f) => {
+            return f?.filename;
+          });
+
+          action == "paymentProof" && sendProofForRequest(_filenames);
+          action == "update" && updateRequest(_filenames);
+        })
+        .catch((err) => {
+          console.log(err);
+          messageApi.error("upload failed.");
+        })
+        .finally(() => {
+          setSaving(false);
+        });
     }
   };
 

@@ -29,6 +29,7 @@ import { encode } from "base-64";
 import html2pdf from "html2pdf.js";
 import ReactDOMServer from "react-dom/server";
 import { useRouter } from "next/navigation";
+import { content } from "@/app/utils/requestContent";
 
 let modules = {
   toolbar: [
@@ -472,7 +473,7 @@ export default function page({ params }) {
 
   const generatePDF = () => {
     // const element = document.getElementById("pdf-content");
-    const printElement = ReactDOMServer.renderToString(content());
+    const printElement = ReactDOMServer.renderToString(content(po, signing, user));
     html2pdf()
       .set({
         // pagebreak: { mode: "avoid-all", before: "#page2el" },
@@ -502,16 +503,16 @@ export default function page({ params }) {
   return (
     <div className="flex flex-col p-3">
       {contextHolder}
-      <Button
+      {/* <Button
         type="primary"
         onClick={() => generatePDF()}
         icon={<PrinterOutlined />}
         className="self-end"
-      ></Button>
+      ></Button> */}
       <div className="space-y-10 px-20 py-5 overflow-x-scroll bg-white mx-11 my-10 shadow-md">
         <div className="flex flex-row justify-between items-center">
           <Typography.Title level={4} className="flex flex-row items-center">
-            PURCHASE ORDER #{po?.number}{" "}
+            PURCHASE ORDER #{po?.number}{" "} <span className=" ml-2 text-blue-600"><PrinterOutlined onClick={() => generatePDF()} /></span>
           </Typography.Title>
           {/* <Button icon={<PrinterOutlined />}>Print</Button> */}
         </div>

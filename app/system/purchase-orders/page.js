@@ -37,9 +37,12 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { encode } from "base-64";
 import { useRouter } from "next/navigation";
+import { content } from "@/app/utils/requestContent";
+import ReactDOMServer from "react-dom/server";
 // import MyPdfViewer from "../common/pdfViewer";
 
 export default function PurchaseOrders() {
+  let taxRate = 0.18;
   let user = JSON.parse(localStorage.getItem("user"));
   let token = localStorage.getItem("token");
   let router = useRouter();
@@ -227,7 +230,14 @@ export default function PurchaseOrders() {
         <div className="space-y-10 px-20 py-5 overflow-x-scroll">
           <div className="flex flex-row justify-between items-center">
             <Typography.Title level={4} className="flex flex-row items-center">
-              PURCHASE ORDER #{po?.number}{" "}
+              PURCHASE ORDER #{po?.number}{" "} &nbsp;
+              {(user?.userType !== "VENDOR" ||
+                (documentFullySignedInternally(po) &&
+                  user?.userType === "VENDOR")) && (
+                    <span className="text-blue-600">
+                      <PrinterOutlined onClick={() => generatePDF(po)} />
+                    </span>
+              )}
             </Typography.Title>
             {/* <Button icon={<PrinterOutlined />}>Print</Button> */}
           </div>
@@ -650,6 +660,24 @@ export default function PurchaseOrders() {
     return { length: filtered.length, data: filtered };
   };
 
+  const generatePDF = async (po) => {
+    const html2pdf  = (await import ("html2pdf.js")).default;
+    // const element = document.getElementById("pdf-content");
+    const printElement = ReactDOMServer.renderToString(content(po, signing, user));
+    html2pdf()
+      .set({
+        // pagebreak: { mode: "avoid-all", before: "#page2el" },
+        margin: [22, 10, 15, 22],
+        filename: "Contract.pdf",
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, letterRendering: true },
+        jsPDF: { unit: "pt", format: "letter", orientation: "portrait" },
+        pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+      })
+      .from(printElement)
+      .save();
+  };
+
   return (
     <>
       {dataLoaded && !submitting ? (
@@ -768,9 +796,9 @@ export default function PurchaseOrders() {
                             {(user?.userType !== "VENDOR" ||
                               (documentFullySignedInternally(po) &&
                                 user?.userType === "VENDOR")) && (
-                              <Link href={`/system/purchase-orders/${po?._id}`}>
-                                <PrinterOutlined />
-                              </Link>
+                                  <span className="text-blue-600">
+                                    <PrinterOutlined onClick={() => generatePDF(po)} />
+                                  </span>
                             )}
                           </div>
                           <div className="text-gray-600">
@@ -843,7 +871,12 @@ export default function PurchaseOrders() {
                           </div>
                           <div className="font-semibold">
                             {po?.items?.map((i) => {
-                              let lTot = i?.quantity * i?.estimatedUnitCost;
+                              let lTot = 
+                                i?.taxGroup == 'I1' ? 
+                                  (i?.quantity * i?.estimatedUnitCost) + (i?.quantity * i?.estimatedUnitCost) * taxRate
+                                :  
+                                  i?.quantity * i?.estimatedUnitCost;
+
                               t = t + lTot;
                             })}{" "}
                             {t.toLocaleString()} RWF

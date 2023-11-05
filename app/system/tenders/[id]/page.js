@@ -1,11 +1,16 @@
 "use client";
 import TenderDetails from "../../../components/tenderDetails";
-import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Button, message } from "antd";
+import {
+  ArrowLeftOutlined,
+  EditOutlined,
+  EyeOutlined,
+} from "@ant-design/icons";
+import { Button, Popover, Switch, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { encode } from "base-64";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import moment from "moment";
 
 let url = process.env.NEXT_PUBLIC_BKEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
@@ -47,6 +52,7 @@ export default function page({ params }) {
 
   let [rowData, setRowData] = useState(null);
   let [loadingRowData, setLoadingRowData] = useState(false);
+  let [editing, setEditing] = useState(false);
 
   useEffect(() => {
     getTenderDetails(params?.id, router).then((res) => {
@@ -334,7 +340,9 @@ export default function page({ params }) {
     if (res.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      router.push(`/auth?goTo=/system/tenders/${params?.id}&sessionExpired=true`);
+      router.push(
+        `/auth?goTo=/system/tenders/${params?.id}&sessionExpired=true`
+      );
     } else {
       return res.json();
     }
@@ -354,17 +362,33 @@ export default function page({ params }) {
       className="flex flex-col transition-opacity ease-in-out duration-1000 px-10 py-5 flex-1 space-y-3"
     >
       {contextHolder}
-      <div className="flex flex-row items-center space-x-5">
-        <Button
-          type="primary"
-          icon={<ArrowLeftOutlined />}
-          onClick={() => router.push("/system/tenders")}
-        >
-          Back
-        </Button>
+      <div className="flex flex-row items-center">
+        <div className="flex flex-row justify-between items-center w-full">
+          <div className="flex flex-row items-center space-x-5">
+            <Button
+              type="primary"
+              icon={<ArrowLeftOutlined />}
+              onClick={() => router.push("/system/tenders")}
+            >
+              Back
+            </Button>
 
-        <div className="text-xl font-semibold">
-          Tender - {rowData?.purchaseRequest?.title}{" "}
+            <div className="text-xl font-semibold">
+              Tender - {rowData?.purchaseRequest?.title}{" "}
+            </div>
+          </div>
+
+          {rowData?.status === "open" &&
+            moment().isBefore(moment(rowData?.submissionDeadLine)) && (
+              <Popover content="Edit tender">
+                <Switch
+                  defaultChecked={editing}
+                  checkedChildren={<EditOutlined />}
+                  unCheckedChildren={<EyeOutlined />}
+                  onChange={(checked) => setEditing(checked)}
+                />
+              </Popover>
+            )}
         </div>
       </div>
       {rowData && (
@@ -379,6 +403,7 @@ export default function page({ params }) {
           handleSendInvitation={sendInvitation}
           handleSendEvalApproval={sendEvalApproval}
           user={user}
+          editing={editing}
         />
       )}
     </motion.div>
