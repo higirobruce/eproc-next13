@@ -2550,15 +2550,20 @@ const TenderDetails = ({
               </Link>
             </div>
 
-            <div className="flex flex-row space-x-1 items-center">
-              <UploadTenderDoc
-                iconOnly={true}
-                uuid={data?.docId}
-                setTendeDocSelected={() => {}}
-                setStatus={() => {}}
-              />
-              <div className="text-sm text-blue-500">Update tender document</div>
-            </div>
+            {user?.permissions?.canApproveAsPM && (
+              <div className="flex flex-row space-x-1 items-center">
+                <UploadTenderDoc
+                  iconOnly={true}
+                  uuid={data?.docId}
+                  setTendeDocSelected={() => {}}
+                  setStatus={() => {}}
+                  label='Update the doc'
+                />
+                {/* <div className="text-sm text-blue-500">
+                  Update tender document
+                </div> */}
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col space-y-2 items-start">

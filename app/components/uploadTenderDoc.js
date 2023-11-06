@@ -3,7 +3,13 @@ import React, { useState } from "react";
 import { LoadingOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Upload, message, UploadFile, Spin } from "antd";
 
-function UploadTenderDoc({ label, uuid, setTendeDocSelected, iconOnly,setStatus, }) {
+function UploadTenderDoc({
+  label,
+  uuid,
+  setTendeDocSelected,
+  iconOnly,
+  setStatus,
+}) {
   const [messageApi, contextHolder] = message.useMessage();
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
@@ -71,14 +77,12 @@ function UploadTenderDoc({ label, uuid, setTendeDocSelected, iconOnly,setStatus,
   return (
     <>
       {contextHolder}
-      <Upload {...props} headers={{}} maxCount={1} showUploadList={!iconOnly} >
+      <Upload {...props} headers={{}} maxCount={1} showUploadList={!iconOnly}>
         {/* <Button icon={<UploadOutlined />}>{label ? label : "Upload"}</Button> */}
         {iconOnly && (
-          <div className="text-blue-500 ">
-            <div>{label}</div>
-
+          <div className="text-grey-500 hover:text-blue-500 cursor-pointer flex flex-row items-center space-x-1">
             {!loading ? (
-              <UploadOutlined className="hover:cursor-pointer" />
+              <UploadOutlined className="" />
             ) : (
               <Spin
                 spinning={true}
@@ -86,6 +90,8 @@ function UploadTenderDoc({ label, uuid, setTendeDocSelected, iconOnly,setStatus,
                 size="small"
               />
             )}
+
+            <div className="text-xs">{label}</div>
           </div>
         )}
         {!iconOnly && (
