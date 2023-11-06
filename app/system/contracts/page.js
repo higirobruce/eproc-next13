@@ -227,7 +227,7 @@ export default function Contracts() {
     })
       .then((res) => getResultFromServer(res))
       .then((res1) => {
-        console.log(res1)
+        console.log(res1);
         if (res1.error) {
           messageApi.error(
             res1?.error?.message?.value
@@ -363,9 +363,9 @@ export default function Contracts() {
               (i) =>
                 i.quantity <= 0 ||
                 // i.estimatedUnitCost <= 0 ||
-                !i.quantity 
-                // ||
-                // !i.estimatedUnitCost
+                !i.quantity
+              // ||
+              // !i.estimatedUnitCost
             )?.length >= 1
           ) {
             messageApi.open({
@@ -540,13 +540,16 @@ export default function Contracts() {
               assetOptions={assetOptions}
             />
             <Typography.Title level={5} className="self-end">
-              Total (Tax Excl.): {items[0]?.currency + ' ' + totalVal?.toLocaleString()} 
+              Total (Tax Excl.):{" "}
+              {items && items[0]?.currency + " " + totalVal?.toLocaleString()}
             </Typography.Title>
             <Typography.Title level={5} className="self-end">
-              Total Tax: {items[0]?.currency + ' ' + totalTax?.toLocaleString()} 
+              Total Tax:{" "}
+              {items && items[0]?.currency + " " + totalTax?.toLocaleString()}
             </Typography.Title>
             <Typography.Title level={4} className="self-end">
-              Gross Total: {items[0]?.currency + ' ' + grossTotal?.toLocaleString()} 
+              Gross Total:{" "}
+              {items && items[0]?.currency + " " + grossTotal?.toLocaleString()}
             </Typography.Title>
 
             {/* Sections */}

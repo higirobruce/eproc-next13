@@ -2553,7 +2553,8 @@ const TenderDetails = ({
             {user?.permissions?.canApproveAsPM &&
               moment().isBefore(moment(data?.submissionDeadLine)) &&
               data?.status === "open" &&
-              !iSubmitted && bidList?.length<1 && (
+              !iSubmitted &&
+              bidList?.length < 1 && (
                 <div className="flex flex-row space-x-1 items-center">
                   <UploadTenderDoc
                     iconOnly={true}
@@ -3463,7 +3464,7 @@ const TenderDetails = ({
                                     Docs
                                   </div>
                                   {item?.proposalDocId && (
-                                    <div>
+                                    <div className="flex flex-row items-center space-x-2">
                                       <a
                                         href={`${url}/file/bidDocs/${item?.proposalDocId}.pdf`}
                                         className="text-xs"
@@ -3472,6 +3473,12 @@ const TenderDetails = ({
                                         Proposal{" "}
                                         <PaperClipIcon className="h-3 w-3" />
                                       </a>
+                                      <UploadBidDoc
+                                        iconOnly={true}
+                                        setSelected={() => {}}
+                                        // label="Update the doc"
+                                        uuid={item?.proposalDocId}
+                                      />
                                     </div>
                                   )}
                                   {!item?.proposalDocId && (
@@ -3480,7 +3487,7 @@ const TenderDetails = ({
                                     </div>
                                   )}
                                   {item?.otherDocId && (
-                                    <div>
+                                    <div className="flex flex-row items-center space-x-2">
                                       <a
                                         href={`${url}/file/bidDocs/${item?.otherDocId}.pdf`}
                                         className="text-xs"
@@ -3489,6 +3496,12 @@ const TenderDetails = ({
                                         Other Doc{" "}
                                         <PaperClipIcon className="h-3 w-3" />
                                       </a>
+                                      <UploadBidDoc
+                                        iconOnly={true}
+                                        // label="Update the doc"
+                                        setSelected={() => {}}
+                                        uuid={item?.otherDocId}
+                                      />
                                     </div>
                                   )}
                                 </div>
