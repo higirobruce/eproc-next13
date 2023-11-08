@@ -120,7 +120,7 @@ export default function page({ params }) {
       dataIndex: "estimatedUnitCost",
       key: "estimatedUnitCost",
       render: (_, item) => (
-        <>{item?.currency(item?.estimatedUnitCost).toLocaleString()}</>
+        <>{item?.currency + ' ' +(item?.estimatedUnitCost).toLocaleString()}</>
       ),
     },
     {
@@ -130,7 +130,7 @@ export default function page({ params }) {
       render: (_, item) => (
         <>
           {item
-            ?.currency(item?.quantity * item?.estimatedUnitCost)
+            ?.currency+' '+(item?.quantity * item?.estimatedUnitCost)
             .toLocaleString()}
         </>
       ),
