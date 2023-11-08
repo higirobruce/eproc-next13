@@ -46,6 +46,8 @@ import {
   LockClosedIcon,
   UserGroupIcon,
 } from "@heroicons/react/24/outline";
+import UploadPaymentReq from "@/app/components/uploadPaymentReq";
+import UpdatePaymentReqDoc from "@/app/components/updatePaymentReqDoc";
 let url = process.env.NEXT_PUBLIC_BKEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
@@ -756,17 +758,26 @@ export default function PaymentRequest({ params }) {
                   <div className="grid grid-cols-2 gap-y-2">
                     {paymentRequest?.docIds?.map((doc, i) => {
                       return (
-                        <Link
-                          href={`${url}/file/paymentRequests/${doc}`}
-                          target="_blank"
-                        >
-                          <div className="text-xs">
-                            <div className="flex flex-row space-x-1">
-                              {" "}
-                              <PaperClipOutlined /> Invoice {i + 1}
+                        <>
+                          <Link
+                            href={`${url}/file/paymentRequests/${doc}`}
+                            target="_blank"
+                          >
+                            <div className="text-xs">
+                              <div className="flex flex-row space-x-1 items-center">
+                                {" "}
+                                <PaperClipOutlined /> Invoice {i + 1}
+                              </div>
                             </div>
-                          </div>
-                        </Link>
+                          </Link>
+                          {user?.permissions?.canApproveAsHod && (
+                            <UpdatePaymentReqDoc
+                              iconOnly={true}
+                              uuid={doc?.split(".")[0]}
+                              label="update"
+                            />
+                          )}
+                        </>
                       );
                     })}
                   </div>
@@ -1346,17 +1357,26 @@ export default function PaymentRequest({ params }) {
               <div className="grid grid-cols-2 gap-y-2">
                 {paymentRequest?.paymentProofDocs?.map((doc, i) => {
                   return (
-                    <Link
-                      href={`${url}/file/paymentRequests/${doc}`}
-                      target="_blank"
-                    >
-                      <div className="text-xs">
-                        <div className="flex flex-row space-x-1">
-                          {" "}
-                          <PaperClipOutlined /> Payment proof {i + 1}
+                    <div className="flex flex-row items-center space-x-5">
+                      <Link
+                        href={`${url}/file/paymentRequests/${doc}`}
+                        target="_blank"
+                      >
+                        <div className="text-xs">
+                          <div className="flex flex-row space-x-1">
+                            {" "}
+                            <PaperClipOutlined /> Payment proof {i + 1}
+                          </div>
                         </div>
-                      </div>
-                    </Link>
+                      </Link>
+                      {user?.permissions?.canApproveAsHod && (
+                        <UpdatePaymentReqDoc
+                          iconOnly={true}
+                          uuid={doc?.split(".")[0]}
+                          label="update"
+                        />
+                      )}
+                    </div>
                   );
                 })}
               </div>

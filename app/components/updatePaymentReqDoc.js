@@ -1,22 +1,19 @@
 "use client";
-import React, {useState} from "react";
-import { UploadOutlined } from "@ant-design/icons";
-import { Button, Upload, message } from "antd";
+import React, { useState } from "react";
+import {
+  CloudSyncOutlined,
+  LoadingOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
+import { Button, Spin, Upload, message } from "antd";
 import { CloudArrowUpIcon } from "@heroicons/react/24/solid";
 
-function UploadPaymentReq({
-  label,
-  uuid,
-  setSelected,
-  setId,
-  files,
-  setFiles,
-  iconOnly
-}) {
+function UpdatePaymentReqDoc({ label, uuid, files, iconOnly }) {
   const [messageApi, contextHolder] = message.useMessage();
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
+  let token = localStorage.getItem("token");
   let [loading, setLoading] = useState(false);
 
   const props = {
@@ -36,65 +33,50 @@ function UploadPaymentReq({
       }
     },
     onRemove: (file) => {
-      const index = files?.indexOf(file?.originFileObj);
-      const newFileList = files?.slice();
-      newFileList?.splice(index, 1);
-      // setFileList(newFileList);
-      let _files = [...files];
-      _files = newFileList;
-
-      // const _index = files.indexOf(file);
-      // const _newFileList = files.slice();
-      // _newFileList.splice(_index, 1);
-
-      // console.log(_newFileList)
-      setFiles(_files);
+      // const index = files?.indexOf(file?.originFileObj);
+      // const newFileList = files?.slice();
+      // newFileList?.splice(index, 1);
+      // // setFileList(newFileList);
+      // let _files = [...files];
+      // _files = newFileList;
+      // // const _index = files.indexOf(file);
+      // // const _newFileList = files.slice();
+      // // _newFileList.splice(_index, 1);
+      // // console.log(_newFileList)
+      // setFiles(_files);
     },
     beforeUpload: (file) => {
+     
       let isPDF = file.type == "application/pdf";
       if (!isPDF) {
         messageApi.error(`${file.name} is not a PDF file`);
-        return false || Upload.LIST_IGNORE;
+       
+      } else {
+        
       }
-      // let _fileList = [...fileList]
 
-      // _fileList[uuid].push(file);
-      // setFileList(_fileList);
-      // setFiles([...files, file]);
-      let _f = [...files];
-      let f = _f;
-      if (f) {
-        f.push(file);
-      } else _f.push([file]);
-      setFiles(_f);
-
-      // return isPDF || Upload.LIST_IGNORE;
-      return false;
+      return isPDF || Upload.LIST_IGNORE;
     },
-    // action: `${url}/uploads/rdbCerts?id=${uuid}`,
-
-    files,
+    action: `${url}/uploads/updatePaymentRequests?id=${uuid}`,
+    headers: {
+      Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+      token,
+      "Content-Type": "application/json",
+    },
     // listType: "document",
   };
   return (
     <>
       {contextHolder}
-      <Upload {...props} headers={{}} multiple>
-        <div className=" rounded ring-1 ring-gray-300 px-3 items-center flex flex-row justify-center space-x-1 py-2 cursor-pointer shadow-md hover:shadow-sm active:bg-gray-50 transition-all ease-out duration-200">
-          <CloudArrowUpIcon className="h-5 w-5 text-blue-500 " />
-          <div className="text-sm">Select file(s)</div>
-        </div>
-        {/* <Button icon={<UploadOutlined />}>{label ? label : "Upload"}</Button> */}
-      </Upload>
 
       <>
         {contextHolder}
-        <Upload {...props} headers={{}} multiple showUploadList={!iconOnly}>
+        <Upload {...props} headers={{}} showUploadList={!iconOnly}>
           {/* <Button icon={<UploadOutlined />}>{label ? label : "Upload"}</Button> */}
           {iconOnly && (
             <div className="text-grey-500 hover:text-blue-500 cursor-pointer flex flex-row items-center space-x-1">
               {!loading ? (
-                <UploadOutlined />
+                <CloudSyncOutlined />
               ) : (
                 <Spin
                   spinning={true}
@@ -117,4 +99,4 @@ function UploadPaymentReq({
     </>
   );
 }
-export default UploadPaymentReq;
+export default UpdatePaymentReqDoc;
