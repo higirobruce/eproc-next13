@@ -790,7 +790,7 @@ const RequestDetails = ({
       },
       {
         onBehalfOf: "Irembo Ltd",
-        title: "Finance Manager",
+        title: "Director of Finance",
         names: "",
         email: "",
       },
@@ -1699,6 +1699,7 @@ const RequestDetails = ({
           setCreatingPO(true);
           let assetItems = [];
           let nonAssetItems = [];
+          let docCurrency = (items && items[0]?.currency) || "RWF"
 
           items
             .filter((i) => i.itemType === "asset")
@@ -1709,6 +1710,7 @@ const RequestDetails = ({
                   Quantity: i.quantity / i?.assetCodes?.length,
                   UnitPrice: i.estimatedUnitCost,
                   VatGroup: i.taxGroup ? i.taxGroup : "X1",
+                  Currency: i.currency ? i.currency : "RWF"
                 });
               });
             });
@@ -1721,6 +1723,7 @@ const RequestDetails = ({
                 Quantity: i.quantity,
                 UnitPrice: i.estimatedUnitCost,
                 VatGroup: i.taxGroup ? i.taxGroup : "X1",
+                Currency: i.currency ? i.currency : "RWF"
               });
             });
 
@@ -1743,6 +1746,7 @@ const RequestDetails = ({
                 DocType: "dDocument_Item",
                 DocDate: docDate,
                 DocumentLines: assetItems,
+                DocCurrency: docCurrency
               })
             : (B1Data_Assets = null);
 
@@ -1753,6 +1757,7 @@ const RequestDetails = ({
                 DocType: "dDocument_Service",
                 DocDate: docDate,
                 DocumentLines: nonAssetItems,
+                DocCurrency: docCurrency
               })
             : (B1Data_NonAssets = null);
 

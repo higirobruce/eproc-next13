@@ -294,6 +294,7 @@ export default function Contracts() {
           setCreatingPo(true);
           let assetItems = [];
           let nonAssetItems = [];
+          let docCurrency = (items && items[0]?.currency) || "RWF";
           items
             .filter((i) => i.itemType === "asset")
             .map((i, index) => {
@@ -303,6 +304,7 @@ export default function Contracts() {
                   Quantity: i.quantity / i?.assetCodes?.length,
                   UnitPrice: i.estimatedUnitCost,
                   VatGroup: i.taxGroup ? i.taxGroup : "X1",
+                  Currency: i.currency ? i.currency : "RWF",
                 });
               });
             });
@@ -315,6 +317,7 @@ export default function Contracts() {
                 Quantity: i.quantity,
                 UnitPrice: i.estimatedUnitCost,
                 VatGroup: i.taxGroup ? i.taxGroup : "X1",
+                Currency: i.currency ? i.currency : "RWF",
                 ItemDescription: i.title,
               });
             });
@@ -327,6 +330,7 @@ export default function Contracts() {
           //         Quantity: i.quantity / assets[index]?.length,
           //         UnitPrice: i.estimatedUnitCost,
           //         VatGroup: i.taxGroup ? i.taxGroup : "X1",
+          // Currency: i.currency ? i.currency : "RWF",
           //       });
           //     });
           //   });
@@ -338,6 +342,7 @@ export default function Contracts() {
                 DocType: "dDocument_Item",
                 DocDate: docDate,
                 DocumentLines: assetItems,
+                DocCurrency: docCurrency,
               })
             : (B1Data_Assets = null);
 
@@ -348,6 +353,7 @@ export default function Contracts() {
                 DocType: "dDocument_Service",
                 DocDate: docDate,
                 DocumentLines: nonAssetItems,
+                DocCurrency: docCurrency,
               })
             : (B1Data_NonAssets = null);
 
@@ -1693,7 +1699,7 @@ export default function Contracts() {
                                   },
                                   {
                                     onBehalfOf: "Irembo Ltd",
-                                    title: "Finance Manager",
+                                    title: "Director of Finance",
                                     names: "",
                                     email: "",
                                   },

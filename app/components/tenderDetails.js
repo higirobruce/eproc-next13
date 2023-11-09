@@ -972,6 +972,7 @@ const TenderDetails = ({
           setCreatingPo(true);
           let assetItems = [];
           let nonAssetItems = [];
+          let docCurrency = (items && items[0]?.currency) || "RWF";
 
           items
             .filter((i) => i.itemType === "asset")
@@ -982,6 +983,7 @@ const TenderDetails = ({
                   Quantity: i.quantity / i?.assetCodes?.length,
                   UnitPrice: i.estimatedUnitCost,
                   VatGroup: i.taxGroup ? i.taxGroup : "X1",
+                  Currency: i.currency ? i.currency : "RWF",
                 });
               });
             });
@@ -994,6 +996,7 @@ const TenderDetails = ({
                 Quantity: i.quantity,
                 UnitPrice: i.estimatedUnitCost,
                 VatGroup: i.taxGroup ? i.taxGroup : "X1",
+                Currency: i.currency ? i.currency : "RWF",
               });
             });
 
@@ -1005,6 +1008,7 @@ const TenderDetails = ({
           //         Quantity: i.quantity / assets[index]?.length,
           //         UnitPrice: i.estimatedUnitCost,
           //         VatGroup: i.taxGroup ? i.taxGroup : "X1",
+          // Currency: i.currency ? i.currency : "RWF"
           //       });
           //     });
           //   });
@@ -1016,6 +1020,7 @@ const TenderDetails = ({
                 DocType: "dDocument_Item",
                 DocDate: docDate,
                 DocumentLines: assetItems,
+                DocCurrency: docCurrency,
               })
             : (B1Data_Assets = null);
 
@@ -1026,6 +1031,7 @@ const TenderDetails = ({
                 DocType: "dDocument_Service",
                 DocDate: docDate,
                 DocumentLines: nonAssetItems,
+                DocCurrency: docCurrency,
               })
             : (B1Data_NonAssets = null);
 
@@ -3209,7 +3215,7 @@ const TenderDetails = ({
                                                             onBehalfOf:
                                                               "Irembo Ltd",
                                                             title:
-                                                              "Finance Manager",
+                                                              "Director of Finance",
                                                             names: "",
                                                             email: "",
                                                           },
@@ -3271,7 +3277,7 @@ const TenderDetails = ({
                                                               onBehalfOf:
                                                                 "Irembo Ltd",
                                                               title:
-                                                                "Finance Manager",
+                                                                "Director of Finance",
                                                               names: "",
                                                               email: "",
                                                             },
