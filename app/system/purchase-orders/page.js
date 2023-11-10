@@ -879,7 +879,7 @@ export default function PurchaseOrders() {
 
                               t = t + lTot;
                             })}{" "}
-                            {t.toLocaleString()} RWF
+                            {po?.items && po?.items[0]?.currency + ' ' + t.toLocaleString()}
                           </div>
                         </div>
 
