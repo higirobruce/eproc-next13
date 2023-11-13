@@ -959,6 +959,7 @@ const TenderDetails = ({
           setCreatingPo(true);
           let assetItems = [];
           let nonAssetItems = [];
+          let docCurrency = (items && items[0]?.currency) || "RWF";
 
           items
             .filter((i) => i.itemType === "asset")
@@ -969,6 +970,7 @@ const TenderDetails = ({
                   Quantity: i.quantity / i?.assetCodes?.length,
                   UnitPrice: i.estimatedUnitCost,
                   VatGroup: i.taxGroup ? i.taxGroup : "X1",
+                  Currency: i.currency ? i.currency : "RWF",
                 });
               });
             });
@@ -981,6 +983,7 @@ const TenderDetails = ({
                 Quantity: i.quantity,
                 UnitPrice: i.estimatedUnitCost,
                 VatGroup: i.taxGroup ? i.taxGroup : "X1",
+                Currency: i.currency ? i.currency : "RWF",
               });
             });
 
@@ -992,6 +995,7 @@ const TenderDetails = ({
           //         Quantity: i.quantity / assets[index]?.length,
           //         UnitPrice: i.estimatedUnitCost,
           //         VatGroup: i.taxGroup ? i.taxGroup : "X1",
+          // Currency: i.currency ? i.currency : "RWF"
           //       });
           //     });
           //   });
@@ -1003,6 +1007,7 @@ const TenderDetails = ({
                 DocType: "dDocument_Item",
                 DocDate: docDate,
                 DocumentLines: assetItems,
+                DocCurrency: docCurrency,
               })
             : (B1Data_Assets = null);
 
@@ -1013,6 +1018,7 @@ const TenderDetails = ({
                 DocType: "dDocument_Service",
                 DocDate: docDate,
                 DocumentLines: nonAssetItems,
+                DocCurrency: docCurrency,
               })
             : (B1Data_NonAssets = null);
 
@@ -2506,15 +2512,37 @@ const TenderDetails = ({
               {moment(data?.dueDate).format("YYYY-MMM-DD")}
             </div>
           </div>
+          <div className="flex flex-col space-y-3">
+            <div>
+              <Link
+                href={`${url}/file/tenderDocs/${data?.docId}.pdf`}
+                target="_blank"
+              >
+                <Typography.Link>
+                  <FileTextOutlined /> Tender document
+                </Typography.Link>
+              </Link>
+            </div>
 
-          <Link
-            href={`${url}/file/tenderDocs/${data?.docId}.pdf`}
-            target="_blank"
-          >
-            <Typography.Link>
-              <FileTextOutlined /> Tender document
-            </Typography.Link>
-          </Link>
+            {user?.permissions?.canApproveAsPM &&
+              moment().isBefore(moment(data?.submissionDeadLine)) &&
+              data?.status === "open" &&
+              !iSubmitted &&
+              bidList?.length < 1 && (
+                <div className="flex flex-row space-x-1 items-center">
+                  <UploadTenderDoc
+                    iconOnly={true}
+                    uuid={data?.docId}
+                    setTendeDocSelected={() => {}}
+                    setStatus={() => {}}
+                    label="Update the doc"
+                  />
+                  {/* <div className="text-sm text-blue-500">
+                  Update tender document
+                </div> */}
+                </div>
+              )}
+          </div>
 
           <div className="flex flex-col space-y-2 items-start">
             <div className="flex flex-row space-x-3">
@@ -3155,7 +3183,7 @@ const TenderDetails = ({
                                                             onBehalfOf:
                                                               "Irembo Ltd",
                                                             title:
-                                                              "Finance Manager",
+                                                              "Director of Finance",
                                                             names: "",
                                                             email: "",
                                                           },
@@ -3217,7 +3245,7 @@ const TenderDetails = ({
                                                               onBehalfOf:
                                                                 "Irembo Ltd",
                                                               title:
-                                                                "Finance Manager",
+                                                                "Director of Finance",
                                                               names: "",
                                                               email: "",
                                                             },
@@ -3410,7 +3438,7 @@ const TenderDetails = ({
                                     Docs
                                   </div>
                                   {item?.proposalDocId && (
-                                    <div>
+                                    <div className="flex flex-row items-center space-x-2">
                                       <a
                                         href={`${url}/file/bidDocs/${item?.proposalDocId}.pdf`}
                                         className="text-xs"
@@ -3419,6 +3447,12 @@ const TenderDetails = ({
                                         Proposal{" "}
                                         <PaperClipIcon className="h-3 w-3" />
                                       </a>
+                                      <UploadBidDoc
+                                        iconOnly={true}
+                                        setSelected={() => {}}
+                                        // label="Update the doc"
+                                        uuid={item?.proposalDocId}
+                                      />
                                     </div>
                                   )}
                                   {!item?.proposalDocId && (
@@ -3427,7 +3461,7 @@ const TenderDetails = ({
                                     </div>
                                   )}
                                   {item?.otherDocId && (
-                                    <div>
+                                    <div className="flex flex-row items-center space-x-2">
                                       <a
                                         href={`${url}/file/bidDocs/${item?.otherDocId}.pdf`}
                                         className="text-xs"
@@ -3436,6 +3470,12 @@ const TenderDetails = ({
                                         Other Doc{" "}
                                         <PaperClipIcon className="h-3 w-3" />
                                       </a>
+                                      <UploadBidDoc
+                                        iconOnly={true}
+                                        // label="Update the doc"
+                                        setSelected={() => {}}
+                                        uuid={item?.otherDocId}
+                                      />
                                     </div>
                                   )}
                                 </div>

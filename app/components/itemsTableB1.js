@@ -191,9 +191,57 @@ const ItemsTable = ({ setDataSource, dataSource, assetOptions }) => {
       ),
     },
     {
-      title: "Price (RWF)",
+      title: "Currency",
+      dataIndex: "currency",
+      width: "10%",
+      render: (_, record) => {
+        return (
+          <Select
+            defaultValue={record.currency}
+            onChange={(value) => {
+              let d = [...dataSource];
+              let toEdit = d.filter((data, index) => data.key === record.key);
+              if (toEdit.length > 0) toEdit[0].currency = value;
+              setDataSource(d);
+            }}
+            options={[
+              {
+                value: "RWF",
+                label: "RWF",
+                key: "RWF",
+              },
+              {
+                value: "USD",
+                label: "USD",
+                key: "USD",
+              },
+              {
+                value: "EUR",
+                label: "EUR",
+                key: "EUR",
+              },
+              {
+                value: "GBP",
+                label: "GBP",
+                key: "GBP",
+              },
+            ]}
+          />
+        );
+      },
+    },
+    {
+      title: "Price",
       dataIndex: "estimatedUnitCost",
       editable: true,
+      render: (_, item) => {
+        return (
+          <div>
+            {item.currency + " " + item.estimatedUnitCost.toLocaleString()}
+          </div>
+        );
+      },
+
     },
     // {
     //   title: "Action",

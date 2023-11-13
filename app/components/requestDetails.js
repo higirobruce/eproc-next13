@@ -215,6 +215,7 @@ function buildTenderForm(
           <UploadTenderDoc
             uuid={docId}
             setTendeDocSelected={setTendeDocSelected}
+            updateTender={()=>{}}
           />
         </Form.Item>
         <Form.Item
@@ -789,7 +790,7 @@ const RequestDetails = ({
       },
       {
         onBehalfOf: "Irembo Ltd",
-        title: "Finance Manager",
+        title: "Director of Finance",
         names: "",
         email: "",
       },
@@ -1670,8 +1671,7 @@ const RequestDetails = ({
                       disabled={
                         po?.status !== "started" ||
                         deliveredQties[index] > qty ||
-                        data?.createdBy?._id !== user?._id ||
-                        !user?.permissions.canApproveAsPM
+                        (data?.createdBy?._id !== user?._id && !user?.permissions.canApproveAsPM)
                       }
                     >
                       Confirm
@@ -1699,6 +1699,7 @@ const RequestDetails = ({
           setCreatingPO(true);
           let assetItems = [];
           let nonAssetItems = [];
+          let docCurrency = (items && items[0]?.currency) || "RWF"
 
           items
             .filter((i) => i.itemType === "asset")
@@ -1709,6 +1710,7 @@ const RequestDetails = ({
                   Quantity: i.quantity / i?.assetCodes?.length,
                   UnitPrice: i.estimatedUnitCost,
                   VatGroup: i.taxGroup ? i.taxGroup : "X1",
+                  Currency: i.currency ? i.currency : "RWF"
                 });
               });
             });
@@ -1721,6 +1723,7 @@ const RequestDetails = ({
                 Quantity: i.quantity,
                 UnitPrice: i.estimatedUnitCost,
                 VatGroup: i.taxGroup ? i.taxGroup : "X1",
+                Currency: i.currency ? i.currency : "RWF"
               });
             });
 
@@ -1743,6 +1746,7 @@ const RequestDetails = ({
                 DocType: "dDocument_Item",
                 DocDate: docDate,
                 DocumentLines: assetItems,
+                DocCurrency: docCurrency
               })
             : (B1Data_Assets = null);
 
@@ -1753,6 +1757,7 @@ const RequestDetails = ({
                 DocType: "dDocument_Service",
                 DocDate: docDate,
                 DocumentLines: nonAssetItems,
+                DocCurrency: docCurrency
               })
             : (B1Data_NonAssets = null);
 
@@ -2118,7 +2123,58 @@ const RequestDetails = ({
                 );
               })}
               {/* New Signatory */}
-              <div
+              <div className="flex flex-col ring-1 ring-gray-300 rounded py-5 space-y-3 items-center justify-center  hover:bg-gray-50">
+                <Image
+                  src="/icons/icons8-signature-80.png"
+                  width={40}
+                  height={40}
+                />
+                <div
+                  className="cursor-pointer underline hover:text-blue-600"
+                  onClick={() => {
+                    let signs = [...signatories];
+                    let newSignatory = { onBehalfOf: "Irembo Ltd" };
+                    // signs?.length < 2
+                    //   ?
+                    //   : {
+                    //       onBehalfOf: vendor?.companyName,
+                    //       title: vendor?.title,
+                    //       names: vendor?.contactPersonNames,
+                    //       email: vendor?.email,
+                    //     };
+                    let nSignatories = signs.length;
+                    let lastSignatory = signs[nSignatories - 1];
+                    let lastIsIrembo =
+                      lastSignatory?.onBehalfOf === "Irembo Ltd";
+                    if (lastIsIrembo) signs.push(newSignatory);
+                    else {
+                      signs.splice(lastSignatory - 1, 0, newSignatory);
+                    }
+                    setSignatories(signs);
+                  }}
+                >
+                  Add intenal Signatory
+                </div>
+                <div
+                  className="cursor-pointer underline"
+                  onClick={() => {
+                    let signs = [...signatories];
+                    let newSignatory = {
+                      onBehalfOf: vendor?.companyName,
+                      title: vendor?.title,
+                      names: vendor?.contactPersonNames,
+                      email: vendor?.email,
+                    };
+
+                    signs.push(newSignatory);
+                    setSignatories(signs);
+                  }}
+                >
+                  Add external Signatory
+                </div>
+              </div>
+
+              {/* <div
                 onClick={() => {
                   let signs = [...signatories];
                   let newSignatory =
@@ -2142,7 +2198,7 @@ const RequestDetails = ({
                   height={40}
                 />
                 <div>Add new Signatory</div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
@@ -2495,7 +2551,14 @@ const RequestDetails = ({
                   //       names: vendor?.contactPersonNames,
                   //       email: vendor?.email,
                   //     };
-                  signs.push(newSignatory);
+                  let nSignatories = signs.length;
+                  let lastSignatory = signs[nSignatories - 1];
+                  let lastIsIrembo = lastSignatory?.onBehalfOf === "Irembo Ltd";
+                  if (lastIsIrembo) signs.push(newSignatory);
+                  else {
+                    signs.splice(lastSignatory - 1, 0, newSignatory);
+                  }
+                  // signs.push(newSignatory);
                   setSignatories(signs);
                 }}
               >
@@ -3032,12 +3095,13 @@ const RequestDetails = ({
                           <div className="text-lg font-bold">
                             Delivery progress
                           </div>
+                          {console.log('Data ', data)}
                           <Button
                             type="primary"
                             disabled={
                               !documentFullySigned(po) ||
                               po?.status == "started" ||
-                              !po ||
+                              !po?.status ||
                               user._id !== data?.createdBy?._id
                             }
                             size="small"

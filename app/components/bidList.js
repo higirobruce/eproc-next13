@@ -185,7 +185,7 @@ const BidList = ({
                       <div className="self-center">
                         <div className="text-xs text-gray-400">Docs</div>
                         {item?.proposalDocId && (
-                          <div>
+                          <div className="flex flex-row items-center space-x-2">
                             <a
                               href={`${url}/file/bidDocs/${item?.proposalDocId}.pdf`}
                               target="_blank"
@@ -199,6 +199,7 @@ const BidList = ({
                             >
                               Proposal <PaperClipIcon className="h-3 w-3" />
                             </a>
+                            
                           </div>
                         )}
                         {!item?.proposalDocId && (

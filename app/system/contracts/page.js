@@ -227,13 +227,13 @@ export default function Contracts() {
     })
       .then((res) => getResultFromServer(res))
       .then((res1) => {
+        console.log(res1);
         if (res1.error) {
-          messageApi.open({
-            type: "error",
-            content: res1?.error?.message?.value
+          messageApi.error(
+            res1?.error?.message?.value
               ? res1?.error?.message?.value
-              : res1?.message,
-          });
+              : res1?.message
+          );
         } else {
           getContracts();
           setOpenCreatePO(false);
@@ -294,6 +294,7 @@ export default function Contracts() {
           setCreatingPo(true);
           let assetItems = [];
           let nonAssetItems = [];
+          let docCurrency = (items && items[0]?.currency) || "RWF";
           items
             .filter((i) => i.itemType === "asset")
             .map((i, index) => {
@@ -303,6 +304,7 @@ export default function Contracts() {
                   Quantity: i.quantity / i?.assetCodes?.length,
                   UnitPrice: i.estimatedUnitCost,
                   VatGroup: i.taxGroup ? i.taxGroup : "X1",
+                  Currency: i.currency ? i.currency : "RWF",
                 });
               });
             });
@@ -315,6 +317,7 @@ export default function Contracts() {
                 Quantity: i.quantity,
                 UnitPrice: i.estimatedUnitCost,
                 VatGroup: i.taxGroup ? i.taxGroup : "X1",
+                Currency: i.currency ? i.currency : "RWF",
                 ItemDescription: i.title,
               });
             });
@@ -327,6 +330,7 @@ export default function Contracts() {
           //         Quantity: i.quantity / assets[index]?.length,
           //         UnitPrice: i.estimatedUnitCost,
           //         VatGroup: i.taxGroup ? i.taxGroup : "X1",
+          // Currency: i.currency ? i.currency : "RWF",
           //       });
           //     });
           //   });
@@ -338,6 +342,7 @@ export default function Contracts() {
                 DocType: "dDocument_Item",
                 DocDate: docDate,
                 DocumentLines: assetItems,
+                DocCurrency: docCurrency,
               })
             : (B1Data_Assets = null);
 
@@ -348,6 +353,7 @@ export default function Contracts() {
                 DocType: "dDocument_Service",
                 DocDate: docDate,
                 DocumentLines: nonAssetItems,
+                DocCurrency: docCurrency,
               })
             : (B1Data_NonAssets = null);
 
@@ -363,9 +369,9 @@ export default function Contracts() {
               (i) =>
                 i.quantity <= 0 ||
                 // i.estimatedUnitCost <= 0 ||
-                !i.quantity 
-                // ||
-                // !i.estimatedUnitCost
+                !i.quantity
+              // ||
+              // !i.estimatedUnitCost
             )?.length >= 1
           ) {
             messageApi.open({
@@ -540,13 +546,17 @@ export default function Contracts() {
               assetOptions={assetOptions}
             />
             <Typography.Title level={5} className="self-end">
-              Total (Tax Excl.): {totalVal?.toLocaleString()} RWF
+              Total (Tax Excl.):{" "}
+              {items && items[0]?.currency + " " + totalVal?.toLocaleString()}
             </Typography.Title>
             <Typography.Title level={5} className="self-end">
-              Total Tax: {totalTax?.toLocaleString()} RWF
+              Total Tax:{" "}
+              {items && items[0]?.currency + " " + totalTax?.toLocaleString()}
             </Typography.Title>
             <Typography.Title level={4} className="self-end">
-              Gross Total: {grossTotal?.toLocaleString()} RWF
+              Gross Total:{" "}
+              {items && items[0]?.currency + " " + grossTotal?.toLocaleString()}
+
             </Typography.Title>
 
             {/* Sections */}
@@ -718,7 +728,59 @@ export default function Contracts() {
                 );
               })}
               {/* New Signatory */}
-              <div
+              <div className="flex flex-col ring-1 ring-gray-300 rounded py-5 space-y-3 items-center justify-center  hover:bg-gray-50">
+                <Image
+                  src="/icons/icons8-signature-80.png"
+                  width={40}
+                  height={40}
+                />
+                <div
+                  className="cursor-pointer underline hover:text-blue-600"
+                  onClick={() => {
+                    let signs = [...signatories];
+                    let newSignatory = { onBehalfOf: "Irembo Ltd" };
+                    // signs?.length < 2
+                    //   ?
+                    //   : {
+                    //       onBehalfOf: vendor?.companyName,
+                    //       title: vendor?.title,
+                    //       names: vendor?.contactPersonNames,
+                    //       email: vendor?.email,
+                    //     };
+                    let nSignatories = signs.length;
+                    let lastSignatory = signs[nSignatories - 1];
+                    let lastIsIrembo =
+                      lastSignatory?.onBehalfOf === "Irembo Ltd";
+                    if (lastIsIrembo) signs.push(newSignatory);
+                    else {
+                      signs.splice(lastSignatory - 1, 0, newSignatory);
+                    }
+                    // signs.push(newSignatory);
+                    setSignatories(signs);
+                  }}
+                >
+                  Add intenal Signatory
+                </div>
+                <div
+                  className="cursor-pointer underline"
+                  onClick={() => {
+                    let signs = [...signatories];
+                    let newSignatory = {
+                      onBehalfOf: contract?.vendor?.companyName,
+                      title: contract?.vendor?.title,
+                      names: contract?.vendor?.contactPersonNames,
+                      email: contract?.vendor?.email,
+                    };
+
+                    signs.push(newSignatory);
+                    setSignatories(signs);
+                  }}
+                >
+                  Add external Signatory
+                </div>
+              </div>
+              {/* New Signatory */}
+              {/* <div
                 onClick={() => {
                   let signs = [...signatories];
                   let newSignatory =
@@ -742,7 +804,7 @@ export default function Contracts() {
                   height={40}
                 />
                 <div>Add new Signatory</div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
@@ -1400,11 +1462,7 @@ export default function Contracts() {
       localStorage.removeItem("user");
       router.push(`/auth?goTo=/system/contracts&sessionExpired=true`);
     } else {
-      if (res.ok) {
-        return res.json();
-      } else {
-        throw Error("");
-      }
+      return res.json();
     }
   }
 
@@ -1642,7 +1700,7 @@ export default function Contracts() {
                                   },
                                   {
                                     onBehalfOf: "Irembo Ltd",
-                                    title: "Finance Manager",
+                                    title: "Director of Finance",
                                     names: "",
                                     email: "",
                                   },

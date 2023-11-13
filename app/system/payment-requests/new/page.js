@@ -57,7 +57,6 @@ export default function NewPaymentRequest() {
         }
       })
       .then((res) => {
-        
         setBudgetLines(res);
       })
       .catch((err) => {
@@ -70,45 +69,44 @@ export default function NewPaymentRequest() {
 
   const handleUpload = () => {
     setSubmitting(true);
+
     if (files?.length < 1) {
       messageApi.error("Please add at least one doc.");
       setSubmitting(false);
     } else {
       let docIds = [];
-      files.forEach((fileToSave, rowIndex) => {
-        const formData = new FormData();
-        formData.append("files[]", fileToSave);
-
-        // You can use any AJAX library you like
-        fetch(`${url}/uploads/paymentRequests/`, {
-          method: "POST",
-          body: formData,
-          headers: {
-            Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
-            token: token,
-            // "Content-Type": "multipart/form-data",
-          },
-        })
-          .then((res) => res.json())
-          .then((savedFiles) => {
-            let _filenames = savedFiles?.map((f) => {
-              return f?.filename;
-            });
-
-            docIds.push(_filenames[0]);
-
-            if (rowIndex === files.length - 1) {
-              save(docIds);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-            messageApi.error("upload failed.");
-          })
-          .finally(() => {
-            // setSubmitting(false);
-          });
+      const formData = new FormData();
+      files.forEach((f) => {
+        formData.append("files[]", f);
       });
+
+      // You can use any AJAX library you like
+      fetch(`${url}/uploads/paymentRequests/`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+          token: token,
+          // "Content-Type": "multipart/form-data",
+        },
+      })
+        .then((res) => res.json())
+        .then((savedFiles) => {
+          let _filenames = savedFiles?.map((f) => {
+            return f?.filename;
+          });
+
+          // docIds.push(_filenames[0]);
+
+          save(_filenames);
+        })
+        .catch((err) => {
+          console.log(err);
+          messageApi.error("upload failed.");
+        })
+        .finally(() => {
+          // setSubmitting(false);
+        });
     }
   };
 
