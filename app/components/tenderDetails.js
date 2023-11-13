@@ -2567,7 +2567,7 @@ const TenderDetails = ({
                     uuid={data?.docId}
                     setTendeDocSelected={() => {}}
                     setStatus={() => {}}
-                    label="Update the doc"
+                    label="Update doc"
                   />
                   {/* <div className="text-sm text-blue-500">
                   Update tender document
