@@ -141,6 +141,13 @@ const ItemsTable = ({
       dataIndex: "estimatedUnitCost",
       width: "15%",
       editable: true,
+      render: (_, item) => {
+        return (
+          <div>
+            {item.currency + " " + item.estimatedUnitCost.toLocaleString()}
+          </div>
+        );
+      },
     },
     {
       title: "Currency",
@@ -166,6 +173,11 @@ const ItemsTable = ({
                 value: "EUR",
                 label: "EUR",
                 key: "EUR",
+              },
+              {
+                value: "GBP",
+                label: "GBP",
+                key: "GBP",
               },
             ]}
           />

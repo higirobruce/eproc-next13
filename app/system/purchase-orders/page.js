@@ -37,12 +37,9 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { encode } from "base-64";
 import { useRouter } from "next/navigation";
-import { content } from "@/app/utils/requestContent";
-import ReactDOMServer from "react-dom/server";
 // import MyPdfViewer from "../common/pdfViewer";
 
 export default function PurchaseOrders() {
-  let taxRate = 0.18;
   let user = JSON.parse(localStorage.getItem("user"));
   let token = localStorage.getItem("token");
   let router = useRouter();
@@ -91,17 +88,22 @@ export default function PurchaseOrders() {
       render: (_, item) => <>{(item?.quantity).toLocaleString()}</>,
     },
     {
-      title: "Unit Price (RWF)",
+      title: "Unit Price",
       dataIndex: "estimatedUnitCost",
       key: "estimatedUnitCost",
-      render: (_, item) => <>{(item?.estimatedUnitCost).toLocaleString()}</>,
+      render: (_, item) => (
+        <>{item?.currency +' '+ (item?.estimatedUnitCost).toLocaleString()}</>
+      ),
     },
     {
-      title: "Total Amount (Rwf)",
+      title: "Total Amount",
       dataIndex: "totalAmount",
       key: "totalAmount",
       render: (_, item) => (
-        <>{(item?.quantity * item?.estimatedUnitCost).toLocaleString()}</>
+        <>
+          {item?.currency +
+            (item?.quantity * item?.estimatedUnitCost).toLocaleString()}
+        </>
       ),
     },
   ];
@@ -203,28 +205,29 @@ export default function PurchaseOrders() {
           setOpenViewPO(false);
         }}
         onCancel={() => setOpenViewPO(false)}
-        footer={!readyToSign ? [
-          <Button key="back" onClick={() => setOpenViewPO(false)}>
-            Cancel
-          </Button>,
-          <Button key="submit" type="primary" onClick={() => setOpenViewPO(false)}>
-            Ok
-        </Button>
-        ] : []}
+        footer={
+          !readyToSign
+            ? [
+                <Button key="back" onClick={() => setOpenViewPO(false)}>
+                  Cancel
+                </Button>,
+                <Button
+                  key="submit"
+                  type="primary"
+                  onClick={() => setOpenViewPO(false)}
+                >
+                  Ok
+                </Button>,
+              ]
+            : []
+        }
         width={"80%"}
         bodyStyle={{ maxHeight: "700px", overflow: "scroll" }}
       >
         <div className="space-y-10 px-20 py-5 overflow-x-scroll">
           <div className="flex flex-row justify-between items-center">
             <Typography.Title level={4} className="flex flex-row items-center">
-              PURCHASE ORDER #{po?.number}{" "} &nbsp;
-              {(user?.userType !== "VENDOR" ||
-                (documentFullySignedInternally(po) &&
-                  user?.userType === "VENDOR")) && (
-                    <span className="text-blue-600">
-                      <PrinterOutlined onClick={() => generatePDF(po)} />
-                    </span>
-              )}
+              PURCHASE ORDER #{po?.number}{" "}
             </Typography.Title>
             {/* <Button icon={<PrinterOutlined />}>Print</Button> */}
           </div>
@@ -302,14 +305,14 @@ export default function PurchaseOrders() {
               pagination={false}
             />
             <Typography.Title level={5} className="self-end">
-              Total (Tax Excl.): {getPoTotalVal().totalVal?.toLocaleString()}{" "}
-              RWF
+              Total (Tax Excl.): {po?.items[0]?.currency + ' ' + getPoTotalVal().totalVal?.toLocaleString()}{" "}
+              
             </Typography.Title>
             <Typography.Title level={5} className="self-end">
-              Tax: {getPoTotalVal().totalTax?.toLocaleString()} RWF
+              Tax: {po?.items[0]?.currency + ' ' +getPoTotalVal().totalTax?.toLocaleString()} 
             </Typography.Title>
             <Typography.Title level={5} className="self-end">
-              Gross Total: {getPoTotalVal().grossTotal?.toLocaleString()} RWF
+              Gross Total: {po?.items[0]?.currency + ' ' +getPoTotalVal().grossTotal?.toLocaleString()} 
             </Typography.Title>
             <Typography.Title level={3}>Details</Typography.Title>
             {po?.sections?.map((section) => {
@@ -418,7 +421,9 @@ export default function PurchaseOrders() {
                       <Popconfirm
                         title="Confirm Contract Signature"
                         onConfirm={() => handleSignPo(s, index)}
-                        onOpenChange={() => setReadyToSign(prevState => !prevState)}
+                        onOpenChange={() =>
+                          setReadyToSign((prevState) => !prevState)
+                        }
                       >
                         <div className="flex flex-row justify-center space-x-5 items-center border-t-2 bg-blue-50 p-5 cursor-pointer hover:opacity-75">
                           <Image
@@ -645,24 +650,6 @@ export default function PurchaseOrders() {
     return { length: filtered.length, data: filtered };
   };
 
-  const generatePDF = async (po) => {
-    const html2pdf  = (await import ("html2pdf.js")).default;
-    // const element = document.getElementById("pdf-content");
-    const printElement = ReactDOMServer.renderToString(content(po, signing, user));
-    html2pdf()
-      .set({
-        // pagebreak: { mode: "avoid-all", before: "#page2el" },
-        margin: [22, 10, 15, 22],
-        filename: "Contract.pdf",
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, letterRendering: true },
-        jsPDF: { unit: "pt", format: "letter", orientation: "portrait" },
-        pagebreak: { mode: ["avoid-all", "css", "legacy"] },
-      })
-      .from(printElement)
-      .save();
-  };
-
   return (
     <>
       {dataLoaded && !submitting ? (
@@ -781,9 +768,9 @@ export default function PurchaseOrders() {
                             {(user?.userType !== "VENDOR" ||
                               (documentFullySignedInternally(po) &&
                                 user?.userType === "VENDOR")) && (
-                                  <span className="text-blue-600">
-                                    <PrinterOutlined onClick={() => generatePDF(po)} />
-                                  </span>
+                              <Link href={`/system/purchase-orders/${po?._id}`}>
+                                <PrinterOutlined />
+                              </Link>
                             )}
                           </div>
                           <div className="text-gray-600">
@@ -856,15 +843,10 @@ export default function PurchaseOrders() {
                           </div>
                           <div className="font-semibold">
                             {po?.items?.map((i) => {
-                              let lTot = 
-                                i?.taxGroup == 'I1' ? 
-                                  (i?.quantity * i?.estimatedUnitCost) + (i?.quantity * i?.estimatedUnitCost) * taxRate
-                                :  
-                                  i?.quantity * i?.estimatedUnitCost;
-
+                              let lTot = i?.quantity * i?.estimatedUnitCost;
                               t = t + lTot;
                             })}{" "}
-                            {po?.items && po?.items[0]?.currency + ' ' + t.toLocaleString()}
+                            {t.toLocaleString()} RWF
                           </div>
                         </div>
 
