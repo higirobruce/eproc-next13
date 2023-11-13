@@ -116,23 +116,27 @@ export default function page({ params }) {
       render: (_, item) => <>{(item?.quantity).toLocaleString()}</>,
     },
     {
-      title: "Unit Price",
+      title: "Unit Price (RWF)",
       dataIndex: "estimatedUnitCost",
       key: "estimatedUnitCost",
+
       render: (_, item) => (
         <>{item?.currency + ' ' +(item?.estimatedUnitCost).toLocaleString()}</>
       ),
+
     },
     {
-      title: "Total Amount",
+      title: "Total Amount (Rwf)",
       dataIndex: "totalAmount",
       key: "totalAmount",
       render: (_, item) => (
+
         <>
           {item
             ?.currency+' '+(item?.quantity * item?.estimatedUnitCost)
             .toLocaleString()}
         </>
+
       ),
     },
   ];
@@ -310,22 +314,13 @@ export default function page({ params }) {
             pagination={false}
           />
           <Typography.Title level={5} className="self-end">
-            Total (Tax Excl.):{" "}
-            {po?.items[0]?.currency +
-              " " +
-              getPoTotalVal().totalVal?.toLocaleString()}
+            Total (Tax Excl.): {getPoTotalVal().totalVal?.toLocaleString()} RWF
           </Typography.Title>
           <Typography.Title level={5} className="self-end">
-            Tax:{" "}
-            {po?.items[0]?.currency +
-              " " +
-              getPoTotalVal().totalTax?.toLocaleString()}
+            Tax: {getPoTotalVal().totalTax?.toLocaleString()} RWF
           </Typography.Title>
           <Typography.Title level={5} className="self-end">
-            Gross Total:{" "}
-            {po?.items[0]?.currency +
-              " " +
-              getPoTotalVal().grossTotal?.toLocaleString()}
+            Gross Total: {getPoTotalVal().grossTotal?.toLocaleString()} RWF
           </Typography.Title>
           <Typography.Title level={3}>Details</Typography.Title>
           {po?.sections?.map((section) => {
@@ -589,22 +584,13 @@ export default function page({ params }) {
             pagination={false}
           />
           <Typography.Title level={5} className="self-end">
-            Total (Tax Excl.):{" "}
-            {po?.items[0]?.currency +
-              " " +
-              getPoTotalVal().totalVal?.toLocaleString()}
+            Total (Tax Excl.): {getPoTotalVal().totalVal?.toLocaleString()} RWF
           </Typography.Title>
           <Typography.Title level={5} className="self-end">
-            Tax:{" "}
-            {po?.items[0]?.currency +
-              " " +
-              getPoTotalVal().totalTax?.toLocaleString()}
+            Tax: {getPoTotalVal().totalTax?.toLocaleString()} RWF
           </Typography.Title>
           <Typography.Title level={5} className="self-end">
-            Gross Total:{" "}
-            {po?.items[0]?.currency +
-              " " +
-              getPoTotalVal().grossTotal?.toLocaleString()}
+            Gross Total: {getPoTotalVal().grossTotal?.toLocaleString()} RWF
           </Typography.Title>
           <Typography.Title level={3}>Details</Typography.Title>
           {po?.sections?.map((section) => {

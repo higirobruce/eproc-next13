@@ -300,11 +300,6 @@ export default function NewPaymentRequest() {
                                   label: "EUR",
                                   key: "EUR",
                                 },
-                                {
-                                  value: "GBP",
-                                  label: "GBP",
-                                  key: "GBP",
-                                },
                               ]}
                             ></Select>
                           </Form.Item>

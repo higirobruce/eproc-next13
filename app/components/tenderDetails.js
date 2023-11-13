@@ -61,8 +61,6 @@ import {
   LockOpenIcon,
 } from "@heroicons/react/24/solid";
 import Link from "next/link";
-import { AiOutlineFileSync } from "react-icons/ai";
-import UploadTenderDoc from "./uploadTenderDoc";
 // import MyPdfViewer from "./pdfViewer";
 // import { PDFDownloadLink } from "@react-pdf/renderer";
 // import MyDocument from "./MyDocument";
@@ -178,26 +176,20 @@ const TenderDetails = ({
             render: (_, item) => <>{(item?.quantity).toLocaleString()}</>,
           },
           {
-            title: "Unit Price",
+            title: "Unit Price (RWF)",
             dataIndex: "estimatedUnitCost",
             key: "estimatedUnitCost",
             render: (_, item) => (
-              <>
-                {item?.currency +
-                  (item?.estimatedUnitCost * 1).toLocaleString()}
-              </>
+              <>{(item?.estimatedUnitCost * 1).toLocaleString()}</>
             ),
           },
 
           {
-            title: "Total Amount",
+            title: "Total Amount (Rwf)",
             dataIndex: "totalAmount",
             key: "totalAmount",
             render: (_, item) => (
-              <>
-                {item.currency +
-                  (item?.quantity * item?.estimatedUnitCost).toLocaleString()}
-              </>
+              <>{(item?.quantity * item?.estimatedUnitCost).toLocaleString()}</>
             ),
           },
           {
@@ -302,7 +294,7 @@ const TenderDetails = ({
       render: (_, item) => <>{(item?.quantity).toLocaleString()}</>,
     },
     {
-      title: "Unit Price",
+      title: "Unit Price (RWF)",
       dataIndex: "estimatedUnitCost",
       key: "estimatedUnitCost",
       render: (_, item) => <>{(item?.estimatedUnitCost).toLocaleString()}</>,
@@ -851,11 +843,6 @@ const TenderDetails = ({
                           label: "EUR",
                           key: "EUR",
                         },
-                        {
-                          value: "GBP",
-                          label: "GBP",
-                          key: "GBP",
-                        },
                       ]}
                     ></Select>
                   </Form.Item>
@@ -1047,9 +1034,9 @@ const TenderDetails = ({
               (i) =>
                 i.quantity <= 0 ||
                 // i.estimatedUnitCost <= 0 ||
-                !i.quantity
-              // ||
-              // !i.estimatedUnitCost
+                !i.quantity 
+                // ||
+                // !i.estimatedUnitCost
             )?.length >= 1
           ) {
             messageApi.open({
@@ -1183,256 +1170,246 @@ const TenderDetails = ({
           </div>
 
           {/* PO Details */}
-          {items?.length >= 1 && (
-            <div className="flex flex-col space-y-5">
-              {docType === "dDocument_Item" && (
-                <div className="flex flex-col">
-                  <Typography.Title level={4}>
-                    Asset assignment
-                  </Typography.Title>
-                  ∏
-                  <div className="p-5 rounded ring-1 ring-gray-200 grid md:grid-cols-3 gap-2">
-                    {items?.map((i, index) => {
-                      return (
-                        <div key={i?.key}>
-                          Select asset(s) for {i?.title}
-                          <div>
-                            <Select
-                              mode="tags"
-                              showArrow
-                              style={{ width: "100%" }}
-                              onChange={(value) => {
-                                let _v = [...assets];
-                                _v[index] = value;
-                                setAssets(_v);
-                              }}
-                              options={assetOptions}
-                              showSearch
-                            />
-                          </div>
+          <div className="flex flex-col space-y-5">
+            {docType === "dDocument_Item" && (
+              <div className="flex flex-col">
+                <Typography.Title level={4}>Asset assignment</Typography.Title>∏
+                <div className="p-5 rounded ring-1 ring-gray-200 grid md:grid-cols-3 gap-2">
+                  {items?.map((i, index) => {
+                    return (
+                      <div key={i?.key}>
+                        Select asset(s) for {i?.title}
+                        <div>
+                          <Select
+                            mode="tags"
+                            showArrow
+                            style={{ width: "100%" }}
+                            onChange={(value) => {
+                              let _v = [...assets];
+                              _v[index] = value;
+                              setAssets(_v);
+                            }}
+                            options={assetOptions}
+                            showSearch
+                          />
                         </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-              <ItemsTable
-                dataSource={items}
-                setDataSource={setItems}
-                assetOptions={assetOptions}
-              />
-              <Typography.Title level={5} className="self-end">
-                Total (Tax Excl.):{" "}
-                {items[0]?.currency + " " + totalVal?.toLocaleString()}
-              </Typography.Title>
-              <Typography.Title level={5} className="self-end">
-                Total Tax:{" "}
-                {items[0]?.currency + " " + totalTax?.toLocaleString()}
-              </Typography.Title>
-              <Typography.Title level={4} className="self-end">
-                Gross Total:{" "}
-                {items[0]?.currency + " " + grossTotal?.toLocaleString()}
-              </Typography.Title>
-
-              {/* Sections */}
-              <div className="flex flex-col space-y-5">
-                <Typography.Title level={4}>Contents</Typography.Title>
-
-                {sections.map((s, index) => {
-                  let section = sections[index]
-                    ? sections[index]
-                    : { title: "", body: "" };
-                  let _sections = [...sections];
-                  return (
-                    <>
-                      <div className="flex flex-row justify-between items-center">
-                        <Typography.Title
-                          level={5}
-                          editable={{
-                            onChange: (e) => {
-                              section.title = e;
-                              _sections[index]
-                                ? (_sections[index] = section)
-                                : _sections.push(section);
-                              setSections(_sections);
-                            },
-                            text: s.title,
-                          }}
-                        >
-                          {s.title}
-                        </Typography.Title>
-                        <Popconfirm
-                          onConfirm={() => {
-                            let _sections = [...sections];
-                            _sections.splice(index, 1);
-                            setSections(_sections);
-                          }}
-                          title="You can not undo this!"
-                        >
-                          <div>
-                            <CloseCircleOutlined className="h-3 text-red-400 cursor-pointer" />
-                          </div>
-                        </Popconfirm>
                       </div>
-                      <ReactQuill
-                        theme="snow"
-                        modules={modules}
-                        formats={formats}
-                        onChange={(value) => {
-                          section.body = value;
-                          _sections[index]
-                            ? (_sections[index] = section)
-                            : _sections.push(section);
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            <ItemsTable
+              dataSource={items}
+              setDataSource={setItems}
+              assetOptions={assetOptions}
+            />
+            <Typography.Title level={5} className="self-end">
+              Total (Tax Excl.): {totalVal?.toLocaleString()} RWF
+            </Typography.Title>
+            <Typography.Title level={5} className="self-end">
+              Total Tax: {totalTax?.toLocaleString()} RWF
+            </Typography.Title>
+            <Typography.Title level={4} className="self-end">
+              Gross Total: {grossTotal?.toLocaleString()} RWF
+            </Typography.Title>
+
+            {/* Sections */}
+            <div className="flex flex-col space-y-5">
+              <Typography.Title level={4}>Contents</Typography.Title>
+
+              {sections.map((s, index) => {
+                let section = sections[index]
+                  ? sections[index]
+                  : { title: "", body: "" };
+                let _sections = [...sections];
+                return (
+                  <>
+                    <div className="flex flex-row justify-between items-center">
+                      <Typography.Title
+                        level={5}
+                        editable={{
+                          onChange: (e) => {
+                            section.title = e;
+                            _sections[index]
+                              ? (_sections[index] = section)
+                              : _sections.push(section);
+                            setSections(_sections);
+                          },
+                          text: s.title,
+                        }}
+                      >
+                        {s.title}
+                      </Typography.Title>
+                      <Popconfirm
+                        onConfirm={() => {
+                          let _sections = [...sections];
+                          _sections.splice(index, 1);
                           setSections(_sections);
                         }}
-                      />
-                    </>
-                  );
-                })}
-
-                <Button
-                  icon={<PlusOutlined />}
-                  onClick={() => {
-                    let _sections = [...sections];
-                    _sections.push({
-                      title: `Set section ${sections?.length + 1} Title`,
-                      body: "",
-                    });
-                    setSections(_sections);
-                  }}
-                >
-                  Add section
-                </Button>
-              </div>
-
-              {/* Signatories */}
-              <div className="grid grid-cols-3 gap-5">
-                {signatories.map((s, index) => {
-                  return (
-                    <div
-                      key={index}
-                      className="flex flex-col ring-1 ring-gray-300 rounded py-5"
-                    >
-                      <div className="flex flex-row items-start justify-between">
-                        <div className="flex flex-col space-y-3 px-5">
-                          <div className="flex flex-col space-y-1">
-                            <Typography.Text type="secondary">
-                              <div className="text-xs">On Behalf of</div>
-                            </Typography.Text>
-                            <Typography.Text
-                              editable={{
-                                text: s.onBehalfOf,
-                                onChange: (e) => {
-                                  let _signatories = [...signatories];
-                                  _signatories[index].onBehalfOf = e;
-                                  setSignatories(_signatories);
-                                },
-                              }}
-                            >
-                              {s.onBehalfOf}
-                            </Typography.Text>
-                          </div>
-
-                          <div className="flex flex-col space-y-1">
-                            <Typography.Text type="secondary">
-                              <div className="text-xs">
-                                Representative Title
-                              </div>
-                            </Typography.Text>
-                            <Typography.Text
-                              editable={{
-                                text: s.title,
-                                onChange: (e) => {
-                                  let _signatories = [...signatories];
-                                  _signatories[index].title = e;
-                                  setSignatories(_signatories);
-                                },
-                              }}
-                            >
-                              {s.title}
-                            </Typography.Text>
-                          </div>
-
-                          <div className="flex flex-col space-y-1">
-                            <Typography.Text type="secondary">
-                              <div className="text-xs">
-                                Company Representative
-                              </div>
-                            </Typography.Text>
-                            <Typography.Text
-                              editable={{
-                                text: s.names,
-                                onChange: (e) => {
-                                  let _signatories = [...signatories];
-                                  _signatories[index].names = e;
-                                  setSignatories(_signatories);
-                                },
-                              }}
-                            >
-                              {s.names}
-                            </Typography.Text>
-                          </div>
-
-                          <div className="flex flex-col space-y-1">
-                            <Typography.Text type="secondary">
-                              <div className="text-xs">Email</div>
-                            </Typography.Text>
-                            <Typography.Text
-                              editable={{
-                                text: s.email,
-                                onChange: (e) => {
-                                  let _signatories = [...signatories];
-                                  _signatories[index].email = e;
-                                  setSignatories(_signatories);
-                                },
-                              }}
-                            >
-                              {s.email}
-                            </Typography.Text>
-                          </div>
+                        title="You can not undo this!"
+                      >
+                        <div>
+                          <CloseCircleOutlined className="h-3 text-red-400 cursor-pointer" />
                         </div>
-                        <div
-                          onClick={() => {
-                            let _signatories = [...signatories];
-                            _signatories.splice(index, 1);
-                            setSignatories(_signatories);
-                          }}
-                        >
-                          <XMarkIcon className="h-3 px-5 cursor-pointer" />
+                      </Popconfirm>
+                    </div>
+                    <ReactQuill
+                      theme="snow"
+                      modules={modules}
+                      formats={formats}
+                      onChange={(value) => {
+                        section.body = value;
+                        _sections[index]
+                          ? (_sections[index] = section)
+                          : _sections.push(section);
+                        setSections(_sections);
+                      }}
+                    />
+                  </>
+                );
+              })}
+
+              <Button
+                icon={<PlusOutlined />}
+                onClick={() => {
+                  let _sections = [...sections];
+                  _sections.push({
+                    title: `Set section ${sections?.length + 1} Title`,
+                    body: "",
+                  });
+                  setSections(_sections);
+                }}
+              >
+                Add section
+              </Button>
+            </div>
+
+            {/* Signatories */}
+            <div className="grid grid-cols-3 gap-5">
+              {signatories.map((s, index) => {
+                return (
+                  <div
+                    key={index}
+                    className="flex flex-col ring-1 ring-gray-300 rounded py-5"
+                  >
+                    <div className="flex flex-row items-start justify-between">
+                      <div className="flex flex-col space-y-3 px-5">
+                        <div className="flex flex-col space-y-1">
+                          <Typography.Text type="secondary">
+                            <div className="text-xs">On Behalf of</div>
+                          </Typography.Text>
+                          <Typography.Text
+                            editable={{
+                              text: s.onBehalfOf,
+                              onChange: (e) => {
+                                let _signatories = [...signatories];
+                                _signatories[index].onBehalfOf = e;
+                                setSignatories(_signatories);
+                              },
+                            }}
+                          >
+                            {s.onBehalfOf}
+                          </Typography.Text>
+                        </div>
+
+                        <div className="flex flex-col space-y-1">
+                          <Typography.Text type="secondary">
+                            <div className="text-xs">Representative Title</div>
+                          </Typography.Text>
+                          <Typography.Text
+                            editable={{
+                              text: s.title,
+                              onChange: (e) => {
+                                let _signatories = [...signatories];
+                                _signatories[index].title = e;
+                                setSignatories(_signatories);
+                              },
+                            }}
+                          >
+                            {s.title}
+                          </Typography.Text>
+                        </div>
+
+                        <div className="flex flex-col space-y-1">
+                          <Typography.Text type="secondary">
+                            <div className="text-xs">
+                              Company Representative
+                            </div>
+                          </Typography.Text>
+                          <Typography.Text
+                            editable={{
+                              text: s.names,
+                              onChange: (e) => {
+                                let _signatories = [...signatories];
+                                _signatories[index].names = e;
+                                setSignatories(_signatories);
+                              },
+                            }}
+                          >
+                            {s.names}
+                          </Typography.Text>
+                        </div>
+
+                        <div className="flex flex-col space-y-1">
+                          <Typography.Text type="secondary">
+                            <div className="text-xs">Email</div>
+                          </Typography.Text>
+                          <Typography.Text
+                            editable={{
+                              text: s.email,
+                              onChange: (e) => {
+                                let _signatories = [...signatories];
+                                _signatories[index].email = e;
+                                setSignatories(_signatories);
+                              },
+                            }}
+                          >
+                            {s.email}
+                          </Typography.Text>
                         </div>
                       </div>
+                      <div
+                        onClick={() => {
+                          let _signatories = [...signatories];
+                          _signatories.splice(index, 1);
+                          setSignatories(_signatories);
+                        }}
+                      >
+                        <XMarkIcon className="h-3 px-5 cursor-pointer" />
+                      </div>
                     </div>
-                  );
-                })}
-                {/* New Signatory */}
-                <div
-                  onClick={() => {
-                    let signs = [...signatories];
-                    let newSignatory =
-                      signs?.length <= 1
-                        ? { onBehalfOf: "Irembo Ltd" }
-                        : {
-                            onBehalfOf: vendor?.companyName,
-                            title: vendor?.title,
-                            names: vendor?.contactPersonNames,
-                            email: vendor?.email,
-                          };
+                  </div>
+                );
+              })}
+              {/* New Signatory */}
+              <div
+                onClick={() => {
+                  let signs = [...signatories];
+                  let newSignatory =
+                    signs?.length <= 1
+                      ? { onBehalfOf: "Irembo Ltd" }
+                      : {
+                          onBehalfOf: vendor?.companyName,
+                          title: vendor?.title,
+                          names: vendor?.contactPersonNames,
+                          email: vendor?.email,
+                        };
 
-                    signs.push(newSignatory);
-                    setSignatories(signs);
-                  }}
-                  className="flex flex-col ring-1 ring-gray-300 rounded pt-5 space-y-3 items-center justify-center cursor-pointer hover:bg-gray-50"
-                >
-                  <Image
-                    src="/icons/icons8-signature-80.png"
-                    width={40}
-                    height={40}
-                  />
-                  <div>Add new Signatory</div>
-                </div>
+                  signs.push(newSignatory);
+                  setSignatories(signs);
+                }}
+                className="flex flex-col ring-1 ring-gray-300 rounded pt-5 space-y-3 items-center justify-center cursor-pointer hover:bg-gray-50"
+              >
+                <Image
+                  src="/icons/icons8-signature-80.png"
+                  width={40}
+                  height={40}
+                />
+                <div>Add new Signatory</div>
               </div>
             </div>
-          )}
+          </div>
         </div>
       </Modal>
     );
@@ -1915,22 +1892,14 @@ const TenderDetails = ({
               pagination={false}
             />
             <Typography.Title level={5} className="self-end">
-              Total (Tax Excl.):{" "}
-              {po?.items[0]?.currency +
-                " " +
-                getPoTotalVal().totalVal?.toLocaleString()}{" "}
+              Total (Tax Excl.): {getPoTotalVal().totalVal?.toLocaleString()}{" "}
+              RWF
             </Typography.Title>
             <Typography.Title level={5} className="self-end">
-              Tax:{" "}
-              {po?.items[0]?.currency +
-                " " +
-                getPoTotalVal().totalTax?.toLocaleString()}
+              Tax: {getPoTotalVal().totalTax?.toLocaleString()} RWF
             </Typography.Title>
             <Typography.Title level={5} className="self-end">
-              Gross Total:{" "}
-              {po?.items[0]?.currency +
-                " " +
-                getPoTotalVal().grossTotal?.toLocaleString()}
+              Gross Total: {getPoTotalVal().grossTotal?.toLocaleString()} RWF
             </Typography.Title>
             <Typography.Title level={3}>Details</Typography.Title>
             {po?.sections?.map((section) => {
@@ -2543,7 +2512,6 @@ const TenderDetails = ({
               {moment(data?.dueDate).format("YYYY-MMM-DD")}
             </div>
           </div>
-
           <div className="flex flex-col space-y-3">
             <div>
               <Link

@@ -556,6 +556,7 @@ export default function Contracts() {
             <Typography.Title level={4} className="self-end">
               Gross Total:{" "}
               {items && items[0]?.currency + " " + grossTotal?.toLocaleString()}
+
             </Typography.Title>
 
             {/* Sections */}

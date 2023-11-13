@@ -91,22 +91,17 @@ export default function PurchaseOrders() {
       render: (_, item) => <>{(item?.quantity).toLocaleString()}</>,
     },
     {
-      title: "Unit Price",
+      title: "Unit Price (RWF)",
       dataIndex: "estimatedUnitCost",
       key: "estimatedUnitCost",
-      render: (_, item) => (
-        <>{item?.currency + (item?.estimatedUnitCost).toLocaleString()}</>
-      ),
+      render: (_, item) => <>{(item?.estimatedUnitCost).toLocaleString()}</>,
     },
     {
-      title: "Total Amount",
+      title: "Total Amount (Rwf)",
       dataIndex: "totalAmount",
       key: "totalAmount",
       render: (_, item) => (
-        <>
-          {item?.currency +
-            (item?.quantity * item?.estimatedUnitCost).toLocaleString()}
-        </>
+        <>{(item?.quantity * item?.estimatedUnitCost).toLocaleString()}</>
       ),
     },
   ];
@@ -208,22 +203,14 @@ export default function PurchaseOrders() {
           setOpenViewPO(false);
         }}
         onCancel={() => setOpenViewPO(false)}
-        footer={
-          !readyToSign
-            ? [
-                <Button key="back" onClick={() => setOpenViewPO(false)}>
-                  Cancel
-                </Button>,
-                <Button
-                  key="submit"
-                  type="primary"
-                  onClick={() => setOpenViewPO(false)}
-                >
-                  Ok
-                </Button>,
-              ]
-            : []
-        }
+        footer={!readyToSign ? [
+          <Button key="back" onClick={() => setOpenViewPO(false)}>
+            Cancel
+          </Button>,
+          <Button key="submit" type="primary" onClick={() => setOpenViewPO(false)}>
+            Ok
+        </Button>
+        ] : []}
         width={"80%"}
         bodyStyle={{ maxHeight: "700px", overflow: "scroll" }}
       >
@@ -315,14 +302,14 @@ export default function PurchaseOrders() {
               pagination={false}
             />
             <Typography.Title level={5} className="self-end">
-              Total (Tax Excl.): {po?.items[0]?.currency + ' ' + getPoTotalVal().totalVal?.toLocaleString()}{" "}
-              
+              Total (Tax Excl.): {getPoTotalVal().totalVal?.toLocaleString()}{" "}
+              RWF
             </Typography.Title>
             <Typography.Title level={5} className="self-end">
-              Tax: {po?.items[0]?.currency + ' ' +getPoTotalVal().totalTax?.toLocaleString()} 
+              Tax: {getPoTotalVal().totalTax?.toLocaleString()} RWF
             </Typography.Title>
             <Typography.Title level={5} className="self-end">
-              Gross Total: {po?.items[0]?.currency + ' ' +getPoTotalVal().grossTotal?.toLocaleString()} 
+              Gross Total: {getPoTotalVal().grossTotal?.toLocaleString()} RWF
             </Typography.Title>
             <Typography.Title level={3}>Details</Typography.Title>
             {po?.sections?.map((section) => {
@@ -431,9 +418,7 @@ export default function PurchaseOrders() {
                       <Popconfirm
                         title="Confirm Contract Signature"
                         onConfirm={() => handleSignPo(s, index)}
-                        onOpenChange={() =>
-                          setReadyToSign((prevState) => !prevState)
-                        }
+                        onOpenChange={() => setReadyToSign(prevState => !prevState)}
                       >
                         <div className="flex flex-row justify-center space-x-5 items-center border-t-2 bg-blue-50 p-5 cursor-pointer hover:opacity-75">
                           <Image
