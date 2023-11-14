@@ -300,6 +300,7 @@ const PaymentRequestsTable = ({
     {
       title: "Internal/External",
       key: "category",
+      align:"center",
       sorter: (a, b) =>
         getHighLevelStatus(
           a?.category.charAt(0).toUpperCase() + a?.category.slice(1)
