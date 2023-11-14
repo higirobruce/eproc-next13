@@ -2670,7 +2670,7 @@ const RequestDetails = ({
             <Tabs.TabPane tab="Overview" key="1">
               {data ? (
                 <Spin
-                  spinning={loading}
+                  spinning={data ? false : true}
                   indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}
                 >
                   <div className="flex flex-col space-y-5">
