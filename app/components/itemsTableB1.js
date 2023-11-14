@@ -96,7 +96,7 @@ const ItemsTable = ({ setDataSource, dataSource, assetOptions }) => {
     {
       title: "Item title",
       dataIndex: "title",
-
+      width:'40%',
       editable: true,
     },
     {

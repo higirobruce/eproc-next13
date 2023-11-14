@@ -127,13 +127,13 @@ const ItemsTable = ({
     {
       title: "Item title",
       dataIndex: "title",
-      width: "20%",
+      width:'40%',
       editable: true,
     },
     {
       title: "Quantity",
       dataIndex: "quantity",
-      width: "15%",
+      // width: "15%",
       editable: true,
     },
     {

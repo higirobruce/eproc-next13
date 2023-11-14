@@ -437,7 +437,9 @@ const RequestDetails = ({
       dataIndex: "title",
       key: "title",
       editable: true,
-      render: (_, item) => <>{item?.title}</>,
+      width:'20%',
+      // maxWidth: 250,
+      render: (_, item) => <div style={{ maxHeight: 80, overflowY:'scroll' }}>{item?.title}</div>,
     },
 
     {

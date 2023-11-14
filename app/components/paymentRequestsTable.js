@@ -234,6 +234,7 @@ const PaymentRequestsTable = ({
       title: "Title",
       dataIndex: "title",
       sorter: (a, b) => a?.title?.localeCompare(b?.title),
+      
       // sorter: (a,b)=>moment(a.dueDate).isAfter(moment(b.dueDate)),
       render: (_, record) => (
         <>
