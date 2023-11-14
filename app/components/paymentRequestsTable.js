@@ -7,6 +7,7 @@ import {
   Row,
   Space,
   Table,
+  Tag,
   Typography,
 } from "antd";
 import {
@@ -294,6 +295,23 @@ const PaymentRequestsTable = ({
             )}
           />
         </>
+      ),
+    },
+    {
+      title: "Internal/External",
+      key: "category",
+      sorter: (a, b) =>
+        getHighLevelStatus(
+          a?.category.charAt(0).toUpperCase() + a?.category.slice(1)
+        ).localeCompare(
+          getHighLevelStatus(
+            b?.category.charAt(0).toUpperCase() + b?.category.slice(1)
+          )
+        ),
+      render: (_, record) => (
+        <Tag color={`${record?.category === 'internal' ?'blue':'magenta'}`}>
+          {record?.category.charAt(0).toUpperCase() + record?.category.slice(1)}
+        </Tag>
       ),
     },
 
