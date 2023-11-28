@@ -765,7 +765,10 @@ export default function PaymentRequest({ params }) {
                               </div>
                             </div>
                           </Link>
-                          {user?.permissions?.canApproveAsHod && (
+                          {((user?.permissions?.canApproveAsHod &&
+                            user?._id === paymentRequest?.approver?._id) ||
+                            paymentRequest.status == "pending-review" ||
+                            user?.permissions?.canApproveAsHof) && (
                             <UpdatePaymentReqDoc
                               iconOnly={true}
                               uuid={doc?.split(".")[0]}
@@ -1364,7 +1367,7 @@ export default function PaymentRequest({ params }) {
                           </div>
                         </div>
                       </Link>
-                      {user?.permissions?.canApproveAsHod && (
+                      {user?.permissions?.canApproveAsHof && (
                         <UpdatePaymentReqDoc
                           iconOnly={true}
                           uuid={doc?.split(".")[0]}
