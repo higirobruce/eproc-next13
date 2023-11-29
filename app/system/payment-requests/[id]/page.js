@@ -18,6 +18,7 @@ import {
   Tag,
   Timeline,
   Typography,
+  Tooltip,
 } from "antd";
 import {
   ArrowLeftOutlined,
@@ -760,19 +761,21 @@ export default function PaymentRequest({ params }) {
                           : doc;
                       return (
                         <div className="border-b-2 border-b-slate-600">
-                          <Typography.Text ellipsis>
-                            <Link
-                              href={`${url}/file/paymentRequests/${doc}`}
-                              target="_blank"
-                            >
-                              <div className="text-xs">
-                                <div className="flex flex-row space-x-1 items-center">
-                                  {" "}
-                                  <PaperClipOutlined /> {truncatedFileName}
+                          <Tooltip title={doc}>
+                            <Typography.Text ellipsis>
+                              <Link
+                                href={`${url}/file/paymentRequests/${doc}`}
+                                target="_blank"
+                              >
+                                <div className="text-xs">
+                                  <div className="flex flex-row space-x-1 items-center">
+                                    {" "}
+                                    <PaperClipOutlined /> {truncatedFileName}
+                                  </div>
                                 </div>
-                              </div>
-                            </Link>
-                          </Typography.Text>
+                              </Link>
+                            </Typography.Text>
+                          </Tooltip>
 
                           {/* <Link
                             href={`${url}/file/paymentRequests/${doc}`}
@@ -1384,25 +1387,28 @@ export default function PaymentRequest({ params }) {
                       : doc;
                   return (
                     <div className="flex flex-row items-center space-x-5">
-                      <Typography.Text ellipsis>
-                        <Link
-                          href={`${url}/file/paymentRequests/${doc}`}
-                          target="_blank"
-                        >
-                          <div className="text-xs">
-                            <div className="flex flex-row space-x-1 items-center">
-                              {" "}
-                              <PaperClipOutlined /> {truncatedFileName}
+                      <Tooltip title={doc}>
+                        <Typography.Text ellipsis>
+                          <Link
+                            href={`${url}/file/paymentRequests/${doc}`}
+                            target="_blank"
+                          >
+                            <div className="text-xs">
+                              <div className="flex flex-row space-x-1 items-center">
+                                {" "}
+                                <PaperClipOutlined /> {truncatedFileName}
+                              </div>
                             </div>
-                          </div>
-                        </Link>
-                      </Typography.Text>
+                          </Link>
+                        </Typography.Text>
+                      </Tooltip>
                       {user?.permissions?.canApproveAsHof && (
                         <UpdatePaymentReqDoc
                           iconOnly={true}
                           uuid={doc?.split(".")[0]}
                           label="update"
                           reloadFileList={refresh}
+                          paymentProof={true}
                         />
                       )}
                     </div>

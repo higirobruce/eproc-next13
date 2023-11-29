@@ -9,6 +9,7 @@ import {
   Table,
   Tag,
   Typography,
+  Tooltip
 } from "antd";
 import {
   FileTextOutlined,
@@ -335,7 +336,8 @@ const PaymentRequestsTable = ({
                 ? `${doc.slice(0, 7)}... ${doc.slice(doc.lastIndexOf("."))}`
                 : doc;
             return (
-              <Typography.Text ellipsis>
+              <Tooltip title={doc}>
+                <Typography.Text ellipsis>
                 <Link
                   href={`${url}/file/paymentRequests/${doc}`}
                   target="_blank"
@@ -343,6 +345,7 @@ const PaymentRequestsTable = ({
                   {truncatedFileName}
                 </Link>
               </Typography.Text>
+              </Tooltip>
             );
           })}
         </div>

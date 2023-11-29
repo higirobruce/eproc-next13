@@ -8,7 +8,14 @@ import {
 import { Button, Spin, Upload, message } from "antd";
 import { CloudArrowUpIcon } from "@heroicons/react/24/solid";
 
-function UpdatePaymentReqDoc({ label, uuid, files, iconOnly, reloadFileList }) {
+function UpdatePaymentReqDoc({
+  label,
+  uuid,
+  files,
+  iconOnly,
+  reloadFileList,
+  paymentProof = false,
+}) {
   const [messageApi, contextHolder] = message.useMessage();
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
@@ -59,7 +66,7 @@ function UpdatePaymentReqDoc({ label, uuid, files, iconOnly, reloadFileList }) {
 
       return isPDF || Upload.LIST_IGNORE;
     },
-    action: `${url}/uploads/updatePaymentRequests?id=${uuid}`,
+    action: `${url}/uploads/updatePaymentRequests?id=${uuid}&&paymentProof=${paymentProof}`,
     headers: {
       Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
       token,
