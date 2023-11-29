@@ -187,7 +187,7 @@ const PaymentRequestsTable = ({
             className="font-semibold cursor-pointer space-x-1 flex flex-row items-center text-blue-500 hover:underline"
             onClick={() => {
               // handleSetRow(record);
-              handleSubmitting(true)
+              handleSubmitting(true);
               router.push(`/system/payment-requests/${record?._id}`);
             }}
           >
@@ -211,7 +211,7 @@ const PaymentRequestsTable = ({
             className=""
             onClick={() => {
               // handleSetRow(record);
-              handleSubmitting(true)
+              handleSubmitting(true);
               router.push(
                 `/system/purchase-orders/${record?.purchaseOrder?._id}`
               );
@@ -224,7 +224,9 @@ const PaymentRequestsTable = ({
                 </div>
                 <div>{record?.purchaseOrder?.number}</div>
               </div>
-            ): <div className="text-xs self-end">N/A</div>}
+            ) : (
+              <div className="text-xs self-end">N/A</div>
+            )}
           </div>
         </>
       ),
@@ -234,7 +236,7 @@ const PaymentRequestsTable = ({
       title: "Title",
       dataIndex: "title",
       sorter: (a, b) => a?.title?.localeCompare(b?.title),
-      
+
       // sorter: (a,b)=>moment(a.dueDate).isAfter(moment(b.dueDate)),
       render: (_, record) => (
         <>
@@ -253,7 +255,11 @@ const PaymentRequestsTable = ({
         a?.createdBy?.firstName?.localeCompare(b?.createdBy?.firstName),
       render: (_, record) => (
         <>
-          <Typography.Text>{record?.createdBy?.userType!=='VENDOR'? record?.createdBy?.firstName: record?.createdBy?.companyName}</Typography.Text>
+          <Typography.Text>
+            {record?.createdBy?.userType !== "VENDOR"
+              ? record?.createdBy?.firstName
+              : record?.createdBy?.companyName}
+          </Typography.Text>
         </>
       ),
     },
@@ -301,7 +307,7 @@ const PaymentRequestsTable = ({
     {
       title: "Internal/External",
       key: "category",
-      align:"center",
+      align: "center",
       sorter: (a, b) =>
         getHighLevelStatus(
           a?.category.charAt(0).toUpperCase() + a?.category.slice(1)
@@ -311,7 +317,7 @@ const PaymentRequestsTable = ({
           )
         ),
       render: (_, record) => (
-        <Tag color={`${record?.category === 'internal' ?'blue':'magenta'}`}>
+        <Tag color={`${record?.category === "internal" ? "blue" : "magenta"}`}>
           {record?.category.charAt(0).toUpperCase() + record?.category.slice(1)}
         </Tag>
       ),
@@ -324,10 +330,19 @@ const PaymentRequestsTable = ({
       render: (_, record) => (
         <div className="flex flex-col text-xs">
           {record?.docIds?.map((doc, index) => {
+            const truncatedFileName =
+              doc.length >= 11
+                ? `${doc.slice(0, 7)}... ${doc.slice(doc.lastIndexOf("."))}`
+                : doc;
             return (
-              <Link href={`${url}/file/paymentRequests/${doc}`} target="_blank">
-                Invoice {index + 1}
-              </Link>
+              <Typography.Text ellipsis>
+                <Link
+                  href={`${url}/file/paymentRequests/${doc}`}
+                  target="_blank"
+                >
+                  {truncatedFileName}
+                </Link>
+              </Typography.Text>
             );
           })}
         </div>

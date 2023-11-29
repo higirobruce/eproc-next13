@@ -78,14 +78,6 @@ function UploadPaymentReq({
   };
   return (
     <>
-      {contextHolder}
-      <Upload {...props} headers={{}} multiple>
-        <div className=" rounded ring-1 ring-gray-300 px-3 items-center flex flex-row justify-center space-x-1 py-2 cursor-pointer shadow-md hover:shadow-sm active:bg-gray-50 transition-all ease-out duration-200">
-          <CloudArrowUpIcon className="h-5 w-5 text-blue-500 " />
-          <div className="text-sm">Select file(s)</div>
-        </div>
-        {/* <Button icon={<UploadOutlined />}>{label ? label : "Upload"}</Button> */}
-      </Upload>
 
       <>
         {contextHolder}
