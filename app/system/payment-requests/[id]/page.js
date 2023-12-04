@@ -795,7 +795,7 @@ export default function PaymentRequest({ params }) {
                             user?.permissions?.canApproveAsHof) && (
                             <UpdatePaymentReqDoc
                               iconOnly={true}
-                              uuid={doc?.split(".")[0]}
+                              uuid={doc}
                               label="update"
                               reloadFileList={refresh}
                             />
@@ -1405,7 +1405,7 @@ export default function PaymentRequest({ params }) {
                       {user?.permissions?.canApproveAsHof && (
                         <UpdatePaymentReqDoc
                           iconOnly={true}
-                          uuid={doc?.split(".")[0]}
+                          uuid={doc}
                           label="update"
                           reloadFileList={refresh}
                           paymentProof={true}
