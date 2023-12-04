@@ -215,7 +215,7 @@ function buildTenderForm(
           <UploadTenderDoc
             uuid={docId}
             setTendeDocSelected={setTendeDocSelected}
-            updateTender={()=>{}}
+            updateTender={() => {}}
           />
         </Form.Item>
         <Form.Item
@@ -437,9 +437,11 @@ const RequestDetails = ({
       dataIndex: "title",
       key: "title",
       editable: true,
-      width:'20%',
+      width: "20%",
       // maxWidth: 250,
-      render: (_, item) => <div style={{ maxHeight: 80, overflowY:'scroll' }}>{item?.title}</div>,
+      render: (_, item) => (
+        <div style={{ maxHeight: 80, overflowY: "scroll" }}>{item?.title}</div>
+      ),
     },
 
     {
@@ -1673,7 +1675,8 @@ const RequestDetails = ({
                       disabled={
                         po?.status !== "started" ||
                         deliveredQties[index] > qty ||
-                        (data?.createdBy?._id !== user?._id && !user?.permissions.canApproveAsPM)
+                        (data?.createdBy?._id !== user?._id &&
+                          !user?.permissions.canApproveAsPM)
                       }
                     >
                       Confirm
@@ -1701,18 +1704,20 @@ const RequestDetails = ({
           setCreatingPO(true);
           let assetItems = [];
           let nonAssetItems = [];
-          let docCurrency = (items && items[0]?.currency) || "RWF"
+          let docCurrency = (items && items[0]?.currency) || "RWF";
+          let assetsNeeded = false;
 
           items
             .filter((i) => i.itemType === "asset")
             .map((i, index) => {
+              assetsNeeded = true;
               i?.assetCodes?.map((a) => {
                 assetItems?.push({
                   ItemCode: a,
                   Quantity: i.quantity / i?.assetCodes?.length,
                   UnitPrice: i.estimatedUnitCost,
                   VatGroup: i.taxGroup ? i.taxGroup : "X1",
-                  Currency: i.currency ? i.currency : "RWF"
+                  Currency: i.currency ? i.currency : "RWF",
                 });
               });
             });
@@ -1725,7 +1730,7 @@ const RequestDetails = ({
                 Quantity: i.quantity,
                 UnitPrice: i.estimatedUnitCost,
                 VatGroup: i.taxGroup ? i.taxGroup : "X1",
-                Currency: i.currency ? i.currency : "RWF"
+                Currency: i.currency ? i.currency : "RWF",
               });
             });
 
@@ -1748,7 +1753,7 @@ const RequestDetails = ({
                 DocType: "dDocument_Item",
                 DocDate: docDate,
                 DocumentLines: assetItems,
-                DocCurrency: docCurrency
+                DocCurrency: docCurrency,
               })
             : (B1Data_Assets = null);
 
@@ -1759,7 +1764,7 @@ const RequestDetails = ({
                 DocType: "dDocument_Service",
                 DocDate: docDate,
                 DocumentLines: nonAssetItems,
-                DocCurrency: docCurrency
+                DocCurrency: docCurrency,
               })
             : (B1Data_NonAssets = null);
 
@@ -1775,9 +1780,9 @@ const RequestDetails = ({
               (i) =>
                 i.quantity <= 0 ||
                 // i.estimatedUnitCost <= 0 ||
-                !i.quantity 
-                // ||
-                // !i.estimatedUnitCost
+                !i.quantity
+              // ||
+              // !i.estimatedUnitCost
             )?.length >= 1
           ) {
             messageApi.open({
@@ -1794,6 +1799,12 @@ const RequestDetails = ({
               type: "error",
               content:
                 "PO can not be submitted. Please fill in the relevant signatories' details!",
+            });
+            setCreatingPO(false);
+          } else if (assetsNeeded && assetItems.length < 1) {
+            messageApi.open({
+              type: "error",
+              content: "PO can not be submitted. Please select an asset!",
             });
             setCreatingPO(false);
           } else {
@@ -1947,13 +1958,15 @@ const RequestDetails = ({
               assetOptions={assetOptions}
             />
             <Typography.Title level={5} className="self-end">
-              Total (Tax Excl.): {items[0]?.currency + ' ' + totalVal?.toLocaleString()} 
+              Total (Tax Excl.):{" "}
+              {items[0]?.currency + " " + totalVal?.toLocaleString()}
             </Typography.Title>
             <Typography.Title level={5} className="self-end">
-              Total Tax: {items[0]?.currency + ' ' + totalTax?.toLocaleString()} 
+              Total Tax: {items[0]?.currency + " " + totalTax?.toLocaleString()}
             </Typography.Title>
             <Typography.Title level={4} className="self-end">
-              Gross Total: {items[0]?.currency + ' ' + grossTotal?.toLocaleString()}
+              Gross Total:{" "}
+              {items[0]?.currency + " " + grossTotal?.toLocaleString()}
             </Typography.Title>
 
             {/* Sections */}
@@ -3097,7 +3110,7 @@ const RequestDetails = ({
                           <div className="text-lg font-bold">
                             Delivery progress
                           </div>
-                          {console.log('Data ', data)}
+                          {console.log("Data ", data)}
                           <Button
                             type="primary"
                             disabled={
@@ -3116,7 +3129,8 @@ const RequestDetails = ({
                         </div>
 
                         {data?.items?.map((i, index) => {
-                          let deliveredQty = po?.items[index]?.deliveredQty || 0;
+                          let deliveredQty =
+                            po?.items[index]?.deliveredQty || 0;
                           return (
                             <div key={i.key} className="m-5">
                               <div>
