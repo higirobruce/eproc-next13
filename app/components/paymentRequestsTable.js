@@ -170,7 +170,7 @@ const PaymentRequestsTable = ({
     if (status === "Pending-approval" || status === "Reviewed") return "yellow";
     else if (status === "Pending-review") return "yellow";
     else if (status === "Approved" || status == "Paid") return "green";
-    else if (status === "Declined") return "red";
+    else if (status === "Declined" || status =='Withdrawn') return "red";
   };
 
   useEffect(() => {
@@ -325,15 +325,15 @@ const PaymentRequestsTable = ({
     },
 
     {
-      title: "Invoice(s)",
+      title: "Invoice (s) ",
       key: "docs",
       // sorter: (a, b) => a?.status > b?.status,
       render: (_, record) => (
         <div className="flex flex-col text-xs">
           {record?.docIds?.map((doc, index) => {
             const truncatedFileName =
-              doc.length >= 11
-                ? `${doc.slice(0, 7)}... ${doc.slice(doc.lastIndexOf("."))}`
+              doc?.length >= 11
+                ? `${doc?.slice(0, 7)}... ${doc?.slice(doc?.lastIndexOf("."))}`
                 : doc;
             return (
               <Tooltip title={doc}>
