@@ -113,7 +113,7 @@ const ItemsTable = ({ setDataSource, dataSource, assetOptions }) => {
           onChange={(value) => {
             let d = [...dataSource];
             let toEdit = d.filter((data, index) => data.key === record.key);
-            if (toEdit.length > 0) toEdit[0].itemType = value;
+            if (toEdit?.length > 0) toEdit[0].itemType = value;
             setDataSource(d);
           }}
           style={{ width: "100%" }}
@@ -142,7 +142,7 @@ const ItemsTable = ({ setDataSource, dataSource, assetOptions }) => {
 
             let d = [...dataSource];
             let toEdit = d.filter((data, index) => data.key === record.key);
-            if (toEdit.length > 0) toEdit[0].assetCodes = value;
+            if (toEdit?.length > 0) toEdit[0].assetCodes = value;
             setDataSource(d);
           }}
           options={assetOptions}

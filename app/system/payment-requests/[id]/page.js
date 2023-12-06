@@ -259,7 +259,7 @@ export default function PaymentRequest({ params }) {
 
   const handleUpload = (action) => {
     if (files?.length < 1) {
-      messageApi.error("Please add at least one doc.");
+      messageApi.error("Please add at least one doc?.");
     } else {
       setSaving(true);
 
@@ -754,9 +754,9 @@ export default function PaymentRequest({ params }) {
                   <div className="grid grid-cols-2 gap-y-2">
                     {paymentRequest?.docIds?.map((doc, i) => {
                       const truncatedFileName =
-                        doc.length >= 11
-                          ? `${doc.slice(0, 7)}... ${doc.slice(
-                              doc.lastIndexOf(".")
+                        doc?.length >= 11
+                          ? `${doc?.slice(0, 7)}... ${doc?.slice(
+                              doc?.lastIndexOf(".")
                             )}`
                           : doc;
                       return (
@@ -1381,9 +1381,9 @@ export default function PaymentRequest({ params }) {
               <div className="grid grid-cols-2 gap-y-2">
                 {paymentRequest?.paymentProofDocs?.map((doc, i) => {
                   const truncatedFileName =
-                    doc.length >= 16
-                      ? `${doc.slice(0, 12)}... ${doc.slice(
-                          doc.lastIndexOf(".")
+                    doc?.length >= 16
+                      ? `${doc?.slice(0, 12)}... ${doc?.slice(
+                          doc?.lastIndexOf(".")
                         )}`
                       : doc;
                   return (

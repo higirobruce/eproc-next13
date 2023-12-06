@@ -200,7 +200,7 @@ const ItemsTable = ({
       dataIndex: "attachements",
       width: "20%",
       render: (_, record, index) => {
-        return dataSource.length >= 1 ? (
+        return dataSource?.length >= 1 ? (
           <UploadTORs
             uuid={record?.key - 1}
             setFileList={setFileList}
@@ -219,7 +219,7 @@ const ItemsTable = ({
       title: "Action",
       dataIndex: "operation",
       render: (_, record) =>
-        dataSource.length >= 1 ? (
+        dataSource?.length >= 1 ? (
           <Popconfirm
             title="Are you sure?"
             onConfirm={() => handleDelete(record.key)}
