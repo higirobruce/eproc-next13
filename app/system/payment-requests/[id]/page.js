@@ -940,7 +940,7 @@ export default function PaymentRequest({ params }) {
                     type="primary"
                     onClick={async () => {
                       await form.validateFields();
-                      if (files.length < 1) {
+                      if (files?.length < 1) {
                         messageApi.error("Please attach atleast one file!");
                       } else {
                         setEditRequest(false);
