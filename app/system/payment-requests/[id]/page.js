@@ -792,7 +792,7 @@ export default function PaymentRequest({ params }) {
                           {((user?.permissions?.canApproveAsHod &&
                             user?._id === paymentRequest?.approver?._id) ||
                             (paymentRequest.status == "pending-review" &&
-                              user?._id == paymentRequest?.createdBy) ||
+                              user?._id == paymentRequest?.createdBy?._id) ||
                             user?.permissions?.canApproveAsHof) && (
                             <UpdatePaymentReqDoc
                               iconOnly={true}
