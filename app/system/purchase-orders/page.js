@@ -101,7 +101,7 @@ export default function PurchaseOrders() {
       key: "totalAmount",
       render: (_, item) => (
         <>
-          {item?.currency +
+          {item?.currency +' '+
             (item?.quantity * item?.estimatedUnitCost).toLocaleString()}
         </>
       ),
@@ -846,7 +846,7 @@ export default function PurchaseOrders() {
                               let lTot = i?.quantity * i?.estimatedUnitCost;
                               t = t + lTot;
                             })}{" "}
-                            {t.toLocaleString()} RWF
+                            {t.toLocaleString()} {po?.items[0]?.currency}
                           </div>
                         </div>
 
