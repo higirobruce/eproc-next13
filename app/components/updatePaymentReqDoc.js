@@ -8,7 +8,14 @@ import {
 import { Button, Spin, Upload, message } from "antd";
 import { CloudArrowUpIcon } from "@heroicons/react/24/solid";
 
-function UpdatePaymentReqDoc({ label, uuid, files, iconOnly }) {
+function UpdatePaymentReqDoc({
+  label,
+  uuid,
+  files,
+  iconOnly,
+  reloadFileList,
+  paymentProof = false,
+}) {
   const [messageApi, contextHolder] = message.useMessage();
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
@@ -19,6 +26,7 @@ function UpdatePaymentReqDoc({ label, uuid, files, iconOnly }) {
   const props = {
     onChange: ({ file, fileList }) => {
       let status = file.status;
+
       // setStatus(status);
       if (status == "uploading") setLoading(true);
       else {
@@ -26,8 +34,10 @@ function UpdatePaymentReqDoc({ label, uuid, files, iconOnly }) {
         if (status == "error") {
           messageApi.error("Failed to upload the file!");
         } else if (status == "removed") {
+          reloadFileList();
           messageApi.success("File removed!");
         } else {
+          reloadFileList();
           messageApi.success("Successfully uploaded the file!");
         }
       }
@@ -46,18 +56,17 @@ function UpdatePaymentReqDoc({ label, uuid, files, iconOnly }) {
       // setFiles(_files);
     },
     beforeUpload: (file) => {
-     
+      console.log("Fillleee", file.name);
+
       let isPDF = file.type == "application/pdf";
       if (!isPDF) {
         messageApi.error(`${file.name} is not a PDF file`);
-       
       } else {
-        
       }
 
       return isPDF || Upload.LIST_IGNORE;
     },
-    action: `${url}/uploads/updatePaymentRequests?id=${uuid}`,
+    action: `${url}/uploads/updatePaymentRequests?id=${uuid}&&paymentProof=${paymentProof}`,
     headers: {
       Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
       token,

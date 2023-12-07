@@ -305,7 +305,7 @@ const BidList = ({
         </List>
       )}
 
-      {(!data || data.length < 1) && <Empty />}
+      {(!data || data?.length < 1) && <Empty />}
 
       {selectBidModal()}
     </>

@@ -7,7 +7,9 @@ import {
   Row,
   Space,
   Table,
+  Tag,
   Typography,
+  Tooltip
 } from "antd";
 import {
   FileTextOutlined,
@@ -168,7 +170,7 @@ const PaymentRequestsTable = ({
     if (status === "Pending-approval" || status === "Reviewed") return "yellow";
     else if (status === "Pending-review") return "yellow";
     else if (status === "Approved" || status == "Paid") return "green";
-    else if (status === "Declined") return "red";
+    else if (status === "Declined" || status =='Withdrawn') return "red";
   };
 
   useEffect(() => {
@@ -186,7 +188,7 @@ const PaymentRequestsTable = ({
             className="font-semibold cursor-pointer space-x-1 flex flex-row items-center text-blue-500 hover:underline"
             onClick={() => {
               // handleSetRow(record);
-              handleSubmitting(true)
+              handleSubmitting(true);
               router.push(`/system/payment-requests/${record?._id}`);
             }}
           >
@@ -210,7 +212,7 @@ const PaymentRequestsTable = ({
             className=""
             onClick={() => {
               // handleSetRow(record);
-              handleSubmitting(true)
+              handleSubmitting(true);
               router.push(
                 `/system/purchase-orders/${record?.purchaseOrder?._id}`
               );
@@ -223,7 +225,9 @@ const PaymentRequestsTable = ({
                 </div>
                 <div>{record?.purchaseOrder?.number}</div>
               </div>
-            ): <div className="text-xs self-end">N/A</div>}
+            ) : (
+              <div className="text-xs self-end">N/A</div>
+            )}
           </div>
         </>
       ),
@@ -233,6 +237,7 @@ const PaymentRequestsTable = ({
       title: "Title",
       dataIndex: "title",
       sorter: (a, b) => a?.title?.localeCompare(b?.title),
+
       // sorter: (a,b)=>moment(a.dueDate).isAfter(moment(b.dueDate)),
       render: (_, record) => (
         <>
@@ -251,7 +256,11 @@ const PaymentRequestsTable = ({
         a?.createdBy?.firstName?.localeCompare(b?.createdBy?.firstName),
       render: (_, record) => (
         <>
-          <Typography.Text>{record?.createdBy?.userType!=='VENDOR'? record?.createdBy?.firstName: record?.createdBy?.companyName}</Typography.Text>
+          <Typography.Text>
+            {record?.createdBy?.userType !== "VENDOR"
+              ? record?.createdBy?.firstName
+              : record?.createdBy?.companyName}
+          </Typography.Text>
         </>
       ),
     },
@@ -296,18 +305,47 @@ const PaymentRequestsTable = ({
         </>
       ),
     },
+    {
+      title: "Internal/External",
+      key: "category",
+      align: "center",
+      sorter: (a, b) =>
+        getHighLevelStatus(
+          a?.category.charAt(0).toUpperCase() + a?.category.slice(1)
+        ).localeCompare(
+          getHighLevelStatus(
+            b?.category.charAt(0).toUpperCase() + b?.category.slice(1)
+          )
+        ),
+      render: (_, record) => (
+        <Tag color={`${record?.category === "internal" ? "blue" : "magenta"}`}>
+          {record?.category.charAt(0).toUpperCase() + record?.category.slice(1)}
+        </Tag>
+      ),
+    },
 
     {
-      title: "Invoice(s)",
+      title: "Invoice (s) ",
       key: "docs",
       // sorter: (a, b) => a?.status > b?.status,
       render: (_, record) => (
         <div className="flex flex-col text-xs">
           {record?.docIds?.map((doc, index) => {
+            const truncatedFileName =
+              doc?.length >= 11
+                ? `${doc?.slice(0, 7)}... ${doc?.slice(doc?.lastIndexOf("."))}`
+                : doc;
             return (
-              <Link href={`${url}/file/paymentRequests/${doc}`} target="_blank">
-                Invoice {index + 1}
-              </Link>
+              <Tooltip title={doc}>
+                <Typography.Text ellipsis>
+                <Link
+                  href={`${url}/file/paymentRequests/${doc}`}
+                  target="_blank"
+                >
+                  {truncatedFileName}
+                </Link>
+              </Typography.Text>
+              </Tooltip>
             );
           })}
         </div>

@@ -18,6 +18,7 @@ import {
   Tag,
   Timeline,
   Typography,
+  Tooltip,
 } from "antd";
 import {
   ArrowLeftOutlined,
@@ -258,7 +259,7 @@ export default function PaymentRequest({ params }) {
 
   const handleUpload = (action) => {
     if (files?.length < 1) {
-      messageApi.error("Please add at least one doc.");
+      messageApi.error("Please add at least one doc?.");
     } else {
       setSaving(true);
 
@@ -752,9 +753,31 @@ export default function PaymentRequest({ params }) {
                 {!editRequest && (
                   <div className="grid grid-cols-2 gap-y-2">
                     {paymentRequest?.docIds?.map((doc, i) => {
+                      const truncatedFileName =
+                        doc?.length >= 11
+                          ? `${doc?.slice(0, 7)}... ${doc?.slice(
+                              doc?.lastIndexOf(".")
+                            )}`
+                          : doc;
                       return (
-                        <>
-                          <Link
+                        <div className="border-b-2 border-b-slate-600">
+                          <Tooltip title={doc}>
+                            <Typography.Text ellipsis>
+                              <Link
+                                href={`${url}/file/paymentRequests/${doc}`}
+                                target="_blank"
+                              >
+                                <div className="text-xs">
+                                  <div className="flex flex-row space-x-1 items-center">
+                                    {" "}
+                                    <PaperClipOutlined /> {truncatedFileName}
+                                  </div>
+                                </div>
+                              </Link>
+                            </Typography.Text>
+                          </Tooltip>
+
+                          {/* <Link
                             href={`${url}/file/paymentRequests/${doc}`}
                             target="_blank"
                           >
@@ -764,15 +787,21 @@ export default function PaymentRequest({ params }) {
                                 <PaperClipOutlined /> Invoice {i + 1}
                               </div>
                             </div>
-                          </Link>
-                          {user?.permissions?.canApproveAsHod && (
+                          </Link> */}
+
+                          {((user?.permissions?.canApproveAsHod &&
+                            user?._id === paymentRequest?.approver?._id) ||
+                            (paymentRequest.status == "pending-review" &&
+                              user?._id == paymentRequest?.createdBy?._id) ||
+                            user?.permissions?.canApproveAsHof) && (
                             <UpdatePaymentReqDoc
                               iconOnly={true}
-                              uuid={doc?.split(".")[0]}
+                              uuid={doc}
                               label="update"
+                              reloadFileList={refresh}
                             />
                           )}
-                        </>
+                        </div>
                       );
                     })}
                   </div>
@@ -912,7 +941,7 @@ export default function PaymentRequest({ params }) {
                     type="primary"
                     onClick={async () => {
                       await form.validateFields();
-                      if (files.length < 1) {
+                      if (files?.length < 1) {
                         messageApi.error("Please attach atleast one file!");
                       } else {
                         setEditRequest(false);
@@ -1351,24 +1380,36 @@ export default function PaymentRequest({ params }) {
               </div>
               <div className="grid grid-cols-2 gap-y-2">
                 {paymentRequest?.paymentProofDocs?.map((doc, i) => {
+                  const truncatedFileName =
+                    doc?.length >= 16
+                      ? `${doc?.slice(0, 12)}... ${doc?.slice(
+                          doc?.lastIndexOf(".")
+                        )}`
+                      : doc;
                   return (
                     <div className="flex flex-row items-center space-x-5">
-                      <Link
-                        href={`${url}/file/paymentRequests/${doc}`}
-                        target="_blank"
-                      >
-                        <div className="text-xs">
-                          <div className="flex flex-row space-x-1">
-                            {" "}
-                            <PaperClipOutlined /> Payment proof {i + 1}
-                          </div>
-                        </div>
-                      </Link>
-                      {user?.permissions?.canApproveAsHod && (
+                      <Tooltip title={doc}>
+                        <Typography.Text ellipsis>
+                          <Link
+                            href={`${url}/file/paymentRequests/${doc}`}
+                            target="_blank"
+                          >
+                            <div className="text-xs">
+                              <div className="flex flex-row space-x-1 items-center">
+                                {" "}
+                                <PaperClipOutlined /> {truncatedFileName}
+                              </div>
+                            </div>
+                          </Link>
+                        </Typography.Text>
+                      </Tooltip>
+                      {user?.permissions?.canApproveAsHof && (
                         <UpdatePaymentReqDoc
                           iconOnly={true}
-                          uuid={doc?.split(".")[0]}
+                          uuid={doc}
                           label="update"
+                          reloadFileList={refresh}
+                          paymentProof={true}
                         />
                       )}
                     </div>

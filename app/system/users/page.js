@@ -1250,16 +1250,17 @@ export default function Users() {
                 <div className="grid grid-cols-2 gap-5">
                   <div>
                     <div className="flex flex-row spacex-3">
-                      Phone number <div className="text-red-500">*</div>
+                      Phone number 
+                      {/* <div className="text-red-500">*</div> */}
                     </div>
                     <Form.Item
                       name="telephone"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Input required",
-                        },
-                      ]}
+                      // rules={[
+                      //   {
+                      //     required: true,
+                      //     message: "Input required",
+                      //   },
+                      // ]}
                     >
                       <Input addonBefore={prefixSelector} />
                     </Form.Item>
