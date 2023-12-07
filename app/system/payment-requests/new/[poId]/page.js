@@ -105,14 +105,7 @@ export default function NewPaymentRequest({ params }) {
           // "Content-Type": "multipart/form-data",
         },
       })
-        .then((res) => {
-          if(res.ok){
-           
-            res.json()
-          } else{
-            
-          }
-        })
+        .then((res) => res.json())
         .then((savedFiles) => {
           let _filenames = savedFiles?.map((f) => {
             return f?.filename;
