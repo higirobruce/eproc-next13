@@ -1852,7 +1852,9 @@ const SignupForm = () => {
 
                       <div className="grid grid-cols-2 gap-5">
                         <div>
-                          <div>Email</div>
+                        <div className="flex flex-row spacex-3">
+                            Email<div className="text-red-500">*</div>
+                          </div>
                           <Form.Item
                             name="email"
                             // label="E-mail"
