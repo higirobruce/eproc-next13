@@ -105,14 +105,21 @@ export default function NewPaymentRequest({ params }) {
           // "Content-Type": "multipart/form-data",
         },
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if(res.ok){
+           
+            res.json()
+          } else{
+            
+          }
+        })
         .then((savedFiles) => {
           let _filenames = savedFiles?.map((f) => {
             return f?.filename;
           });
 
           // docIds.push(_filenames[0]);
-
+          
           save(_filenames);
         })
         .catch((err) => {
@@ -142,15 +149,7 @@ export default function NewPaymentRequest({ params }) {
         category: "external",
         createdBy: user?._id,
         purchaseOrder: params?.poId,
-        docIds: _fileList,
-        budgeted:
-          po?.request?.budgeted ||
-          po?.tender?.purchaseRequest?.budgeted ||
-          false,
-        budgetLine:
-          po?.request?.budgetLine?._id ||
-          po?.tender?.purchaseRequest?.budgetLine?._id ||
-          "",
+        docIds: _fileList
       }),
     })
       .then((res) => {
@@ -167,7 +166,7 @@ export default function NewPaymentRequest({ params }) {
         console.log(err);
       })
       .finally(() => {
-        // setSubmitting(false);
+        setSubmitting(false);
       });
   };
 
