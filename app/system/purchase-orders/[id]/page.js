@@ -116,7 +116,7 @@ export default function page({ params }) {
       render: (_, item) => <>{(item?.quantity).toLocaleString()}</>,
     },
     {
-      title: "Unit Price (RWF)",
+      title: "Unit Price",
       dataIndex: "estimatedUnitCost",
       key: "estimatedUnitCost",
 
@@ -126,7 +126,7 @@ export default function page({ params }) {
 
     },
     {
-      title: "Total Amount (Rwf)",
+      title: "Total Amount",
       dataIndex: "totalAmount",
       key: "totalAmount",
       render: (_, item) => (
@@ -314,13 +314,13 @@ export default function page({ params }) {
             pagination={false}
           />
           <Typography.Title level={5} className="self-end">
-            Total (Tax Excl.): {getPoTotalVal().totalVal?.toLocaleString()} RWF
+            Total (Tax Excl.): {getPoTotalVal().totalVal?.toLocaleString()} {po?.items[0]?.currency}
           </Typography.Title>
           <Typography.Title level={5} className="self-end">
-            Tax: {getPoTotalVal().totalTax?.toLocaleString()} RWF
+            Tax: {getPoTotalVal().totalTax?.toLocaleString()} {po?.items[0]?.currency}
           </Typography.Title>
           <Typography.Title level={5} className="self-end">
-            Gross Total: {getPoTotalVal().grossTotal?.toLocaleString()} RWF
+            Gross Total: {getPoTotalVal().grossTotal?.toLocaleString()} {po?.items[0]?.currency}
           </Typography.Title>
           <Typography.Title level={3}>Details</Typography.Title>
           {po?.sections?.map((section) => {
@@ -584,13 +584,13 @@ export default function page({ params }) {
             pagination={false}
           />
           <Typography.Title level={5} className="self-end">
-            Total (Tax Excl.): {getPoTotalVal().totalVal?.toLocaleString()} RWF
+            Total (Tax Excl.): {getPoTotalVal().totalVal?.toLocaleString()} {po?.items[0]?.currency}
           </Typography.Title>
           <Typography.Title level={5} className="self-end">
-            Tax: {getPoTotalVal().totalTax?.toLocaleString()} RWF
+            Tax: {getPoTotalVal().totalTax?.toLocaleString()} {po?.items[0]?.currency}
           </Typography.Title>
           <Typography.Title level={5} className="self-end">
-            Gross Total: {getPoTotalVal().grossTotal?.toLocaleString()} RWF
+            Gross Total: {getPoTotalVal().grossTotal?.toLocaleString()} {po?.items[0]?.currency}
           </Typography.Title>
           <Typography.Title level={3}>Details</Typography.Title>
           {po?.sections?.map((section) => {
