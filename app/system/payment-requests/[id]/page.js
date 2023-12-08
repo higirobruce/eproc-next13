@@ -961,7 +961,7 @@ export default function PaymentRequest({ params }) {
             <Typography.Title level={4}>Request Approval</Typography.Title>
           </div>
 
-          {paymentRequest?.status === "pending-review" &&
+          {/* {paymentRequest?.status === "pending-review" &&
             !user?.permissions?.canEditPaymentRequests && (
               <div className="text-sm text-gray-600 p-3 bg-gray-50 rounded-md flex flex-col justify-center items-center">
                 <LockClosedIcon className="h-10 w-10 text-blue-400" />
@@ -970,7 +970,7 @@ export default function PaymentRequest({ params }) {
                   process to start.
                 </p>
               </div>
-            )}
+            )} */}
 
           {paymentRequest?.approver && (
             <div className="mx-3 mt-5 ">
