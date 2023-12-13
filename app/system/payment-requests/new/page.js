@@ -19,6 +19,28 @@ let url = process.env.NEXT_PUBLIC_BKEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
+async function getApprovers() {
+  let token = localStorage.getItem("token");
+  const res = await fetch(`${url}/users/level1Approvers`, {
+    method: "GET",
+    headers: {
+      Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+
+      token: token,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    // This will activate the closest `error.js` Error Boundary
+
+    return null;
+    // throw new Error("Failed to fetch data");
+  }
+
+  return res.json();
+}
+
 export default function NewPaymentRequest() {
   let user = JSON.parse(localStorage.getItem("user"));
   let token = localStorage.getItem("token");
@@ -35,6 +57,8 @@ export default function NewPaymentRequest() {
   let [budgetLines, setBudgetLines] = useState([]);
   let [budgetLine, setBudgetLine] = useState(null);
   let [budgeted, setBudgeted] = useState(false);
+  let [level1Approver, setLevel1Approver] = useState(null);
+  let [level1Approvers, setLevel1Approvers] = useState([]);
 
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -63,6 +87,21 @@ export default function NewPaymentRequest() {
         messageApi.open({
           type: "error",
           content: "Connection Error!",
+        });
+      });
+
+    getApprovers()
+      .then((res) => {
+        let approversList = res?.filter((a) => a?._id !== user?._id);
+        setLevel1Approvers(res);
+        let hod = approversList?.filter(
+          (a) => a?.department?._id === user?.department
+        );
+      })
+      .catch((err) => {
+        messageApi.open({
+          type: "error",
+          content: "Something happened! Please try again.",
         });
       });
   }, []);
@@ -128,6 +167,7 @@ export default function NewPaymentRequest() {
         budgeted,
         budgetLine,
         category: "internal",
+        approver: level1Approver,
         // purchaseOrder: params?.poId,
         docIds: _fileList,
       }),
@@ -318,6 +358,39 @@ export default function NewPaymentRequest() {
 
               {/* Form grid 3 */}
               <div>
+                <div className="flex flex-col">
+                  <div>Level 1 approver</div>
+                  <Form.Item
+                    // label="Select level 1 approver"
+                    name="level1Approver"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Level 1 approver is required",
+                      },
+                    ]}
+                  >
+                    <Select
+                      // defaultValue={defaultApprover}
+                      placeholder="Select Approver"
+                      showSearch
+                      onChange={(value) => {
+                        setLevel1Approver(value);
+                      }}
+                      filterOption={(input, option) =>
+                        (option?.label ?? "")
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      options={level1Approvers.map((l) => {
+                        return {
+                          label: l?.firstName + " " + l?.lastName,
+                          value: l?._id,
+                        };
+                      })}
+                    ></Select>
+                  </Form.Item>
+                </div>
                 {/* Budgeted */}
                 <div>
                   <div>Budgeted?</div>

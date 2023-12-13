@@ -351,22 +351,24 @@ export default function PaymentRequest({ params }) {
   function getRequestStatus(code) {
     // if (code === 0) return "verified";
     if (code === 0) return "pending-review";
-    else if (code === 1) return "reviewed";
+    else if (code === 1 || code === 0) return "reviewed";
     else if (code === 2) return "approved (hod)";
     else if (code === 3) return "approved";
     else if (code === 4) return "paid";
     else if (code === 5) return "declined";
+    else if (code === 6) return "withdrawn";
     else return "pending-review";
   }
 
   function getRequestStatusCode(status) {
     // if (status === "verified") return 0;
-    if (status === "pending-review") return 0;
+    if (status === "pending-review") return 1;
     else if (status === "reviewed") return 1;
     else if (status === "approved (hod)") return 2;
     else if (status === "approved") return 3;
     else if (status === "paid") return 4;
     else if (status === "declined") return 5;
+    else if (status === "withdrawn") return 6;
     else return -1;
   }
 
@@ -407,7 +409,10 @@ export default function PaymentRequest({ params }) {
     ) {
       paymentRequest.docIds = docIds;
     }
-    if (paymentRequest.status == "declined") {
+    if (
+      paymentRequest.status == "declined" ||
+      paymentRequest.status == "withdrawn"
+    ) {
       paymentRequest.hod_approvalDate = null;
       paymentRequest.hof_approvalDate = null;
       paymentRequest.rejectionDate = null;
@@ -417,7 +422,8 @@ export default function PaymentRequest({ params }) {
       paymentRequest.reviewedBy = null;
     }
     paymentRequest.status =
-      paymentRequest.status == "declined"
+      paymentRequest.status == "declined" ||
+      paymentRequest.status == "withdrawn"
         ? "pending-review"
         : paymentRequest.status;
 
@@ -464,6 +470,26 @@ export default function PaymentRequest({ params }) {
 
   function declineRequest() {
     paymentRequest.status = "declined";
+    paymentRequest.rejectionDate = moment();
+    paymentRequest.reasonForRejection = reason;
+    fetch(`${url}/paymentRequests/${paymentRequest?._id}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        updates: paymentRequest,
+      }),
+      headers: {
+        Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => getResultFromServer(res))
+      .then((res) => {
+        refresh();
+      });
+  }
+  function withdrawRequest() {
+    paymentRequest.status = "withdrawn";
     paymentRequest.rejectionDate = moment();
     paymentRequest.reasonForRejection = reason;
     fetch(`${url}/paymentRequests/${paymentRequest?._id}`, {
@@ -562,6 +588,7 @@ export default function PaymentRequest({ params }) {
         {((paymentRequest?.createdBy?._id === user?._id &&
           (paymentRequest?.status == "pending-review" ||
             paymentRequest?.status == "declined" ||
+            paymentRequest?.status == "withdrawn" ||
             paymentRequest?.status.includes("pending-approval"))) ||
           ((paymentRequest?.approver?._id === user?._id ||
             user?.permissions?.canApproveAsHof) &&
@@ -579,8 +606,36 @@ export default function PaymentRequest({ params }) {
       <div className="grid md:grid-cols-5 gap-1 ">
         <div className="md:col-span-4 flex flex-col ring-1 ring-gray-200 p-5 rounded shadow-md bg-white overflow-y-scroll space-y-5">
           {/* Overview */}
-          <div>
+          <div className="flex flex-row items-center justify-between">
             <Typography.Title level={4}>Overview</Typography.Title>
+
+            <div className="space-x-3 ">
+              {!paymentRequest?.status?.includes("approved") &&
+                paymentRequest?.status !== "declined" &&
+                paymentRequest?.status !== "withdrawn" &&
+                user?._id == paymentRequest?.createdBy?._id && (
+                  <Popconfirm
+                    title="Are you sure?"
+                    open={openWithdraw}
+                    icon={<QuestionCircleOutlined style={{ color: "red" }} />}
+                    onConfirm={() => {
+                      withdrawRequest();
+                    }}
+                    // okButtonProps={{
+                    //   loading: confirmRejectLoading,
+                    // }}
+                    onCancel={() => setOpenWithdraw(false)}
+                  >
+                    <Button
+                      type="primary"
+                      danger
+                      onClick={() => setOpenWithdraw(true)}
+                    >
+                      Withdraw this request
+                    </Button>
+                  </Popconfirm>
+                )}
+            </div>
           </div>
           <div>
             <Tag
@@ -956,467 +1011,482 @@ export default function PaymentRequest({ params }) {
             </div>
           </Form>
 
+          {paymentRequest?.status == "withdrawn" && (
+            <div className="text-sm text-red-600 p-3 bg-red-50 rounded-md flex flex-col justify-center items-center">
+              <LockClosedIcon className="h-10 w-10 text-red-400" />
+              <p>This request has been withrawn!</p>
+            </div>
+          )}
+
           {/* Approval flow */}
-          <div>
-            <Typography.Title level={4}>Request Approval</Typography.Title>
-          </div>
-
-          {/* {paymentRequest?.status === "pending-review" &&
-            !user?.permissions?.canEditPaymentRequests && (
-              <div className="text-sm text-gray-600 p-3 bg-gray-50 rounded-md flex flex-col justify-center items-center">
-                <LockClosedIcon className="h-10 w-10 text-blue-400" />
-                <p>
-                  This request needs to be reviewed for the payment approval
-                  process to start.
-                </p>
-              </div>
-            )} */}
-
-          {paymentRequest?.approver && (
-            <div className="mx-3 mt-5 ">
-              <Steps
-                direction="vertical"
-                current={currentCode}
-                items={[
-                  {
-                    title: `Reviewed by ${paymentRequest?.reviewedBy?.firstName} ${paymentRequest?.reviewedBy?.lastName}`,
-                    icon: <DocumentMagnifyingGlassIcon className="h-5" />,
-                    subTitle: currentCode > 0 && (
-                      <div className="flex flex-row items-center space-x-1 text-xs font-semibold">
-                        <div>
-                          {currentCode > 0 && paymentRequest?.reviewedAt && (
-                            <CheckOutlined className="h-5 w-5 text-green-500" />
-                          )}
-                        </div>
-                        <div>
-                          {currentCode > 0 &&
-                            paymentRequest?.reviewedAt &&
-                            `Reviewed ` +
-                              moment(paymentRequest?.reviewedAt).fromNow()}
-                        </div>
-                      </div>
-                    ),
-
-                    disabled:
-                      !user?.permissions?.canApproveAsHod || currentCode > 0,
-                  },
-                  {
-                    title: `Level 1 (${
-                      paymentRequest?.approver?.firstName +
-                      " " +
-                      paymentRequest?.approver?.lastName
-                    })`,
-                    icon: <ClipboardDocumentCheckIcon className="h-5" />,
-                    subTitle: currentCode > 1 && (
-                      <div className="flex flex-row items-center space-x-1 text-xs font-semibold">
-                        <div>
-                          {currentCode === 5 &&
-                            !paymentRequest?.hod_approvalDate && (
-                              <CloseOutlined className="h-5 w-5 text-red-500" />
-                            )}
-                          {currentCode > 1 &&
-                            paymentRequest?.hod_approvalDate && (
-                              <CheckOutlined className="h-5 w-5 text-green-500" />
-                            )}
-                        </div>
-                        <div>
-                          {currentCode === 5 &&
-                            !paymentRequest?.hod_approvalDate &&
-                            `Declined ` +
-                              moment(paymentRequest?.rejectionDate).fromNow()}
-                          {currentCode > 1 &&
-                            paymentRequest?.hod_approvalDate &&
-                            `Approved ` +
-                              moment(
-                                paymentRequest?.hod_approvalDate
-                              ).fromNow()}
-                        </div>
-                      </div>
-                    ),
-                    description: currentCode == 1 && (
-                      <div className="flex flex-col">
-                        <div>
-                          Kindly check if the request is relevant and take
-                          action accordingly.
-                        </div>
-                        <div className="flex flex-row space-x-5">
-                          <div>
-                            <Popconfirm
-                              title="Are you sure?"
-                              open={openApprove}
-                              icon={
-                                <QuestionCircleOutlined
-                                  style={{ color: "red" }}
-                                />
-                              }
-                              onConfirm={() => {
-                                // changeStatus(2);
-                                approveRequest(getRequestStatus(2));
-                                setOpenApprove(false);
-                              }}
-                              // okButtonProps={{
-                              //   loading: confirmRejectLoading,
-                              // }}
-                              onCancel={() => setOpenApprove(false)}
-                            >
-                              <Button
-                                disabled={
-                                  !user?.permissions?.canApproveAsHod ||
-                                  user?._id !== paymentRequest?.approver?._id ||
-                                  currentCode > 1
-                                }
-                                onClick={() => setOpenApprove(true)}
-                                type="primary"
-                                size="small"
-                              >
-                                Approve
-                              </Button>
-                            </Popconfirm>
-                          </div>
-                          <div>
-                            <Popconfirm
-                              title="Are you sure?"
-                              open={open}
-                              icon={
-                                <QuestionCircleOutlined
-                                  style={{ color: "red" }}
-                                />
-                              }
-                              onConfirm={() => {
-                                if (reason?.length >= 3) declineRequest();
-                              }}
-                              description={
-                                <>
-                                  <Input
-                                    onChange={(v) => setReason(v.target.value)}
-                                    placeholder="Please insert a reason for the rejection"
-                                  ></Input>
-                                </>
-                              }
-                              okButtonProps={{
-                                disabled: reason?.length < 3,
-                                loading: confirmRejectLoading,
-                              }}
-                              onCancel={handleCancel}
-                            >
-                              <Button
-                                icon={<DislikeOutlined />}
-                                disabled={
-                                  !user?.permissions?.canApproveAsHod ||
-                                  user?._id !== paymentRequest?.approver?._id ||
-                                  currentCode > 1
-                                }
-                                danger
-                                size="small"
-                                type="primary"
-                                onClick={showPopconfirm}
-                              >
-                                Reject
-                              </Button>
-                            </Popconfirm>
-                          </div>
-                        </div>
-                      </div>
-                    ),
-                    disabled:
-                      !user?.permissions?.canApproveAsHod || currentCode > 1,
-                  },
-                  {
-                    title: "Level 2 (Finance)",
-                    icon: <CreditCardIcon className="h-5" />,
-                    subTitle: currentCode > 2 &&
-                      paymentRequest?.hod_approvalDate && (
-                        <div className="flex flex-row items-center space-x-1 text-xs font-semibold">
-                          <div>
-                            {currentCode === 5 &&
-                              !paymentRequest?.hof_approvalDate && (
-                                <CloseOutlined className="h-5 w-5 text-red-500" />
-                              )}
-                            {currentCode > 2 &&
-                              paymentRequest?.hof_approvalDate && (
-                                <CheckOutlined className="h-5 w-5 text-green-500" />
-                              )}
-                          </div>
-                          <div>
-                            {currentCode === 5 &&
-                              !paymentRequest?.hof_approvalDate &&
-                              `Declined ` +
-                                moment(paymentRequest?.rejectionDate).fromNow()}
-                            {currentCode > 2 &&
-                              paymentRequest?.hof_approvalDate &&
-                              `Approved ` +
-                                moment(
-                                  paymentRequest?.hof_approvalDate
-                                ).fromNow()}
-                          </div>
-                        </div>
-                      ),
-                    description: currentCode === 2 && (
-                      <div className="flex flex-col">
-                        <div>
-                          Kindly check if the request is relevant and take
-                          action accordingly.
-                        </div>
-                        <div className="flex flex-row space-x-5">
-                          <div>
-                            <Popconfirm
-                              title="Are you sure?"
-                              open={openApprove}
-                              icon={
-                                <QuestionCircleOutlined
-                                  style={{ color: "red" }}
-                                />
-                              }
-                              onConfirm={() => {
-                                approveRequest("approved");
-                                setOpenApprove(false);
-                              }}
-                              // okButtonProps={{
-                              //   loading: confirmRejectLoading,
-                              // }}
-                              onCancel={() => setOpenApprove(false)}
-                            >
-                              <Button
-                                disabled={
-                                  !user?.permissions?.canApproveAsHof ||
-                                  currentCode > 2 ||
-                                  currentCode < 0
-                                }
-                                onClick={() => setOpenApprove(true)}
-                                type="primary"
-                                size="small"
-                              >
-                                Approve
-                              </Button>
-                            </Popconfirm>
-                          </div>
-                          <div>
-                            <Popconfirm
-                              title="Are you sure?"
-                              open={open}
-                              icon={
-                                <QuestionCircleOutlined
-                                  style={{ color: "red" }}
-                                />
-                              }
-                              onConfirm={() => {
-                                if (reason?.length >= 3) declineRequest();
-                              }}
-                              okButtonProps={{
-                                disabled: reason?.length < 3,
-                                loading: confirmRejectLoading,
-                              }}
-                              onCancel={handleCancel}
-                              description={
-                                <>
-                                  <Input
-                                    onChange={(v) => setReason(v.target.value)}
-                                    placeholder="Reason for rejection"
-                                  ></Input>
-                                </>
-                              }
-                            >
-                              <Button
-                                disabled={
-                                  !user?.permissions?.canApproveAsHof ||
-                                  currentCode > 2 ||
-                                  currentCode < 0
-                                }
-                                type="primary"
-                                danger
-                                size="small"
-                                onClick={showPopconfirm}
-                              >
-                                Reject
-                              </Button>
-                            </Popconfirm>
-                          </div>
-                        </div>
-                      </div>
-                    ),
-                    disabled:
-                      !user?.permissions?.canApproveAsHof ||
-                      currentCode > 2 ||
-                      currentCode < 0,
-                  },
-                ]}
-              />
-              {paymentRequest?.reasonForRejection && (
-                <div className="bg-red-50 p-2 rounded-md">
-                  {paymentRequest?.reasonForRejection}
-                </div>
-              )}
-            </div>
-          )}
-
-          {!paymentRequest?.approver &&
-            user?.userType !== "VENDOR" &&
-            user?.permissions?.canEditPaymentRequests && (
-              <div className="flex flex-col space-y-2">
-                {/* <div className="text-xs text-gray-500">
-                  {showAddApproverForm ? "" : "No approver selected yet"}
-                </div> */}
-                {!showAddApproverForm &&
-                  user?.permissions?.canEditPaymentRequests && (
-                    <div className="flex flex-row items-center space-x-1">
-                      <Button
-                        type="primary"
-                        onClick={() => {
-                          setShowAddApproverForm(!showAddApproverForm);
-                          setLevel1Approver(null);
-                        }}
-                      >
-                        Add approver
-                      </Button>
-                    </div>
-                  )}
-                {showAddApproverForm && (
-                  <div className="flex flex-row items-center space-x-1">
-                    <div
-                      onClick={() => {
-                        setShowAddApproverForm(!showAddApproverForm);
-                        setLevel1Approver(null);
-                      }}
-                    >
-                      <CloseCircleOutlined className="text-red-500" />
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-          {showAddApproverForm && (
-            <div className="w-1/3">
-              <Form layout="vertical">
-                <Form.Item
-                  label="Select level 1 approver"
-                  name="level1Approver"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Level 1 approver is required",
-                    },
-                  ]}
-                >
-                  <Select
-                    // defaultValue={defaultApprover}
-                    placeholder="Select Approver"
-                    showSearch
-                    onChange={(value) => {
-                      setLevel1Approver(value);
-                    }}
-                    filterOption={(input, option) =>
-                      (option?.label ?? "")
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                    options={level1Approvers.map((l) => {
-                      return {
-                        label: l?.firstName + " " + l?.lastName,
-                        value: l?._id,
-                      };
-                    })}
-                  ></Select>
-                </Form.Item>
-
-                <Form.Item>
-                  <Button
-                    onClick={sendReview}
-                    type="primary"
-                    disabled={!level1Approver}
-                  >
-                    Submit
-                  </Button>
-                </Form.Item>
-              </Form>
-            </div>
-          )}
-
-          {/* Payment process */}
-          <div className="flex flex-row justify-between items-center">
-            <Typography.Title level={4}>Payment process</Typography.Title>
-            <div>
-              {paymentRequest?.status == "approved" && (
-                <Tag color="orange">payment is due</Tag>
-              )}
-            </div>
-          </div>
-
-          {paymentRequest?.status === "approved" && (
+          {paymentRequest?.status !== "withdrawn" && (
             <>
-              <UploadOtherFiles
-                files={filesProof}
-                setFiles={setFilesProof}
-                label="Select Payment proof"
-              />
-
               <div>
-                <Button
-                  loading={saving}
-                  onClick={() => handleUpload("paymentProof")}
-                  type="primary"
-                  disabled={!filesProof || filesProof.length == 0}
-                >
-                  Submit
-                </Button>
+                <Typography.Title level={4}>Request Approval</Typography.Title>
               </div>
-            </>
-          )}
-          {paymentRequest?.status !== "approved" &&
-            paymentRequest?.status !== "paid" && (
-              <div className="text-sm text-gray-600 p-3 bg-gray-50 rounded-md flex flex-col justify-center items-center">
-                <LockClosedIcon className="h-10 w-10 text-blue-400" />
-                <p>
-                  This request needs to be approved for the payment process to
-                  start.
-                </p>
-              </div>
-            )}
 
-          {paymentRequest?.status === "paid" && (
-            <div className="flex flex-col  space-y-2 ">
-              <div className="text-xs text-gray-400">
-                Attached Payment proof(s)
-              </div>
-              <div className="grid grid-cols-2 gap-y-2">
-                {paymentRequest?.paymentProofDocs?.map((doc, i) => {
-                  const truncatedFileName =
-                    doc?.length >= 16
-                      ? `${doc?.slice(0, 12)}... ${doc?.slice(
-                          doc?.lastIndexOf(".")
-                        )}`
-                      : doc;
-                  return (
-                    <div className="flex flex-row items-center space-x-5">
-                      <Tooltip title={doc}>
-                        <Typography.Text ellipsis>
-                          <Link
-                            href={`${url}/file/paymentRequests/${doc}`}
-                            target="_blank"
-                          >
-                            <div className="text-xs">
-                              <div className="flex flex-row space-x-1 items-center">
-                                {" "}
-                                <PaperClipOutlined /> {truncatedFileName}
+              {paymentRequest?.approver && (
+                <div className="mx-3 mt-5 ">
+                  <Steps
+                    direction="vertical"
+                    current={currentCode}
+                    items={[
+                      // {
+                      //   title: `Reviewed by ${paymentRequest?.reviewedBy?.firstName} ${paymentRequest?.reviewedBy?.lastName}`,
+                      //   icon: <DocumentMagnifyingGlassIcon className="h-5" />,
+                      //   subTitle: currentCode > 0 && (
+                      //     <div className="flex flex-row items-center space-x-1 text-xs font-semibold">
+                      //       <div>
+                      //         {currentCode > 0 &&
+                      //           paymentRequest?.reviewedAt && (
+                      //             <CheckOutlined className="h-5 w-5 text-green-500" />
+                      //           )}
+                      //       </div>
+                      //       <div>
+                      //         {currentCode > 0 &&
+                      //           paymentRequest?.reviewedAt &&
+                      //           `Reviewed ` +
+                      //             moment(paymentRequest?.reviewedAt).fromNow()}
+                      //       </div>
+                      //     </div>
+                      //   ),
+
+                      //   disabled:
+                      //     !user?.permissions?.canApproveAsHod ||
+                      //     currentCode > 0,
+                      // },
+                      {
+                        title: `Level 1 (${
+                          paymentRequest?.approver?.firstName +
+                          " " +
+                          paymentRequest?.approver?.lastName
+                        })`,
+                        icon: <ClipboardDocumentCheckIcon className="h-5" />,
+                        subTitle: currentCode > 1 && (
+                          <div className="flex flex-row items-center space-x-1 text-xs font-semibold">
+                            <div>
+                              {currentCode === 5 &&
+                                !paymentRequest?.hod_approvalDate && (
+                                  <CloseOutlined className="h-5 w-5 text-red-500" />
+                                )}
+                              {currentCode > 1 &&
+                                paymentRequest?.hod_approvalDate && (
+                                  <CheckOutlined className="h-5 w-5 text-green-500" />
+                                )}
+                            </div>
+                            <div>
+                              {currentCode === 5 &&
+                                !paymentRequest?.hod_approvalDate &&
+                                `Declined ` +
+                                  moment(
+                                    paymentRequest?.rejectionDate
+                                  ).fromNow()}
+                              {currentCode > 1 &&
+                                paymentRequest?.hod_approvalDate &&
+                                `Approved ` +
+                                  moment(
+                                    paymentRequest?.hod_approvalDate
+                                  ).fromNow()}
+                            </div>
+                          </div>
+                        ),
+                        description: currentCode == 1 && (
+                          <div className="flex flex-col">
+                            <div>
+                              Kindly check if the request is relevant and take
+                              action accordingly.
+                            </div>
+                            <div className="flex flex-row space-x-5">
+                              <div>
+                                <Popconfirm
+                                  title="Are you sure?"
+                                  open={openApprove}
+                                  icon={
+                                    <QuestionCircleOutlined
+                                      style={{ color: "red" }}
+                                    />
+                                  }
+                                  onConfirm={() => {
+                                    // changeStatus(2);
+                                    approveRequest(getRequestStatus(2));
+                                    setOpenApprove(false);
+                                  }}
+                                  // okButtonProps={{
+                                  //   loading: confirmRejectLoading,
+                                  // }}
+                                  onCancel={() => setOpenApprove(false)}
+                                >
+                                  <Button
+                                    disabled={
+                                      !user?.permissions?.canApproveAsHod ||
+                                      user?._id !==
+                                        paymentRequest?.approver?._id ||
+                                      currentCode > 1
+                                    }
+                                    onClick={() => setOpenApprove(true)}
+                                    type="primary"
+                                    size="small"
+                                  >
+                                    Approve
+                                  </Button>
+                                </Popconfirm>
+                              </div>
+                              <div>
+                                <Popconfirm
+                                  title="Are you sure?"
+                                  open={open}
+                                  icon={
+                                    <QuestionCircleOutlined
+                                      style={{ color: "red" }}
+                                    />
+                                  }
+                                  onConfirm={() => {
+                                    if (reason?.length >= 3) declineRequest();
+                                  }}
+                                  description={
+                                    <>
+                                      <Input
+                                        onChange={(v) =>
+                                          setReason(v.target.value)
+                                        }
+                                        placeholder="Please insert a reason for the rejection"
+                                      ></Input>
+                                    </>
+                                  }
+                                  okButtonProps={{
+                                    disabled: reason?.length < 3,
+                                    loading: confirmRejectLoading,
+                                  }}
+                                  onCancel={handleCancel}
+                                >
+                                  <Button
+                                    icon={<DislikeOutlined />}
+                                    disabled={
+                                      !user?.permissions?.canApproveAsHod ||
+                                      user?._id !==
+                                        paymentRequest?.approver?._id ||
+                                      currentCode > 1
+                                    }
+                                    danger
+                                    size="small"
+                                    type="primary"
+                                    onClick={showPopconfirm}
+                                  >
+                                    Reject
+                                  </Button>
+                                </Popconfirm>
                               </div>
                             </div>
-                          </Link>
-                        </Typography.Text>
-                      </Tooltip>
-                      {user?.permissions?.canApproveAsHof && (
-                        <UpdatePaymentReqDoc
-                          iconOnly={true}
-                          uuid={doc}
-                          label="update"
-                          reloadFileList={refresh}
-                          paymentProof={true}
-                        />
-                      )}
+                          </div>
+                        ),
+                        disabled:
+                          !user?.permissions?.canApproveAsHod ||
+                          currentCode > 1,
+                      },
+                      {
+                        title: "Level 2 (Finance)",
+                        icon: <CreditCardIcon className="h-5" />,
+                        subTitle: currentCode > 2 &&
+                          paymentRequest?.hod_approvalDate && (
+                            <div className="flex flex-row items-center space-x-1 text-xs font-semibold">
+                              <div>
+                                {currentCode === 5 &&
+                                  !paymentRequest?.hof_approvalDate && (
+                                    <CloseOutlined className="h-5 w-5 text-red-500" />
+                                  )}
+                                {currentCode > 2 &&
+                                  paymentRequest?.hof_approvalDate && (
+                                    <CheckOutlined className="h-5 w-5 text-green-500" />
+                                  )}
+                              </div>
+                              <div>
+                                {currentCode === 5 &&
+                                  !paymentRequest?.hof_approvalDate &&
+                                  `Declined ` +
+                                    moment(
+                                      paymentRequest?.rejectionDate
+                                    ).fromNow()}
+                                {currentCode > 2 &&
+                                  paymentRequest?.hof_approvalDate &&
+                                  `Approved ` +
+                                    moment(
+                                      paymentRequest?.hof_approvalDate
+                                    ).fromNow()}
+                              </div>
+                            </div>
+                          ),
+                        description: currentCode === 2 && (
+                          <div className="flex flex-col">
+                            <div>
+                              Kindly check if the request is relevant and take
+                              action accordingly.
+                            </div>
+                            <div className="flex flex-row space-x-5">
+                              <div>
+                                <Popconfirm
+                                  title="Are you sure?"
+                                  open={openApprove}
+                                  icon={
+                                    <QuestionCircleOutlined
+                                      style={{ color: "red" }}
+                                    />
+                                  }
+                                  onConfirm={() => {
+                                    approveRequest("approved");
+                                    setOpenApprove(false);
+                                  }}
+                                  // okButtonProps={{
+                                  //   loading: confirmRejectLoading,
+                                  // }}
+                                  onCancel={() => setOpenApprove(false)}
+                                >
+                                  <Button
+                                    disabled={
+                                      !user?.permissions?.canApproveAsHof ||
+                                      currentCode > 2 ||
+                                      currentCode < 0
+                                    }
+                                    onClick={() => setOpenApprove(true)}
+                                    type="primary"
+                                    size="small"
+                                  >
+                                    Approve
+                                  </Button>
+                                </Popconfirm>
+                              </div>
+                              <div>
+                                <Popconfirm
+                                  title="Are you sure?"
+                                  open={open}
+                                  icon={
+                                    <QuestionCircleOutlined
+                                      style={{ color: "red" }}
+                                    />
+                                  }
+                                  onConfirm={() => {
+                                    if (reason?.length >= 3) declineRequest();
+                                  }}
+                                  okButtonProps={{
+                                    disabled: reason?.length < 3,
+                                    loading: confirmRejectLoading,
+                                  }}
+                                  onCancel={handleCancel}
+                                  description={
+                                    <>
+                                      <Input
+                                        onChange={(v) =>
+                                          setReason(v.target.value)
+                                        }
+                                        placeholder="Reason for rejection"
+                                      ></Input>
+                                    </>
+                                  }
+                                >
+                                  <Button
+                                    disabled={
+                                      !user?.permissions?.canApproveAsHof ||
+                                      currentCode > 2 ||
+                                      currentCode < 0
+                                    }
+                                    type="primary"
+                                    danger
+                                    size="small"
+                                    onClick={showPopconfirm}
+                                  >
+                                    Reject
+                                  </Button>
+                                </Popconfirm>
+                              </div>
+                            </div>
+                          </div>
+                        ),
+                        disabled:
+                          !user?.permissions?.canApproveAsHof ||
+                          currentCode > 2 ||
+                          currentCode < 0,
+                      },
+                    ]}
+                  />
+                  {paymentRequest?.reasonForRejection && (
+                    <div className="bg-red-50 p-2 rounded-md">
+                      {paymentRequest?.reasonForRejection}
                     </div>
-                  );
-                })}
+                  )}
+                </div>
+              )}
+
+              {!paymentRequest?.approver &&
+                user?.userType !== "VENDOR" &&
+                user?.permissions?.canEditPaymentRequests && (
+                  <div className="flex flex-col space-y-2">
+                    {/* <div className="text-xs text-gray-500">
+                  {showAddApproverForm ? "" : "No approver selected yet"}
+                </div> */}
+                    {!showAddApproverForm &&
+                      user?.permissions?.canEditPaymentRequests && (
+                        <div className="flex flex-row items-center space-x-1">
+                          <Button
+                            type="primary"
+                            onClick={() => {
+                              setShowAddApproverForm(!showAddApproverForm);
+                              setLevel1Approver(null);
+                            }}
+                          >
+                            Add approver
+                          </Button>
+                        </div>
+                      )}
+                    {showAddApproverForm && (
+                      <div className="flex flex-row items-center space-x-1">
+                        <div
+                          onClick={() => {
+                            setShowAddApproverForm(!showAddApproverForm);
+                            setLevel1Approver(null);
+                          }}
+                        >
+                          <CloseCircleOutlined className="text-red-500" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+              {showAddApproverForm && (
+                <div className="w-1/3">
+                  <Form layout="vertical">
+                    <Form.Item
+                      label="Select level 1 approver"
+                      name="level1Approver"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Level 1 approver is required",
+                        },
+                      ]}
+                    >
+                      <Select
+                        // defaultValue={defaultApprover}
+                        placeholder="Select Approver"
+                        showSearch
+                        onChange={(value) => {
+                          setLevel1Approver(value);
+                        }}
+                        filterOption={(input, option) =>
+                          (option?.label ?? "")
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
+                        options={level1Approvers.map((l) => {
+                          return {
+                            label: l?.firstName + " " + l?.lastName,
+                            value: l?._id,
+                          };
+                        })}
+                      ></Select>
+                    </Form.Item>
+
+                    <Form.Item>
+                      <Button
+                        onClick={sendReview}
+                        type="primary"
+                        disabled={!level1Approver}
+                      >
+                        Submit
+                      </Button>
+                    </Form.Item>
+                  </Form>
+                </div>
+              )}
+
+              {/* Payment process */}
+              <div className="flex flex-row justify-between items-center">
+                <Typography.Title level={4}>Payment process</Typography.Title>
+                <div>
+                  {paymentRequest?.status == "approved" && (
+                    <Tag color="orange">payment is due</Tag>
+                  )}
+                </div>
               </div>
-            </div>
+
+              {paymentRequest?.status === "approved" &&
+                user?.permissions.canApproveAsHof &&
+                user?._id == paymentRequest?.createdBy?._id && (
+                  <>
+                    <UploadOtherFiles
+                      files={filesProof}
+                      setFiles={setFilesProof}
+                      label="Select Payment proof"
+                    />
+
+                    <div>
+                      <Button
+                        loading={saving}
+                        onClick={() => handleUpload("paymentProof")}
+                        type="primary"
+                        disabled={!filesProof || filesProof.length == 0}
+                      >
+                        Submit
+                      </Button>
+                    </div>
+                  </>
+                )}
+              {paymentRequest?.status !== "approved" &&
+                paymentRequest?.status !== "paid" && (
+                  <div className="text-sm text-gray-600 p-3 bg-gray-50 rounded-md flex flex-col justify-center items-center">
+                    <LockClosedIcon className="h-10 w-10 text-blue-400" />
+                    <p>
+                      This request needs to be approved for the payment process
+                      to start.
+                    </p>
+                  </div>
+                )}
+
+              {paymentRequest?.status === "paid" && (
+                <div className="flex flex-col  space-y-2 ">
+                  <div className="text-xs text-gray-400">
+                    Attached Payment proof(s)
+                  </div>
+                  <div className="grid grid-cols-2 gap-y-2">
+                    {paymentRequest?.paymentProofDocs?.map((doc, i) => {
+                      const truncatedFileName =
+                        doc?.length >= 16
+                          ? `${doc?.slice(0, 12)}... ${doc?.slice(
+                              doc?.lastIndexOf(".")
+                            )}`
+                          : doc;
+                      return (
+                        <div className="flex flex-row items-center space-x-5">
+                          <Tooltip title={doc}>
+                            <Typography.Text ellipsis>
+                              <Link
+                                href={`${url}/file/paymentRequests/${doc}`}
+                                target="_blank"
+                              >
+                                <div className="text-xs">
+                                  <div className="flex flex-row space-x-1 items-center">
+                                    {" "}
+                                    <PaperClipOutlined /> {truncatedFileName}
+                                  </div>
+                                </div>
+                              </Link>
+                            </Typography.Text>
+                          </Tooltip>
+                          {user?.permissions?.canApproveAsHof && (
+                            <UpdatePaymentReqDoc
+                              iconOnly={true}
+                              uuid={doc}
+                              label="update"
+                              reloadFileList={refresh}
+                              paymentProof={true}
+                            />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
 
