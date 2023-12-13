@@ -58,13 +58,13 @@ function UpdatePaymentReqDoc({
     beforeUpload: (file) => {
       console.log("Fillleee", file.name);
 
-      let isPDF = file.type == "application/pdf";
-      if (!isPDF) {
-        messageApi.error(`${file.name} is not a PDF file`);
-      } else {
-      }
+      // let isPDF = file.type == "application/pdf";
+      // if (!isPDF) {
+      //   messageApi.error(`${file.name} is not a PDF file`);
+      // } else {
+      // }
 
-      return isPDF || Upload.LIST_IGNORE;
+      // return isPDF || Upload.LIST_IGNORE;
     },
     action: `${url}/uploads/updatePaymentRequests?id=${uuid}&&paymentProof=${paymentProof}`,
     headers: {

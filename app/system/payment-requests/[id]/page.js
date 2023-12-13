@@ -103,6 +103,28 @@ async function getApprovers() {
   return res.json();
 }
 
+async function getAccounts() {
+  let token = localStorage.getItem("token");
+  const res = await fetch(`${url}/b1/accounts`, {
+    method: "GET",
+    headers: {
+      Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+
+      token: token,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    // This will activate the closest `error.js` Error Boundary
+
+    return null;
+    // throw new Error("Failed to fetch data");
+  }
+
+  return res.json();
+}
+
 async function getBudgetLines() {}
 
 async function getFile(path) {
@@ -218,6 +240,10 @@ export default function PaymentRequest({ params }) {
           content: "Something happened! Please try again.",
         });
       });
+
+    getAccounts().then((res)=>{
+      console.log(res)
+    })
     fetch(`${url}/budgetLines`, {
       method: "GET",
       headers: {
@@ -662,7 +688,7 @@ export default function PaymentRequest({ params }) {
               <div className="flex flex-col space-y-2">
                 <div className="text-xs text-gray-400">Title</div>
                 {!editRequest && (
-                  <div className="text-xs">{paymentRequest?.title}</div>
+                  <Typography.Text className="text-xs">{paymentRequest?.title}</Typography.Text>
                 )}
                 {editRequest && (
                   <div className="mr-10">
@@ -695,10 +721,10 @@ export default function PaymentRequest({ params }) {
               </div>
 
               {/* Request Comment/addtional note */}
-              <div className="flex flex-col  space-y-2 ">
+              <div className="flex flex-col space-y-2 ">
                 <div className="text-xs text-gray-400">Comment</div>
                 {!editRequest && (
-                  <div className="text-xs">{paymentRequest?.description}</div>
+                  <Typography.Text className="text-xs">{paymentRequest?.description}</Typography.Text>
                 )}
                 {editRequest && (
                   <div className="mr-10">
