@@ -1460,8 +1460,7 @@ export default function PaymentRequest({ params }) {
               </div>
 
               {paymentRequest?.status === "approved" &&
-                user?.permissions.canApproveAsHof &&
-                user?._id == paymentRequest?.createdBy?._id && (
+                user?.permissions.canApproveAsHof  && (
                   <>
                     <UploadOtherFiles
                       files={filesProof}
