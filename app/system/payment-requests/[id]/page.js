@@ -572,7 +572,11 @@ export default function PaymentRequest({ params }) {
     })
       .then((res) => getResultFromServer(res))
       .then((res) => {
-        refresh();
+        if (res?.error) {
+          message.error(res?.message);
+        } else {
+          refresh();
+        }
       });
   }
 
@@ -1460,7 +1464,7 @@ export default function PaymentRequest({ params }) {
               </div>
 
               {paymentRequest?.status === "approved" &&
-                user?.permissions.canApproveAsHof  && (
+                user?.permissions.canApproveAsHof && (
                   <>
                     <UploadOtherFiles
                       files={filesProof}
