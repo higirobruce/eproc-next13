@@ -548,13 +548,13 @@ export default function PaymentRequest({ params }) {
         {
           AccountCode: debitAccount,
           Debit: paymentRequest?.amount,
-          FCCurrency: paymentRequest?.currency,
+          // FCCurrency: paymentRequest?.currency,
           LineMemo: paymentRequest?.title,
         },
         {
           AccountCode: creditAccount,
           Credit: paymentRequest?.amount,
-          FCCurrency: paymentRequest?.currency,
+          // FCCurrency: paymentRequest?.currency,
           LineMemo: paymentRequest?.title,
         },
       ],
