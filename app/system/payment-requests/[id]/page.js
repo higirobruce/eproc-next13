@@ -182,6 +182,9 @@ export default function PaymentRequest({ params }) {
   let [budgetLines, setBudgetLines] = useState([]);
   let [budgetLine, setBudgetLine] = useState(null);
   let [budgeted, setBudgeted] = useState(false);
+  let [accounts, setAccounts] = useState([]);
+  let [debitAccount, setDebitAccount] = useState(null);
+  let [creditAccount, setCreditAccount] = useState(null);
 
   useEffect(() => {
     getPaymentRequestDetails(params.id, router).then((res) => {
@@ -241,9 +244,9 @@ export default function PaymentRequest({ params }) {
         });
       });
 
-    getAccounts().then((res)=>{
-      console.log(res)
-    })
+    getAccounts().then((res) => {
+      setAccounts(res?.value);
+    });
     fetch(`${url}/budgetLines`, {
       method: "GET",
       headers: {
@@ -538,6 +541,24 @@ export default function PaymentRequest({ params }) {
   function sendProofForRequest(docIds) {
     paymentRequest.status = "paid";
     paymentRequest.paymentProofDocs = docIds;
+    paymentRequest.journalEntry = {
+      Memo: paymentRequest?.title,
+      ReferenceDate: moment(),
+      JournalEntryLines: [
+        {
+          AccountCode: debitAccount,
+          Debit: paymentRequest?.amount,
+          FCCurrency: paymentRequest?.currency,
+          LineMemo: paymentRequest?.title,
+        },
+        {
+          AccountCode: creditAccount,
+          Credit: paymentRequest?.amount,
+          FCCurrency: paymentRequest?.currency,
+          LineMemo: paymentRequest?.title,
+        },
+      ],
+    };
     fetch(`${url}/paymentRequests/${paymentRequest?._id}`, {
       method: "PUT",
       body: JSON.stringify({
@@ -688,7 +709,9 @@ export default function PaymentRequest({ params }) {
               <div className="flex flex-col space-y-2">
                 <div className="text-xs text-gray-400">Title</div>
                 {!editRequest && (
-                  <Typography.Text className="text-xs">{paymentRequest?.title}</Typography.Text>
+                  <Typography.Text className="text-xs">
+                    {paymentRequest?.title}
+                  </Typography.Text>
                 )}
                 {editRequest && (
                   <div className="mr-10">
@@ -724,7 +747,9 @@ export default function PaymentRequest({ params }) {
               <div className="flex flex-col space-y-2 ">
                 <div className="text-xs text-gray-400">Comment</div>
                 {!editRequest && (
-                  <Typography.Text className="text-xs">{paymentRequest?.description}</Typography.Text>
+                  <Typography.Text className="text-xs">
+                    {paymentRequest?.description}
+                  </Typography.Text>
                 )}
                 {editRequest && (
                   <div className="mr-10">
@@ -1444,6 +1469,78 @@ export default function PaymentRequest({ params }) {
                       label="Select Payment proof"
                     />
 
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="flex flex-col">
+                        <div>Account to Debit</div>
+                        <Form.Item
+                          // label="Select level 1 approver"
+                          name="accountToDebit"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Can not be empty!",
+                            },
+                          ]}
+                        >
+                          <Select
+                            // defaultValue={defaultApprover}
+                            placeholder="Account to debit"
+                            showSearch
+                            onChange={(value) => {
+                              // setLevel1Approver(value);
+                              setDebitAccount(value);
+                            }}
+                            filterOption={(input, option) =>
+                              (option?.label ?? "")
+                                .toLowerCase()
+                                .includes(input.toLowerCase())
+                            }
+                            options={accounts?.map((l) => {
+                              return {
+                                label: l?.Name,
+                                value: l?.Code,
+                              };
+                            })}
+                          ></Select>
+                        </Form.Item>
+                      </div>
+
+                      <div className="flex flex-col">
+                        <div>Account to Credit</div>
+                        <Form.Item
+                          // label="Select level 1 approver"
+                          name="accountToCredit"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Can not be empty!",
+                            },
+                          ]}
+                        >
+                          <Select
+                            // defaultValue={defaultApprover}
+                            placeholder="Account to Credit"
+                            showSearch
+                            onChange={(value) => {
+                              // setLevel1Approver(value);
+                              setCreditAccount(value);
+                            }}
+                            filterOption={(input, option) =>
+                              (option?.label ?? "")
+                                .toLowerCase()
+                                .includes(input.toLowerCase())
+                            }
+                            options={accounts?.map((l) => {
+                              return {
+                                label: l?.Name,
+                                value: l?.Code,
+                              };
+                            })}
+                          ></Select>
+                        </Form.Item>
+                      </div>
+                    </div>
+
                     <div>
                       <Button
                         loading={saving}
@@ -1472,6 +1569,7 @@ export default function PaymentRequest({ params }) {
                   <div className="text-xs text-gray-400">
                     Attached Payment proof(s)
                   </div>
+
                   <div className="grid grid-cols-2 gap-y-2">
                     {paymentRequest?.paymentProofDocs?.map((doc, i) => {
                       const truncatedFileName =
