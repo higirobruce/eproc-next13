@@ -663,7 +663,8 @@ export default function PaymentRequest({ params }) {
             <div className="space-x-3 ">
               {!paymentRequest?.status?.includes("approved") &&
                 paymentRequest?.status !== "declined" &&
-                paymentRequest?.status !== "withdrawn" && paymentRequest?.status !== "paid" &&
+                paymentRequest?.status !== "withdrawn" &&
+                paymentRequest?.status !== "paid" &&
                 user?._id == paymentRequest?.createdBy?._id && (
                   <Popconfirm
                     title="Are you sure?"
@@ -1569,8 +1570,20 @@ export default function PaymentRequest({ params }) {
 
               {paymentRequest?.status === "paid" && (
                 <div className="flex flex-col  space-y-2 ">
-                  <div className="text-xs text-gray-400">
-                    Attached Payment proof(s)
+                  <div className="flex flex-row justify-between items-center">
+                    <div className="text-xs text-gray-400">
+                      Attached Payment proof(s)
+                    </div>
+
+                    {paymentRequest?.journalEntry && (
+                      <div>
+                        <Tag color="">
+                          SAP Journal Entry: {paymentRequest?.journalEntry}
+                        </Tag>
+                      </div>
+                    )}
+
+                    
                   </div>
 
                   <div className="grid grid-cols-2 gap-y-2">
