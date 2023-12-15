@@ -123,22 +123,22 @@ export default function UserRequests() {
 
   useEffect(() => {
     fetch(`${url}/users/${user?._id}`, {
-    method: "GET",
-    headers: {
-      Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
-      token: token,
-      "Content-Type": "application/json",
-    },
-  })
-    .then((res) => res.json())
-    .then((res) => setCurrentUser(res))
-    .catch((err) =>
-      messageApi.open({
-        type: "error",
-        content: "Something happened! Please try again.",
-      })
-    );
-  }, [])
+      method: "GET",
+      headers: {
+        Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+        token: token,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => setCurrentUser(res))
+      .catch((err) =>
+        messageApi.open({
+          type: "error",
+          content: "Something happened! Please try again.",
+        })
+      );
+  }, []);
 
   function refresh() {
     setDataLoaded(false);
@@ -185,8 +185,10 @@ export default function UserRequests() {
         user?.permissions?.canApproveAsHof
           ? item.status == "approved (hod)"
           : user?.permissions?.canApproveAsHod
-          ? user._id == item?.approver?._id && item.status == "reviewed"
-          : tempDataset
+          ? user._id == item?.approver?._id &&
+            (item?.status == "pending-review" ||
+              item?.status == "reviewed")
+          : true
       );
 
       setTempDataset(statusFilter);
