@@ -663,7 +663,7 @@ export default function PaymentRequest({ params }) {
             <div className="space-x-3 ">
               {!paymentRequest?.status?.includes("approved") &&
                 paymentRequest?.status !== "declined" &&
-                paymentRequest?.status !== "withdrawn" &&
+                paymentRequest?.status !== "withdrawn" && paymentRequest?.status !== "paid" &&
                 user?._id == paymentRequest?.createdBy?._id && (
                   <Popconfirm
                     title="Are you sure?"
