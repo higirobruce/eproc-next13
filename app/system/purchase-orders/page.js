@@ -220,7 +220,7 @@ export default function PurchaseOrders() {
           message.error("Purchase order is fully paid!");
       })
       .catch((err) => {
-
+        console.log(err)
         setSubmitting(false);
       })
       .finally((err) => {
