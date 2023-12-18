@@ -15,6 +15,8 @@ import {
 } from "antd";
 import { ArrowLeftOutlined, SaveOutlined } from "@ant-design/icons";
 import UploadPaymentReq from "@/app/components/uploadPaymentReq";
+import { resolve } from "styled-jsx/css";
+import { reject } from "lodash";
 let url = process.env.NEXT_PUBLIC_BKEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
@@ -43,6 +45,31 @@ async function getPoDetails(id, router) {
   return res.json();
 }
 
+async function getPoPaymentProgress(id, router) {
+  let token = localStorage.getItem("token");
+  const res = await fetch(`${url}/purchaseOrders/paymentProgress/${id}`, {
+    method: "GET",
+    headers: {
+      Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+      token: token,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push("/auth");
+    }
+    // This will activate the closest `error.js` Error Boundary
+    return null;
+    // throw new Error("Failed to fetch data");
+  }
+
+  return res.json();
+}
+
 export default function NewPaymentRequest({ params }) {
   let user = JSON.parse(localStorage.getItem("user"));
   let token = localStorage.getItem("token");
@@ -52,18 +79,28 @@ export default function NewPaymentRequest({ params }) {
   let [title, setTitle] = useState("");
   let [description, setDescription] = useState("");
   let [amount, setAmout] = useState(null);
-  let [currency, setCurrency] = useState("RWF");
+  let [currency, setCurrency] = useState(null);
   let [docId, setDocId] = useState(null);
   let [files, setFiles] = useState([]);
   let [submitting, setSubmitting] = useState(false);
+  let [poVal, setPoVal] = useState(0);
+  let [totalPaymentVal, setTotalPaymentVal] = useState(0);
 
   const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
     getPoDetails(params?.poId, router).then((res) => {
       setPo(res);
+      setCurrency(res?.items[0]?.currency);
+    });
+
+    getPoPaymentProgress(params?.poId, router).then((res) => {
+      setPoVal(res?.poVal);
+      setTotalPaymentVal(res?.totalPaymentVal);
     });
   }, [params]);
+
+  useEffect(() => {}, [currency]);
 
   useEffect(() => {}, [files]);
 
@@ -112,7 +149,7 @@ export default function NewPaymentRequest({ params }) {
           });
 
           // docIds.push(_filenames[0]);
-          
+
           save(_filenames);
         })
         .catch((err) => {
@@ -142,7 +179,7 @@ export default function NewPaymentRequest({ params }) {
         category: "external",
         createdBy: user?._id,
         purchaseOrder: params?.poId,
-        docIds: _fileList
+        docIds: _fileList,
       }),
     })
       .then((res) => {
@@ -202,6 +239,9 @@ export default function NewPaymentRequest({ params }) {
             className="mt-5"
             // layout="horizontal"
             form={form}
+            initialValues={{
+              currency: po?.items[0]?.currency,
+            }}
             // onFinish={handleUpload}
           >
             <div className="grid md:grid-cols-3 gap-10">
@@ -257,7 +297,14 @@ export default function NewPaymentRequest({ params }) {
               <div>
                 {/* Amount */}
                 <div className="flex flex-col">
-                  <div>Amount due</div>
+                  {poVal !== -1 && (
+                    <div>{`Amount due (balance: ${(
+                      poVal - totalPaymentVal
+                    ).toLocaleString()} ${currency})`}</div>
+                  )}
+                  {poVal == -1 && (
+                    <div>{`Amount due (balance: ${getPoTotalVal().grossTotal.toLocaleString()} ${currency})`}</div>
+                  )}
                   <Form.Item>
                     <Form.Item
                       name="amount"
@@ -267,15 +314,51 @@ export default function NewPaymentRequest({ params }) {
                           required: true,
                           message: "Amount is required",
                         },
+                        {
+                          validator(rule, value) {
+                            return new Promise((resolve, reject) => {
+                              if (
+                                (poVal > -1 &&
+                                  value > poVal - totalPaymentVal) ||
+                                (poVal == -1 &&
+                                  value > getPoTotalVal()?.grossTotal)
+                              ) {
+                                reject(
+                                  "The amount should not exceed the po balance!"
+                                );
+                              } else {
+                                resolve();
+                              }
+                            });
+                          },
+                        },
                       ]}
                     >
                       <InputNumber
                         style={{ width: "100%" }}
                         addonBefore={
-                          <Form.Item noStyle name="currency">
+                          <Form.Item
+                            noStyle
+                            name="currency"
+                            rules={[
+                              {
+                                validator(rule, value) {
+                                  return new Promise((resolve, reject) => {
+                                    if (value !== po?.items[0]?.currency) {
+                                      reject(
+                                        "The currency can not differ from the PO currency!"
+                                      );
+                                    } else {
+                                      resolve();
+                                    }
+                                  });
+                                },
+                              },
+                            ]}
+                          >
                             <Select
                               onChange={(value) => setCurrency(value)}
-                              defaultValue="RWF"
+                              // defaultValue={currency|| po?.items[0]?.currency}
                               options={[
                                 {
                                   value: "RWF",
@@ -313,9 +396,10 @@ export default function NewPaymentRequest({ params }) {
               icon={<SaveOutlined />}
               type="primary"
               onClick={() => {
-                form.validateFields();
-                setSubmitting(true);
-                handleUpload();
+                form.validateFields().then(() => {
+                  setSubmitting(true);
+                  handleUpload();
+                });
               }}
               disabled={submitting}
             >
