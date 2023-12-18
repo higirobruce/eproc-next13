@@ -215,12 +215,14 @@ export default function PurchaseOrders() {
 
         let purchaseOrderStillOpen = poVal > totalPaymentVal;
 
-        purchaseOrderStillOpen &&totalPaymentVal&
-          router.push(`/system/payment-requests/new/${po?._id}`);
+        purchaseOrderStillOpen ||
+          ((!totalPaymentVal || !poVal) &&
+            router.push(`/system/payment-requests/new/${po?._id}`));
 
         !purchaseOrderStillOpen && setSubmitting(false);
 
-        !purchaseOrderStillOpen && message.error("Purchase order is fully paid!");
+        !purchaseOrderStillOpen &&
+          message.error("Purchase order is fully paid!");
       })
       .catch((err) => {})
       .finally((err) => {
