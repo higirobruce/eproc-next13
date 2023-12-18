@@ -205,28 +205,25 @@ export default function PurchaseOrders() {
     })
       .then((res) => res.json())
       .then((res) => {
-        // {
-        //      totalPaymentVal: 123321,
-        //      poId: new ObjectId("64b25361125896f034d7d9f7"),
-        //     poVal: 10000
-        //  }
-
+        console.log(res);
         let { totalPaymentVal, poVal } = res;
 
         let purchaseOrderStillOpen = poVal > totalPaymentVal;
 
-       ( purchaseOrderStillOpen ||
-          (!totalPaymentVal || !poVal)) &&
-            router.push(`/system/payment-requests/new/${po?._id}`);
+        (purchaseOrderStillOpen || poVal == -1) &&
+          router.push(`/system/payment-requests/new/${po?._id}`);
 
-        !purchaseOrderStillOpen && setSubmitting(false);
+        !purchaseOrderStillOpen && poVal !== -1 && setSubmitting(false);
 
         !purchaseOrderStillOpen &&
+          poVal !== -1 &&
           message.error("Purchase order is fully paid!");
       })
-      .catch((err) => {})
-      .finally((err) => {
+      .catch((err) => {
+
         setSubmitting(false);
+      })
+      .finally((err) => {
       });
   }
 
