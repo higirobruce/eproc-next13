@@ -215,7 +215,7 @@ export default function PurchaseOrders() {
 
         let purchaseOrderStillOpen = poVal > totalPaymentVal;
 
-        purchaseOrderStillOpen &&
+        purchaseOrderStillOpen &&totalPaymentVal&
           router.push(`/system/payment-requests/new/${po?._id}`);
 
         !purchaseOrderStillOpen && setSubmitting(false);
@@ -224,7 +224,7 @@ export default function PurchaseOrders() {
       })
       .catch((err) => {})
       .finally((err) => {
-        
+        setSubmitting(false);
       });
   }
 
