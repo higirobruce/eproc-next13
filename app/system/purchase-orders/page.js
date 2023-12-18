@@ -92,7 +92,7 @@ export default function PurchaseOrders() {
       dataIndex: "estimatedUnitCost",
       key: "estimatedUnitCost",
       render: (_, item) => (
-        <>{item?.currency +' '+ (item?.estimatedUnitCost).toLocaleString()}</>
+        <>{item?.currency + " " + (item?.estimatedUnitCost).toLocaleString()}</>
       ),
     },
     {
@@ -101,7 +101,8 @@ export default function PurchaseOrders() {
       key: "totalAmount",
       render: (_, item) => (
         <>
-          {item?.currency +' '+
+          {item?.currency +
+            " " +
             (item?.quantity * item?.estimatedUnitCost).toLocaleString()}
         </>
       ),
@@ -189,6 +190,42 @@ export default function PurchaseOrders() {
           setDataLoaded(true);
         });
     }
+  }
+
+  function createPaymentRequest(po) {
+    setSubmitting(true);
+
+    fetch(`${url}/purchaseOrders/paymentProgress/${po?._id}`, {
+      method: "GET",
+      headers: {
+        Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        // {
+        //      totalPaymentVal: 123321,
+        //      poId: new ObjectId("64b25361125896f034d7d9f7"),
+        //     poVal: 10000
+        //  }
+
+        let { totalPaymentVal, poVal } = res;
+
+        let purchaseOrderStillOpen = poVal > totalPaymentVal;
+
+        purchaseOrderStillOpen &&
+          router.push(`/system/payment-requests/new/${po?._id}`);
+
+        !purchaseOrderStillOpen && setSubmitting(false);
+
+        !purchaseOrderStillOpen && message.error("Purchase order is fully paid!");
+      })
+      .catch((err) => {})
+      .finally((err) => {
+        
+      });
   }
 
   function getPOs() {}
@@ -305,14 +342,22 @@ export default function PurchaseOrders() {
               pagination={false}
             />
             <Typography.Title level={5} className="self-end">
-              Total (Tax Excl.): {po?.items[0]?.currency + ' ' + getPoTotalVal().totalVal?.toLocaleString()}{" "}
-              
+              Total (Tax Excl.):{" "}
+              {po?.items[0]?.currency +
+                " " +
+                getPoTotalVal().totalVal?.toLocaleString()}{" "}
             </Typography.Title>
             <Typography.Title level={5} className="self-end">
-              Tax: {po?.items[0]?.currency + ' ' +getPoTotalVal().totalTax?.toLocaleString()} 
+              Tax:{" "}
+              {po?.items[0]?.currency +
+                " " +
+                getPoTotalVal().totalTax?.toLocaleString()}
             </Typography.Title>
             <Typography.Title level={5} className="self-end">
-              Gross Total: {po?.items[0]?.currency + ' ' +getPoTotalVal().grossTotal?.toLocaleString()} 
+              Gross Total:{" "}
+              {po?.items[0]?.currency +
+                " " +
+                getPoTotalVal().grossTotal?.toLocaleString()}
             </Typography.Title>
             <Typography.Title level={3}>Details</Typography.Title>
             {po?.sections?.map((section) => {
@@ -967,6 +1012,7 @@ export default function PurchaseOrders() {
                               />
                             </div>
 
+                            {/* Payment request */}
                             {
                               // _.round(po?.deliveryProgress,1) >= 100 &&
                               <div>
@@ -976,12 +1022,7 @@ export default function PurchaseOrders() {
                                   size="small"
                                   // loading={submitting}
                                   icon={<DollarOutlined />}
-                                  onClick={() => {
-                                    setSubmitting(true);
-                                    router.push(
-                                      `/system/payment-requests/new/${po?._id}`
-                                    );
-                                  }}
+                                  onClick={() => createPaymentRequest(po)}
                                 >
                                   Payment
                                 </Button>
