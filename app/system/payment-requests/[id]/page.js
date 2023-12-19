@@ -125,6 +125,28 @@ async function getAccounts() {
   return res.json();
 }
 
+async function getDistributionRules() {
+  let token = localStorage.getItem("token");
+  const res = await fetch(`${url}/b1/distributionRules`, {
+    method: "GET",
+    headers: {
+      Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
+
+      token: token,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    // This will activate the closest `error.js` Error Boundary
+
+    return null;
+    // throw new Error("Failed to fetch data");
+  }
+
+  return res.json();
+}
+
 async function getBudgetLines() {}
 
 async function getFile(path) {
@@ -185,6 +207,9 @@ export default function PaymentRequest({ params }) {
   let [accounts, setAccounts] = useState([]);
   let [debitAccount, setDebitAccount] = useState(null);
   let [creditAccount, setCreditAccount] = useState(null);
+  let [distributionRules, setDistributionRules] = useState([]);
+  let [distributionRuleCr, setDistributionRuleCr] = useState(null);
+  let [distributionRuleDb, setDistributionRuleDb] = useState(null);
 
   useEffect(() => {
     getPaymentRequestDetails(params.id, router).then((res) => {
@@ -246,6 +271,10 @@ export default function PaymentRequest({ params }) {
 
     getAccounts().then((res) => {
       setAccounts(res?.value);
+    });
+
+    getDistributionRules().then((res) => {
+      setDistributionRules(res?.value);
     });
     fetch(`${url}/budgetLines`, {
       method: "GET",
@@ -550,12 +579,14 @@ export default function PaymentRequest({ params }) {
           Debit: paymentRequest?.amount,
           // FCCurrency: paymentRequest?.currency,
           LineMemo: paymentRequest?.title,
+          CostingCode: distributionRuleDb,
         },
         {
           AccountCode: creditAccount,
           Credit: paymentRequest?.amount,
           // FCCurrency: paymentRequest?.currency,
           LineMemo: paymentRequest?.title,
+          CostingCode: distributionRuleCr,
         },
       ],
     };
@@ -658,7 +689,9 @@ export default function PaymentRequest({ params }) {
         <div className="md:col-span-4 flex flex-col ring-1 ring-gray-200 p-5 rounded shadow-md bg-white overflow-y-scroll space-y-5">
           {/* Overview */}
           <div className="flex flex-row items-center justify-between">
-            <Typography.Title level={4}>Overview</Typography.Title>
+            <Typography.Title level={4} onClick={refresh}>
+              Overview
+            </Typography.Title>
 
             <div className="space-x-3 ">
               {!paymentRequest?.status?.includes("approved") &&
@@ -1074,9 +1107,9 @@ export default function PaymentRequest({ params }) {
             </div>
           )}
 
-          {/* Approval flow */}
           {paymentRequest?.status !== "withdrawn" && (
             <>
+              {/* Approval flow */}
               <div>
                 <Typography.Title level={4}>Request Approval</Typography.Title>
               </div>
@@ -1473,11 +1506,74 @@ export default function PaymentRequest({ params }) {
                       label="Select Payment proof"
                     />
 
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="flex flex-col">
-                        <div>Account to Debit</div>
+                    <div className="grid grid-cols-2 gap-6 divide-x">
+                      {/* <div className="flex flex-col">
+                        <div>DistributionRule</div>
                         <Form.Item
                           // label="Select level 1 approver"
+                          name="distributionRule"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Can not be empty!",
+                            },
+                          ]}
+                        >
+                          <Select
+                            // defaultValue={defaultApprover}
+                            placeholder="Select rule"
+                            showSearch
+                            onChange={(value) => {
+                              // setLevel1Approver(value);
+                              setDistributionRule(value);
+                            }}
+                            filterOption={(input, option) =>
+                              (option?.label ?? "")
+                                .toLowerCase()
+                                .includes(input.toLowerCase())
+                            }
+                            options={distributionRules?.map((l) => {
+                              return {
+                                label: l?.FactorDescription,
+                                value: l?.FactorCode,
+                              };
+                            })}
+                          ></Select>
+                        </Form.Item>
+                      </div> */}
+                      <div className="flex flex-row items-center">
+                        <Form.Item
+                          label="Distribution Rule - Debit Acc"
+                          name="currency"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Can not be empty!",
+                            },
+                          ]}
+                        >
+                          <Select
+                            // style={{ marginLeft: 8, width: 200 }}
+                            showSearch
+                            onChange={(value) => {
+                              // setLevel1Approver(value);
+                              setDistributionRuleDb(value);
+                            }}
+                            filterOption={(input, option) =>
+                              (option?.label ?? "")
+                                .toLowerCase()
+                                .includes(input.toLowerCase())
+                            }
+                            options={distributionRules?.map((l) => {
+                              return {
+                                label: l?.FactorDescription,
+                                value: l?.FactorCode,
+                              };
+                            })}
+                          ></Select>
+                        </Form.Item>
+                        <Form.Item
+                          label="Debit Account"
                           name="accountToDebit"
                           rules={[
                             {
@@ -1488,6 +1584,7 @@ export default function PaymentRequest({ params }) {
                         >
                           <Select
                             // defaultValue={defaultApprover}
+                            style={{ marginLeft: 8, width: 200 }}
                             placeholder="Account to debit"
                             showSearch
                             onChange={(value) => {
@@ -1509,10 +1606,39 @@ export default function PaymentRequest({ params }) {
                         </Form.Item>
                       </div>
 
-                      <div className="flex flex-col">
-                        <div>Account to Credit</div>
+                      <div className="flex flex-row items-center">
                         <Form.Item
-                          // label="Select level 1 approver"
+                          label="Distribution Rule - Credit Acc"
+                          name="currency"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Can not be empty!",
+                            },
+                          ]}
+                        >
+                          <Select
+                            // style={{ marginLeft: 8, width: 200 }}
+                            showSearch
+                            onChange={(value) => {
+                              // setLevel1Approver(value);
+                              setDistributionRuleCr(value);
+                            }}
+                            filterOption={(input, option) =>
+                              (option?.label ?? "")
+                                .toLowerCase()
+                                .includes(input.toLowerCase())
+                            }
+                            options={distributionRules?.map((l) => {
+                              return {
+                                label: l?.FactorDescription,
+                                value: l?.FactorCode,
+                              };
+                            })}
+                          ></Select>
+                        </Form.Item>
+                        <Form.Item
+                          label="Credit Account"
                           name="accountToCredit"
                           rules={[
                             {
@@ -1523,6 +1649,7 @@ export default function PaymentRequest({ params }) {
                         >
                           <Select
                             // defaultValue={defaultApprover}
+                            style={{ marginLeft: 8, width: 200 }}
                             placeholder="Account to Credit"
                             showSearch
                             onChange={(value) => {
@@ -1550,7 +1677,14 @@ export default function PaymentRequest({ params }) {
                         loading={saving}
                         onClick={() => handleUpload("paymentProof")}
                         type="primary"
-                        disabled={!filesProof || filesProof.length == 0}
+                        disabled={
+                          !filesProof ||
+                          filesProof.length == 0 ||
+                          !debitAccount ||
+                          !creditAccount ||
+                          !distributionRuleCr ||
+                          !distributionRuleDb
+                        }
                       >
                         Submit
                       </Button>
@@ -1575,15 +1709,14 @@ export default function PaymentRequest({ params }) {
                       Attached Payment proof(s)
                     </div>
 
-                    {paymentRequest?.journalEntry && (
-                      <div>
-                        <Tag color="">
-                          SAP Journal Entry: {paymentRequest?.journalEntry}
-                        </Tag>
-                      </div>
-                    )}
-
-                    
+                    {paymentRequest?.journalEntry &&
+                      !paymentRequest?.journalEntry?.Memo && (
+                        <div>
+                          <Tag color="">
+                            SAP Journal Entry: {paymentRequest?.journalEntry}
+                          </Tag>
+                        </div>
+                      )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-y-2">
