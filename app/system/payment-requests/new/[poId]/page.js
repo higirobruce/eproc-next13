@@ -358,7 +358,7 @@ export default function NewPaymentRequest({ params }) {
                           >
                             <Select
                               onChange={(value) => setCurrency(value)}
-                              // defaultValue={currency|| po?.items[0]?.currency}
+                              defaultValue="RWF"
                               options={[
                                 {
                                   value: "RWF",
