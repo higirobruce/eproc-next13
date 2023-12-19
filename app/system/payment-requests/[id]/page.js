@@ -570,26 +570,28 @@ export default function PaymentRequest({ params }) {
   function sendProofForRequest(docIds) {
     paymentRequest.status = "paid";
     paymentRequest.paymentProofDocs = docIds;
-    paymentRequest.journalEntry = {
-      Memo: paymentRequest?.title,
-      ReferenceDate: moment(),
-      JournalEntryLines: [
-        {
-          AccountCode: debitAccount,
-          Debit: paymentRequest?.amount,
-          // FCCurrency: paymentRequest?.currency,
-          LineMemo: paymentRequest?.title,
-          CostingCode: distributionRuleDb,
-        },
-        {
-          AccountCode: creditAccount,
-          Credit: paymentRequest?.amount,
-          // FCCurrency: paymentRequest?.currency,
-          LineMemo: paymentRequest?.title,
-          CostingCode: distributionRuleCr,
-        },
-      ],
-    };
+
+    if (paymentRequest?.category === "internal")
+      paymentRequest.journalEntry = {
+        Memo: paymentRequest?.title,
+        ReferenceDate: moment(),
+        JournalEntryLines: [
+          {
+            AccountCode: debitAccount,
+            Debit: paymentRequest?.amount,
+            // FCCurrency: paymentRequest?.currency,
+            LineMemo: paymentRequest?.title,
+            CostingCode: distributionRuleDb,
+          },
+          {
+            AccountCode: creditAccount,
+            Credit: paymentRequest?.amount,
+            // FCCurrency: paymentRequest?.currency,
+            LineMemo: paymentRequest?.title,
+            CostingCode: distributionRuleCr,
+          },
+        ],
+      };
     fetch(`${url}/paymentRequests/${paymentRequest?._id}`, {
       method: "PUT",
       body: JSON.stringify({
@@ -1498,7 +1500,8 @@ export default function PaymentRequest({ params }) {
               </div>
 
               {paymentRequest?.status === "approved" &&
-                user?.permissions.canApproveAsHof && (
+                user?.permissions.canApproveAsHof &&
+                paymentRequest?.category === "internal" && (
                   <>
                     <UploadOtherFiles
                       files={filesProof}
@@ -1691,6 +1694,30 @@ export default function PaymentRequest({ params }) {
                     </div>
                   </>
                 )}
+
+              {paymentRequest?.status === "approved" &&
+                user?.permissions.canApproveAsHof &&
+                paymentRequest?.category === "external" && (
+                  <>
+                    <UploadOtherFiles
+                      files={filesProof}
+                      setFiles={setFilesProof}
+                      label="Select Payment proof"
+                    />
+
+                    <div>
+                      <Button
+                        loading={saving}
+                        onClick={() => handleUpload("paymentProof")}
+                        type="primary"
+                        disabled={!filesProof || filesProof.length == 0}
+                      >
+                        Submit
+                      </Button>
+                    </div>
+                  </>
+                )}
+
               {paymentRequest?.status !== "approved" &&
                 paymentRequest?.status !== "paid" && (
                   <div className="text-sm text-gray-600 p-3 bg-gray-50 rounded-md flex flex-col justify-center items-center">
