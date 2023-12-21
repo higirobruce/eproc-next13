@@ -254,7 +254,7 @@ export default function PaymentRequest({ params }) {
 
       _paymentRequest?.docIds?.map(async (doc, i) => {
         let uid = `rc-upload-${moment().milliseconds()}-${i}`;
-        let _url = `${url}/file/paymentRequests/${doc}`;
+        let _url = `${url}/file/paymentRequests/${encodeURI(doc)}`;
         let status = "done";
         let name = `Invoice ${i + 1}.pdf`;
 
@@ -1001,7 +1001,7 @@ export default function PaymentRequest({ params }) {
                           <Tooltip title={doc}>
                             <Typography.Text ellipsis>
                               <Link
-                                href={`${url}/file/paymentRequests/${doc}`}
+                                href={`${url}/file/paymentRequests/${encodeURI(doc)}`}
                                 target="_blank"
                               >
                                 <div className="text-xs">
@@ -1015,7 +1015,7 @@ export default function PaymentRequest({ params }) {
                           </Tooltip>
 
                           {/* <Link
-                            href={`${url}/file/paymentRequests/${doc}`}
+                            href={`${url}/file/paymentRequests/${encodeURI(doc)}`}
                             target="_blank"
                           >
                             <div className="text-xs">
@@ -1851,7 +1851,7 @@ export default function PaymentRequest({ params }) {
                           <Tooltip title={doc}>
                             <Typography.Text ellipsis>
                               <Link
-                                href={`${url}/file/paymentRequests/${doc}`}
+                                href={`${url}/file/paymentRequests/${encodeURI(doc)}`}
                                 target="_blank"
                               >
                                 <div className="text-xs">
