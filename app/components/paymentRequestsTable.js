@@ -339,7 +339,7 @@ const PaymentRequestsTable = ({
               <Tooltip title={doc}>
                 <Typography.Text ellipsis>
                 <Link
-                  href={`${url}/file/paymentRequests/${doc}`}
+                  href={`${url}/file/paymentRequests/${encodeURI(doc)}`}
                   target="_blank"
                 >
                   {truncatedFileName}
