@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { encode } from "base-64";
 import { motion } from "framer-motion";
+import { LightBulbIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import {
   Button,
@@ -12,6 +13,7 @@ import {
   message,
   Radio,
   Select,
+  Typography,
 } from "antd";
 import { ArrowLeftOutlined, SaveOutlined } from "@ant-design/icons";
 import UploadPaymentReq from "@/app/components/uploadPaymentReq";
@@ -70,6 +72,31 @@ async function getPoPaymentProgress(id, router) {
   return res.json();
 }
 
+async function getPoPaidRequests(id, router) {
+  let token = localStorage.getItem("token");
+  const res = await fetch(`${url}/purchaseOrders/paymentsDone/${id}`, {
+    method: "GET",
+    headers: {
+      Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+      token: token,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push("/auth");
+    }
+    // This will activate the closest `error.js` Error Boundary
+    return null;
+    // throw new Error("Failed to fetch data");
+  }
+
+  return res.json();
+}
+
 export default function NewPaymentRequest({ params }) {
   let user = JSON.parse(localStorage.getItem("user"));
   let token = localStorage.getItem("token");
@@ -79,12 +106,13 @@ export default function NewPaymentRequest({ params }) {
   let [title, setTitle] = useState("");
   let [description, setDescription] = useState("");
   let [amount, setAmout] = useState(null);
-  let [currency, setCurrency] = useState('RWF');
+  let [currency, setCurrency] = useState("RWF");
   let [docId, setDocId] = useState(null);
   let [files, setFiles] = useState([]);
   let [submitting, setSubmitting] = useState(false);
   let [poVal, setPoVal] = useState(0);
   let [totalPaymentVal, setTotalPaymentVal] = useState(0);
+  let [totalPaid, setTotalPaid] = useState(0);
 
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -97,6 +125,11 @@ export default function NewPaymentRequest({ params }) {
     getPoPaymentProgress(params?.poId, router).then((res) => {
       setPoVal(res?.poVal);
       setTotalPaymentVal(res?.totalPaymentVal);
+    });
+
+    getPoPaidRequests(params?.poId, router).then((res) => {
+      // setPoVal(res?.poVal);
+      setTotalPaid(res?.totalPaymentVal);
     });
   }, [params]);
 
@@ -240,7 +273,7 @@ export default function NewPaymentRequest({ params }) {
             // layout="horizontal"
             form={form}
             initialValues={{
-              currency: po?.items[0]?.currency,
+              currency: currency,
             }}
             // onFinish={handleUpload}
           >
@@ -297,14 +330,8 @@ export default function NewPaymentRequest({ params }) {
               <div>
                 {/* Amount */}
                 <div className="flex flex-col">
-                  {poVal !== -1 && (
-                    <div>{`Amount due (balance: ${(
-                      poVal - totalPaymentVal
-                    ).toLocaleString()} ${currency})`}</div>
-                  )}
-                  {poVal == -1 && (
-                    <div>{`Amount due (balance: ${getPoTotalVal().grossTotal.toLocaleString()} ${currency})`}</div>
-                  )}
+                  <div>{`Amount due`}</div>
+
                   <Form.Item>
                     <Form.Item
                       name="amount"
@@ -319,12 +346,14 @@ export default function NewPaymentRequest({ params }) {
                             return new Promise((resolve, reject) => {
                               if (
                                 (poVal > -1 &&
-                                  value > poVal - totalPaymentVal) ||
+                                  value >
+                                    getPoTotalVal()?.grossTotal -
+                                      totalPaymentVal) ||
                                 (poVal == -1 &&
                                   value > getPoTotalVal()?.grossTotal)
                               ) {
                                 reject(
-                                  "The amount should not exceed the po balance!"
+                                  "Requested amount should not exceed the PO Value!"
                                 );
                               } else {
                                 resolve();
@@ -406,6 +435,56 @@ export default function NewPaymentRequest({ params }) {
               Save
             </Button>
           </Form>
+
+          <div className="bg-gray-50 py-3 px-10  my-5 rounded">
+            <div className="flex flex-row items-center text-blue-500">
+              <LightBulbIcon className="h-8 w-8" />
+              <div>
+                <Typography.Title level={5}>Hints</Typography.Title>
+              </div>
+            </div>
+
+            <div className="flex flex-col space-y-3 w-1/2 mt-5">
+              <Typography.Text>
+                <div className="text-gray-700 grid grid-cols-2">
+                  <div>Related PO {po?.number} (Total Value): </div>
+                  <div className="font-semibold">
+                    {currency +
+                      " " +
+                      getPoTotalVal().grossTotal?.toLocaleString()}
+                  </div>
+                </div>
+              </Typography.Text>
+
+              <Typography.Text>
+                <div className="text-gray-700 grid grid-cols-2">
+                  <div>Paid Requests' Value: </div>
+                  <div className="font-semibold">
+                    {currency + " " + totalPaid?.toLocaleString()}
+                  </div>
+                </div>
+              </Typography.Text>
+
+              <Typography.Text>
+                <div className="text-gray-700 grid grid-cols-2">
+                  <div>Linked Payment Requests' Value: </div>
+                  <div
+                    className={`font-semibold
+                  
+                      ${
+                        amount > getPoTotalVal().grossTotal - totalPaymentVal &&
+                        "text-red-500"
+                      }
+                  `}
+                  >
+                    {currency +
+                      " " +
+                      (totalPaymentVal + amount)?.toLocaleString()}
+                  </div>
+                </div>
+              </Typography.Text>
+            </div>
+          </div>
         </div>
       </div>
     </motion.div>

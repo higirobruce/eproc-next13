@@ -81,6 +81,36 @@ async function getPaymentRequestDetails(id, router) {
   return res.json();
 }
 
+async function getPoPaymentProgress(id, router) {
+  let token = localStorage.getItem("token");
+
+  if (id) {
+    const res = await fetch(`${url}/purchaseOrders/paymentProgress/${id}`, {
+      method: "GET",
+      headers: {
+        Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      if (res.status === 401) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        router.push("/auth");
+      }
+      // This will activate the closest `error.js` Error Boundary
+      return null;
+      // throw new Error("Failed to fetch data");
+    }
+
+    return res.json();
+  } else {
+    return null;
+  }
+}
+
 async function getApprovers() {
   let token = localStorage.getItem("token");
   const res = await fetch(`${url}/users/level1Approvers`, {
@@ -211,6 +241,10 @@ export default function PaymentRequest({ params }) {
   let [distributionRuleCr, setDistributionRuleCr] = useState(null);
   let [distributionRuleDb, setDistributionRuleDb] = useState(null);
 
+  let [po, setPo] = useState(null);
+  let [poVal, setPoVal] = useState(0);
+  let [totalPaymentVal, setTotalPaymentVal] = useState(0);
+
   useEffect(() => {
     getPaymentRequestDetails(params.id, router).then((res) => {
       setPaymentRequest(res);
@@ -240,10 +274,11 @@ export default function PaymentRequest({ params }) {
           setFiles(_files);
         });
       });
-
+      setPo(res?.purchaseOrder);
       let statusCode = getRequestStatusCode(res?.status);
       setCurrentCode(statusCode);
       setBudgeted(res?.budgeted);
+      setCurrency(_paymentRequest?.currency);
     });
 
     const getBase64 = (file) =>
@@ -297,13 +332,21 @@ export default function PaymentRequest({ params }) {
   }, [params]);
 
   useEffect(() => {
+    po &&
+      getPoPaymentProgress(po?._id, router).then((res) => {
+        setPoVal(res?.poVal);
+        setTotalPaymentVal(res?.totalPaymentVal);
+      });
+  }, [po]);
+
+  useEffect(() => {
     console.log(files);
   }, [files]);
 
   function getPoTotalVal() {
     let t = 0;
     let tax = 0;
-    paymentRequest?.items?.map((i) => {
+    po?.items?.map((i) => {
       t = t + i?.quantity * i?.estimatedUnitCost;
       if (i.taxGroup === "I1")
         tax = tax + (i?.quantity * i?.estimatedUnitCost * 18) / 100;
@@ -743,7 +786,12 @@ export default function PaymentRequest({ params }) {
               {paymentRequest?.status}
             </Tag>
           </div>
-          <Form form={form}>
+          <Form
+            form={form}
+            initialValues={{
+              currency: currency,
+            }}
+          >
             <div className="grid md:grid-cols-4 sm:grid-cols-1 gap-6">
               {/* Request Title */}
               <div className="flex flex-col space-y-2">
@@ -848,13 +896,56 @@ export default function PaymentRequest({ params }) {
                             required: true,
                             message: "Amount is required",
                           },
+                          {
+                            validator(rule, value) {
+                              return new Promise((resolve, reject) => {
+                                if (
+                                  (poVal > -1 &&
+                                    value >
+                                      getPoTotalVal()?.grossTotal -
+                                        totalPaymentVal-value) ||
+                                  (poVal == -1 &&
+                                    value > getPoTotalVal()?.grossTotal-value)
+                                ) {
+                                  console.log(
+                                    value,
+                                    getPoTotalVal()?.grossTotal,
+                                    totalPaymentVal
+                                  );
+                                  reject(
+                                    "Requested amount should not exceed the PO Value!"
+                                  );
+                                } else {
+                                  resolve();
+                                }
+                              });
+                            },
+                          },
                         ]}
                         initialValue={paymentRequest.amount}
                       >
                         <InputNumber
                           style={{ width: "100%" }}
                           addonBefore={
-                            <Form.Item noStyle name="currency">
+                            <Form.Item
+                              noStyle
+                              name="currency"
+                              rules={[
+                                {
+                                  validator(rule, value) {
+                                    return new Promise((resolve, reject) => {
+                                      if (value !== currency) {
+                                        reject(
+                                          "The currency can not differ from the PO currency!"
+                                        );
+                                      } else {
+                                        resolve();
+                                      }
+                                    });
+                                  },
+                                },
+                              ]}
+                            >
                               <Select
                                 onChange={(value) =>
                                   (paymentRequest.currency = value)
@@ -1086,13 +1177,14 @@ export default function PaymentRequest({ params }) {
                     icon={<SaveOutlined />}
                     type="primary"
                     onClick={async () => {
-                      await form.validateFields();
-                      if (files?.length < 1) {
-                        messageApi.error("Please attach atleast one file!");
-                      } else {
-                        setEditRequest(false);
-                        handleUpload("update");
-                      }
+                      form.validateFields().then(() => {
+                        if (files?.length < 1) {
+                          messageApi.error("Please attach atleast one file!");
+                        } else {
+                          setEditRequest(false);
+                          handleUpload("update");
+                        }
+                      });
                     }}
                   >
                     Update
