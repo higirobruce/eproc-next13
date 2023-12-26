@@ -625,6 +625,9 @@ export default function PaymentRequest({ params }) {
             // FCCurrency: paymentRequest?.currency,
             LineMemo: paymentRequest?.title,
             CostingCode: distributionRuleDb,
+            ...(paymentRequest?.currency !== "RWF" && {
+              FCCurrency: paymentRequest?.currency,
+            }),
           },
           {
             AccountCode: creditAccount,
@@ -632,6 +635,9 @@ export default function PaymentRequest({ params }) {
             // FCCurrency: paymentRequest?.currency,
             LineMemo: paymentRequest?.title,
             CostingCode: distributionRuleCr,
+            ...(paymentRequest?.currency !== "RWF" && {
+              FCCurrency: paymentRequest?.currency,
+            }),
           },
         ],
       };
@@ -903,9 +909,10 @@ export default function PaymentRequest({ params }) {
                                   (poVal > -1 &&
                                     value >
                                       getPoTotalVal()?.grossTotal -
-                                        totalPaymentVal-value) ||
+                                        totalPaymentVal -
+                                        value) ||
                                   (poVal == -1 &&
-                                    value > getPoTotalVal()?.grossTotal-value)
+                                    value > getPoTotalVal()?.grossTotal - value)
                                 ) {
                                   console.log(
                                     value,
@@ -1001,7 +1008,9 @@ export default function PaymentRequest({ params }) {
                           <Tooltip title={doc}>
                             <Typography.Text ellipsis>
                               <Link
-                                href={`${url}/file/paymentRequests/${encodeURI(doc)}`}
+                                href={`${url}/file/paymentRequests/${encodeURI(
+                                  doc
+                                )}`}
                                 target="_blank"
                               >
                                 <div className="text-xs">
@@ -1851,7 +1860,9 @@ export default function PaymentRequest({ params }) {
                           <Tooltip title={doc}>
                             <Typography.Text ellipsis>
                               <Link
-                                href={`${url}/file/paymentRequests/${encodeURI(doc)}`}
+                                href={`${url}/file/paymentRequests/${encodeURI(
+                                  doc
+                                )}`}
                                 target="_blank"
                               >
                                 <div className="text-xs">
