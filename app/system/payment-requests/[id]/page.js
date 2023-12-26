@@ -662,6 +662,7 @@ export default function PaymentRequest({ params }) {
     })
       .then((res) => getResultFromServer(res))
       .then((res) => {
+        console.log('Resseseses',res)
         if (res?.error) {
           message.error(res?.message);
         } else {
