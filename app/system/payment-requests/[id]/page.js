@@ -621,22 +621,32 @@ export default function PaymentRequest({ params }) {
         JournalEntryLines: [
           {
             AccountCode: debitAccount,
-            Debit: paymentRequest?.amount,
+            
             // FCCurrency: paymentRequest?.currency,
             LineMemo: paymentRequest?.title,
             CostingCode: distributionRuleDb,
             ...(paymentRequest?.currency !== "RWF" && {
               FCCurrency: paymentRequest?.currency,
+              FCDebit: paymentRequest?.amount,
+            }),
+            ...(paymentRequest?.currency == "RWF" && {
+              
+              Debit: paymentRequest?.amount,
             }),
           },
           {
             AccountCode: creditAccount,
-            Credit: paymentRequest?.amount,
+            
             // FCCurrency: paymentRequest?.currency,
             LineMemo: paymentRequest?.title,
             CostingCode: distributionRuleCr,
             ...(paymentRequest?.currency !== "RWF" && {
               FCCurrency: paymentRequest?.currency,
+              FCCredit: paymentRequest?.amount,
+            }),
+            ...(paymentRequest?.currency == "RWF" && {
+              
+              Credit: paymentRequest?.amount,
             }),
           },
         ],
