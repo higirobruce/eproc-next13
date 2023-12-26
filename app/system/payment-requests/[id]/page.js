@@ -611,7 +611,7 @@ export default function PaymentRequest({ params }) {
   }
 
   function sendProofForRequest(docIds) {
-    paymentRequest.status = "paid";
+    // paymentRequest.status = "paid";
     paymentRequest.paymentProofDocs = docIds;
 
     if (paymentRequest?.category === "internal")
@@ -664,7 +664,7 @@ export default function PaymentRequest({ params }) {
       .then((res) => {
         console.log("Resseseses", res);
         if (res?.error) {
-          paymentRequest.status = "approved";
+          // paymentRequest.status = "approved";
           message.error(res?.message);
         } else {
           refresh();
