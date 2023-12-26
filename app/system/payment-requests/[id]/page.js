@@ -919,13 +919,13 @@ export default function PaymentRequest({ params }) {
                             validator(rule, value) {
                               return new Promise((resolve, reject) => {
                                 if (
-                                  (poVal > -1 &&
+                                  ((poVal > -1 &&
                                     value >
                                       getPoTotalVal()?.grossTotal -
                                         totalPaymentVal -
                                         value) ||
                                   (poVal == -1 &&
-                                    value > getPoTotalVal()?.grossTotal - value)
+                                    value > getPoTotalVal()?.grossTotal - value)) && paymentRequest?.category==='external'
                                 ) {
                                   console.log(
                                     value,
