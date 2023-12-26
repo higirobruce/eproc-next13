@@ -664,7 +664,7 @@ export default function PaymentRequest({ params }) {
         console.log("Resseseses", res);
         if (res?.error) {
           // paymentRequest.status = "approved";
-          message.error(res?.message);
+          message.error(res?.message,10);
         } else {
           paymentRequest.paymentProofDocs = docIds;
           refresh();
