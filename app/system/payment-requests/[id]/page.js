@@ -662,7 +662,7 @@ export default function PaymentRequest({ params }) {
     })
       .then((res) => getResultFromServer(res))
       .then((res) => {
-        console.log('Resseseses',res)
+        console.log("Resseseses", res);
         if (res?.error) {
           message.error(res?.message);
         } else {
@@ -1850,15 +1850,6 @@ export default function PaymentRequest({ params }) {
                     <div className="text-xs text-gray-400">
                       Attached Payment proof(s)
                     </div>
-
-                    {paymentRequest?.journalEntry &&
-                      !paymentRequest?.journalEntry?.Memo && (
-                        <div>
-                          <Tag color="">
-                            SAP Journal Entry: {paymentRequest?.journalEntry}
-                          </Tag>
-                        </div>
-                      )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-y-2">
@@ -1901,9 +1892,56 @@ export default function PaymentRequest({ params }) {
                       );
                     })}
                   </div>
-                  
                 </div>
               )}
+
+              {paymentRequest?.journalEntry &&
+                !paymentRequest?.journalEntry?.Memo && (
+                  <div>
+                    <Tag color="">
+                      SAP Journal Entry: {paymentRequest?.journalEntry}
+                    </Tag>
+                    {paymentRequest?.category == "internal" && (
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="flex flex-col space-y-2">
+                          <div className="mt-2">
+                            {/* <div className="text-xs text-gray-400">
+                              Debit: 10090189 - Legal
+                            </div> */}
+
+                            <Tag color="blue">
+                              Debit:{" "}
+                              {
+                                paymentRequest?.journalEntryLines[0]
+                                  ?.AccountCode
+                              }{" "}
+                              -{" "}
+                              {
+                                paymentRequest?.journalEntryLines[0]
+                                  ?.CostingCode
+                              }
+                            </Tag>
+                          </div>
+
+                          <div>
+                            <Tag color="blue">
+                              Credit:{" "}
+                              {
+                                paymentRequest?.journalEntryLines[0]
+                                  ?.AccountCode
+                              }{" "}
+                              -{" "}
+                              {
+                                paymentRequest?.journalEntryLines[0]
+                                  ?.CostingCode
+                              }
+                            </Tag>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
             </>
           )}
         </div>
