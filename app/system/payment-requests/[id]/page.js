@@ -664,6 +664,7 @@ export default function PaymentRequest({ params }) {
       .then((res) => {
         console.log("Resseseses", res);
         if (res?.error) {
+          paymentRequest.status = "approved";
           message.error(res?.message);
         } else {
           refresh();
