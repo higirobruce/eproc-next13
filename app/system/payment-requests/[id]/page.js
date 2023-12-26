@@ -1924,7 +1924,7 @@ export default function PaymentRequest({ params }) {
                           </div>
 
                           <div>
-                            <Tag color="blue">
+                            <Tag color="orange">
                               Credit:{" "}
                               {
                                 paymentRequest?.journalEntryLines[1]
