@@ -1927,12 +1927,12 @@ export default function PaymentRequest({ params }) {
                             <Tag color="blue">
                               Credit:{" "}
                               {
-                                paymentRequest?.journalEntryLines[0]
+                                paymentRequest?.journalEntryLines[1]
                                   ?.AccountCode
                               }{" "}
                               -{" "}
                               {
-                                paymentRequest?.journalEntryLines[0]
+                                paymentRequest?.journalEntryLines[1]
                                   ?.CostingCode
                               }
                             </Tag>
