@@ -1622,7 +1622,7 @@ export default function PaymentRequest({ params }) {
                       label="Select Payment proof"
                     />
 
-                    <div className="grid grid-cols-2 gap-6 divide-x">
+                    <div className="grid lg:grid-cols-2 gap-6 divide-x">
                       {/* <div className="flex flex-col">
                         <div>DistributionRule</div>
                         <Form.Item
@@ -1675,6 +1675,7 @@ export default function PaymentRequest({ params }) {
                               // setLevel1Approver(value);
                               setDistributionRuleDb(value);
                             }}
+                            placeholder="Distribution rule"
                             filterOption={(input, option) =>
                               (option?.label ?? "")
                                 .toLowerCase()
@@ -1700,7 +1701,7 @@ export default function PaymentRequest({ params }) {
                         >
                           <Select
                             // defaultValue={defaultApprover}
-                            style={{ marginLeft: 8, width: 200 }}
+                            style={{ marginLeft: 8 }}
                             placeholder="Account to debit"
                             showSearch
                             onChange={(value) => {
@@ -1736,6 +1737,7 @@ export default function PaymentRequest({ params }) {
                           <Select
                             // style={{ marginLeft: 8, width: 200 }}
                             showSearch
+                            placeholder="Distribution rule"
                             onChange={(value) => {
                               // setLevel1Approver(value);
                               setDistributionRuleCr(value);
@@ -1765,7 +1767,7 @@ export default function PaymentRequest({ params }) {
                         >
                           <Select
                             // defaultValue={defaultApprover}
-                            style={{ marginLeft: 8, width: 200 }}
+                            style={{ marginLeft: 8 }}
                             placeholder="Account to Credit"
                             showSearch
                             onChange={(value) => {
