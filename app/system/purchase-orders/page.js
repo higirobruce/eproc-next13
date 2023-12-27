@@ -1017,7 +1017,7 @@ export default function PurchaseOrders() {
                               <div>
                                 <Button
                                   type="default"
-                                  // disabled={!documentFullySigned(po)}
+                                  disabled={!documentFullySigned(po)}
                                   size="small"
                                   // loading={submitting}
                                   icon={<DollarOutlined />}
