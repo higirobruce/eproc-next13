@@ -449,7 +449,7 @@ export default function NewPaymentRequest({ params }) {
                 <div className="text-gray-700 grid grid-cols-2">
                   <div>Related PO {po?.number} (Total Value): </div>
                   <div className="font-semibold">
-                    {currency +
+                    {po?.items[0]?.currency +
                       " " +
                       getPoTotalVal().grossTotal?.toLocaleString()}
                   </div>
@@ -460,7 +460,7 @@ export default function NewPaymentRequest({ params }) {
                 <div className="text-gray-700 grid grid-cols-2">
                   <div>Paid Requests' Value: </div>
                   <div className="font-semibold">
-                    {currency + " " + totalPaid?.toLocaleString()}
+                    {po?.items[0]?.currency + " " + totalPaid?.toLocaleString()}
                   </div>
                 </div>
               </Typography.Text>
@@ -477,7 +477,7 @@ export default function NewPaymentRequest({ params }) {
                       }
                   `}
                   >
-                    {currency +
+                    {po?.items[0]?.currency +
                       " " +
                       (totalPaymentVal + amount)?.toLocaleString()}
                   </div>
