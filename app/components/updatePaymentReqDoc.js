@@ -36,7 +36,7 @@ function UpdatePaymentReqDoc({
         } else if (status == "removed") {
           reloadFileList();
           messageApi.success("File removed!");
-        } else {
+        } else if(status=='done'){
           reloadFileList();
           messageApi.success("Successfully uploaded the file!");
         }
