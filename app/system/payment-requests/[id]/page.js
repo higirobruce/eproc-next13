@@ -614,10 +614,9 @@ export default function PaymentRequest({ params }) {
   }
 
   function sendProofForRequest(docIds) {
-    if (overrideAmount) {
-      paymentRequest.amount = amountOverride;
-      paymentRequest.currency = "RWF";
-    }
+
+    let _amount = overrideAmount ? amountOverride : paymentRequest?.amount
+    let _currency = overrideAmount ? 'RWF' : paymentRequest?.currency
 
     if (paymentRequest?.category === "internal")
       paymentRequest.journalEntry = {
@@ -630,32 +629,34 @@ export default function PaymentRequest({ params }) {
             // FCCurrency: paymentRequest?.currency,
             LineMemo: paymentRequest?.title,
             CostingCode: distributionRuleDb,
-            ...(paymentRequest?.currency !== "RWF" && {
-              FCCurrency: paymentRequest?.currency,
-              FCDebit: paymentRequest?.amount,
+            ...(_currency !== "RWF" && {
+              FCCurrency: _currency,
+              FCDebit: _amount,
             }),
-            ...(paymentRequest?.currency == "RWF" && {
-              Debit: paymentRequest?.amount,
+            ...(_currency == "RWF" && {
+              Debit: _amount,
             }),
           },
           {
             AccountCode: creditAccount,
 
-            // FCCurrency: paymentRequest?.currency,
+            // FCCurrency: _currency,
             LineMemo: paymentRequest?.title,
             CostingCode: distributionRuleCr,
-            ...(paymentRequest?.currency !== "RWF" && {
-              FCCurrency: paymentRequest?.currency,
-              FCCredit: paymentRequest?.amount,
+            ...(_currency !== "RWF" && {
+              FCCurrency: _currency,
+              FCCredit: _amount,
             }),
-            ...(paymentRequest?.currency == "RWF" && {
-              Credit: paymentRequest?.amount,
+            ...(_currency == "RWF" && {
+              Credit: _amount,
             }),
           },
         ],
       };
 
-    let updates = paymentRequest;
+    let updates = { ...paymentRequest };
+
+
     updates.status = "paid";
     updates.paymentProofDocs = docIds;
     fetch(`${url}/paymentRequests/${paymentRequest?._id}`, {
