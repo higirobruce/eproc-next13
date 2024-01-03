@@ -611,7 +611,7 @@ export default function PaymentRequest({ params }) {
   }
 
   function sendProofForRequest(docIds) {
-    // paymentRequest.status = "paid";
+    paymentRequest.status = "paid";
 
     if (paymentRequest?.category === "internal")
       paymentRequest.journalEntry = {
