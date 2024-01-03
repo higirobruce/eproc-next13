@@ -665,7 +665,7 @@ export default function PaymentRequest({ params }) {
         console.log("Resseseses", res);
         if (res?.error) {
           // paymentRequest.status = "approved";
-          message.error(res?.message,10);
+          message.error(res?.message, 10);
         } else {
           paymentRequest.paymentProofDocs = docIds;
           refresh();
@@ -925,14 +925,11 @@ export default function PaymentRequest({ params }) {
                                       getPoTotalVal()?.grossTotal -
                                         totalPaymentVal -
                                         value) ||
-                                  (poVal == -1 &&
-                                    value > getPoTotalVal()?.grossTotal - value)) && paymentRequest?.category==='external'
+                                    (poVal == -1 &&
+                                      value >
+                                        getPoTotalVal()?.grossTotal - value)) &&
+                                  paymentRequest?.category === "external"
                                 ) {
-                                  console.log(
-                                    value,
-                                    getPoTotalVal()?.grossTotal,
-                                    totalPaymentVal
-                                  );
                                   reject(
                                     "Requested amount should not exceed the PO Value!"
                                   );
@@ -955,7 +952,10 @@ export default function PaymentRequest({ params }) {
                                 {
                                   validator(rule, value) {
                                     return new Promise((resolve, reject) => {
-                                      if (value !== currency) {
+                                      if (
+                                        value !== currency &&
+                                        paymentRequest?.category === "external"
+                                      ) {
                                         reject(
                                           "The currency can not differ from the PO currency!"
                                         );
