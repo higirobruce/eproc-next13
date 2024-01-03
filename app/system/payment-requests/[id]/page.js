@@ -1676,6 +1676,7 @@ export default function PaymentRequest({ params }) {
                             onChange={(value) => {
                               // setLevel1Approver(value);
                               setDistributionRuleDb(value);
+                              setDistributionRuleCr(value);
                             }}
                             placeholder="Distribution rule"
                             filterOption={(input, option) =>
