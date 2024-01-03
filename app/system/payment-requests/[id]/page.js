@@ -611,7 +611,7 @@ export default function PaymentRequest({ params }) {
   }
 
   function sendProofForRequest(docIds) {
-    // paymentRequest.status = "paid";
+    paymentRequest.status = "paid";
     paymentRequest.paymentProofDocs = docIds;
 
     if (paymentRequest?.category === "internal")
