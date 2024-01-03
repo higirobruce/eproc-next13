@@ -207,6 +207,7 @@ export default function PaymentRequest({ params }) {
   let [paymentRequest, setPaymentRequest] = useState(null);
   let router = useRouter();
   let [form] = Form.useForm();
+  let [paymentForm] = Form.useForm();
   let [title, setTitle] = useState("");
   let [description, setDescription] = useState("");
   let [amount, setAmout] = useState(null);
@@ -217,6 +218,8 @@ export default function PaymentRequest({ params }) {
   let [level1Approvers, setLevel1Approvers] = useState([]);
   let [level1Approver, setLevel1Approver] = useState(null);
   let [currency, setCurrency] = useState("RWF");
+  let [overrideAmount, setOverrideAmount] = useState(false);
+  let [amountOverride, setAmountOverride] = useState(0);
 
   let [editRequest, setEditRequest] = useState(false);
 
@@ -611,8 +614,10 @@ export default function PaymentRequest({ params }) {
   }
 
   function sendProofForRequest(docIds) {
-    paymentRequest.status = "paid";
-    paymentRequest.paymentProofDocs = docIds;
+    if (overrideAmount) {
+      paymentRequest.amount = amountOverride;
+      paymentRequest.currency = "RWF";
+    }
 
     if (paymentRequest?.category === "internal")
       paymentRequest.journalEntry = {
@@ -649,10 +654,14 @@ export default function PaymentRequest({ params }) {
           },
         ],
       };
+
+    let updates = paymentRequest;
+    updates.status = "paid";
+    updates.paymentProofDocs = docIds;
     fetch(`${url}/paymentRequests/${paymentRequest?._id}`, {
       method: "PUT",
       body: JSON.stringify({
-        updates: paymentRequest,
+        updates,
       }),
       headers: {
         Authorization: "Basic " + encode(`${apiUsername}:${apiPassword}`),
@@ -1618,14 +1627,15 @@ export default function PaymentRequest({ params }) {
                 user?.permissions.canApproveAsHof &&
                 paymentRequest?.category === "internal" && (
                   <>
-                    <UploadOtherFiles
-                      files={filesProof}
-                      setFiles={setFilesProof}
-                      label="Select Payment proof"
-                    />
+                    <Form form={paymentForm}>
+                      <UploadOtherFiles
+                        files={filesProof}
+                        setFiles={setFilesProof}
+                        label="Select Payment proof"
+                      />
 
-                    <div className="grid lg:grid-cols-2 gap-6 divide-x">
-                      {/* <div className="flex flex-col">
+                      <div className="grid lg:grid-cols-2 gap-6 divide-x">
+                        {/* <div className="flex flex-col">
                         <div>DistributionRule</div>
                         <Form.Item
                           // label="Select level 1 approver"
@@ -1659,7 +1669,6 @@ export default function PaymentRequest({ params }) {
                           ></Select>
                         </Form.Item>
                       </div> */}
-                      <div className="flex flex-row items-center">
                         <Form.Item
                           label="Distribution Rule - Debit Acc"
                           name="currency"
@@ -1671,7 +1680,7 @@ export default function PaymentRequest({ params }) {
                           ]}
                         >
                           <Select
-                            // style={{ marginLeft: 8, width: 200 }}
+                            // style={{ marginLeft: 8, maxWidth: 200 }}
                             showSearch
                             onChange={(value) => {
                               // setLevel1Approver(value);
@@ -1692,42 +1701,79 @@ export default function PaymentRequest({ params }) {
                             })}
                           ></Select>
                         </Form.Item>
-                        <Form.Item
-                          label="Debit Account"
-                          name="accountToDebit"
-                          rules={[
-                            {
-                              required: true,
-                              message: "Can not be empty!",
-                            },
-                          ]}
-                        >
-                          <Select
-                            // defaultValue={defaultApprover}
-                            style={{ marginLeft: 8 }}
-                            placeholder="Account to debit"
-                            showSearch
-                            onChange={(value) => {
-                              // setLevel1Approver(value);
-                              setDebitAccount(value);
-                            }}
-                            filterOption={(input, option) =>
-                              (option?.label ?? "")
-                                .toLowerCase()
-                                .includes(input.toLowerCase())
-                            }
-                            options={accounts?.map((l) => {
-                              return {
-                                label: l?.Name,
-                                value: l?.Code,
-                              };
-                            })}
-                          ></Select>
-                        </Form.Item>
-                      </div>
 
-                      <div className="flex flex-row items-center">
-                        <Form.Item
+                        <div>
+                          <Form.Item
+                            label="Debit Account"
+                            name="accountToDebit"
+                            rules={[
+                              {
+                                required: true,
+                                message: "Can not be empty!",
+                              },
+                            ]}
+                          >
+                            <Select
+                              // defaultValue={defaultApprover}
+                              // style={{ marginLeft: 8, maxWidth: 250 }}
+                              // style={{ marginLeft: 8 }}
+                              placeholder="Account to debit"
+                              showSearch
+                              onChange={(value) => {
+                                // setLevel1Approver(value);
+                                setDebitAccount(value);
+                              }}
+                              filterOption={(input, option) =>
+                                (option?.label ?? "")
+                                  .toLowerCase()
+                                  .includes(input.toLowerCase())
+                              }
+                              options={accounts?.map((l) => {
+                                return {
+                                  label: l?.Name,
+                                  value: l?.Code,
+                                };
+                              })}
+                            ></Select>
+                          </Form.Item>
+                          <Form.Item
+                            label="Credit Account"
+                            name="accountToCredit"
+                            rules={[
+                              {
+                                required: true,
+                                message: "Can not be empty!",
+                              },
+                            ]}
+                          >
+                            <Select
+                              // style={{ marginLeft: 8, maxWidth: 250 }}
+                              // defaultValue={defaultApprover}
+                              // style={{ marginLeft: 8 }}
+                              placeholder="Account to Credit"
+                              showSearch
+                              onChange={(value) => {
+                                // setLevel1Approver(value);
+                                setCreditAccount(value);
+                              }}
+                              filterOption={(input, option) =>
+                                (option?.label ?? "")
+                                  .toLowerCase()
+                                  .includes(input.toLowerCase())
+                              }
+                              options={accounts?.map((l) => {
+                                return {
+                                  label: l?.Name,
+                                  value: l?.Code,
+                                };
+                              })}
+                            ></Select>
+                          </Form.Item>
+                        </div>
+                        {/* <div className="flex flex-row items-center"></div> */}
+
+                        {/*<div className="flex flex-row items-center">
+                         <Form.Item
                           label="Distribution Rule - Credit Acc"
                           name="currency"
                           rules={[
@@ -1738,7 +1784,7 @@ export default function PaymentRequest({ params }) {
                           ]}
                         >
                           <Select
-                            // style={{ marginLeft: 8, width: 200 }}
+                            // style={{ marginLeft: 8, maxWidth: 200 }}
                             showSearch
                             placeholder="Distribution rule"
                             onChange={(value) => {
@@ -1757,59 +1803,122 @@ export default function PaymentRequest({ params }) {
                               };
                             })}
                           ></Select>
-                        </Form.Item>
-                        <Form.Item
-                          label="Credit Account"
-                          name="accountToCredit"
-                          rules={[
-                            {
-                              required: true,
-                              message: "Can not be empty!",
-                            },
-                          ]}
-                        >
-                          <Select
-                            // defaultValue={defaultApprover}
-                            style={{ marginLeft: 8 }}
-                            placeholder="Account to Credit"
-                            showSearch
-                            onChange={(value) => {
-                              // setLevel1Approver(value);
-                              setCreditAccount(value);
-                            }}
-                            filterOption={(input, option) =>
-                              (option?.label ?? "")
-                                .toLowerCase()
-                                .includes(input.toLowerCase())
-                            }
-                            options={accounts?.map((l) => {
-                              return {
-                                label: l?.Name,
-                                value: l?.Code,
-                              };
-                            })}
-                          ></Select>
-                        </Form.Item>
-                      </div>
-                    </div>
+                        </Form.Item> 
+                      </div>*/}
 
-                    <div>
-                      <Button
-                        loading={saving}
-                        onClick={() => handleUpload("paymentProof")}
-                        type="primary"
-                        disabled={
-                          !filesProof ||
-                          filesProof.length == 0 ||
-                          !debitAccount ||
-                          !creditAccount ||
-                          !distributionRuleCr ||
-                          !distributionRuleDb
-                        }
-                      >
-                        Submit
-                      </Button>
-                    </div>
+                        <div className="mr-10 space-y-2 flex flex-col">
+                          {/* <InputNumber
+                    size="small"
+                    name="title"
+                    className="text-xs w-full"
+                    placeholder={paymentRequest?.amount}
+                    onChange={(e) => {
+                      paymentRequest.amount = e;
+                    }}
+                  /> */}
+                          <div className="flex flex-row space-x-2 items-center">
+                            <Switch
+                              onChange={setOverrideAmount}
+                              checked={overrideAmount}
+                              disabled={paymentRequest?.currency === "RWF"}
+                            />
+                            <div>Override Amount</div>
+                          </div>
+                          {overrideAmount && (
+                            <div>
+                              <Form.Item>
+                                <Form.Item
+                                  label="Override RWF Amount"
+                                  name="overrideAmount"
+                                  noStyle
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: "Amount is required",
+                                    },
+                                    {
+                                      validator(rule, value) {
+                                        return new Promise(
+                                          (resolve, reject) => {
+                                            if (value <= 0) {
+                                              reject(
+                                                "The amount should exceed Zero"
+                                              );
+                                            } else {
+                                              resolve();
+                                            }
+                                          }
+                                        );
+                                      },
+                                    },
+                                  ]}
+                                  initialValue={0}
+                                >
+                                  <InputNumber
+                                    label="Override RWF Amount"
+                                    style={{ width: "100%" }}
+                                    addonBefore={
+                                      <Form.Item
+                                        noStyle
+                                        // name="currency"
+                                      >
+                                        <Select
+                                          disabled={true}
+                                          defaultValue="RWF"
+                                          value="RWF"
+                                          options={[
+                                            {
+                                              value: "RWF",
+                                              label: "RWF",
+                                              key: "RWF",
+                                            },
+                                            // {
+                                            //   value: "USD",
+                                            //   label: "USD",
+                                            //   key: "USD",
+                                            // },
+                                            // {
+                                            //   value: "EUR",
+                                            //   label: "EUR",
+                                            //   key: "EUR",
+                                            // },
+                                          ]}
+                                        ></Select>
+                                      </Form.Item>
+                                    }
+                                    // defaultValue={paymentRequest.amount}
+                                    value={amountOverride}
+                                    onChange={setAmountOverride}
+                                  />
+                                </Form.Item>
+                              </Form.Item>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mt-10">
+                        <Button
+                          loading={saving}
+                          onClick={() =>
+                            paymentForm.validateFields().then(() => {
+                              handleUpload("paymentProof");
+                            })
+                          }
+                          type="primary"
+                          disabled={
+                            !filesProof ||
+                            filesProof.length == 0 ||
+                            !debitAccount ||
+                            !creditAccount ||
+                            !distributionRuleCr ||
+                            !distributionRuleDb
+                          }
+                        >
+                          Submit
+                        </Button>
+                      </div>
+                    </Form>
                   </>
                 )}
 
