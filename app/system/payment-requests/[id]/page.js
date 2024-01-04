@@ -250,6 +250,7 @@ export default function PaymentRequest({ params }) {
 
   useEffect(() => {
     getPaymentRequestDetails(params.id, router).then((res) => {
+      if (res?.status == "reviewed") res.status = "pending-approval";
       setPaymentRequest(res);
       let _files = [...files];
 
@@ -455,7 +456,7 @@ export default function PaymentRequest({ params }) {
   function getRequestStatus(code) {
     // if (code === 0) return "verified";
     if (code === 0) return "pending-review";
-    else if (code === 1 || code === 0) return "reviewed";
+    else if (code === 1) return "pending-approval";
     else if (code === 2) return "approved (hod)";
     else if (code === 3) return "approved";
     else if (code === 4) return "paid";
@@ -466,8 +467,8 @@ export default function PaymentRequest({ params }) {
 
   function getRequestStatusCode(status) {
     // if (status === "verified") return 0;
-    if (status === "pending-review") return 1;
-    else if (status === "reviewed") return 1;
+    if (status === "pending-review") return 0;
+    else if (status === "pending-approval") return 1;
     else if (status === "approved (hod)") return 2;
     else if (status === "approved") return 3;
     else if (status === "paid") return 4;
@@ -614,9 +615,8 @@ export default function PaymentRequest({ params }) {
   }
 
   function sendProofForRequest(docIds) {
-
-    let _amount = overrideAmount ? amountOverride : paymentRequest?.amount
-    let _currency = overrideAmount ? 'RWF' : paymentRequest?.currency
+    let _amount = overrideAmount ? amountOverride : paymentRequest?.amount;
+    let _currency = overrideAmount ? "RWF" : paymentRequest?.currency;
 
     if (paymentRequest?.category === "internal")
       paymentRequest.journalEntry = {
@@ -656,7 +656,6 @@ export default function PaymentRequest({ params }) {
 
     let updates = { ...paymentRequest };
 
-
     updates.status = "paid";
     updates.paymentProofDocs = docIds;
     fetch(`${url}/paymentRequests/${paymentRequest?._id}`, {
@@ -688,8 +687,10 @@ export default function PaymentRequest({ params }) {
 
   function refresh() {
     getPaymentRequestDetails(params.id).then((res) => {
+      let _status = res?.status;
+      if (_status == "reviewed") res.status = "pending-approval";
       setPaymentRequest(res);
-      let statusCode = getRequestStatusCode(res?.status);
+      let statusCode = getRequestStatusCode(_status);
       setCurrentCode(statusCode);
       setShowAddApproverForm(false);
       setLevel1Approver(null);
@@ -808,7 +809,8 @@ export default function PaymentRequest({ params }) {
                   : paymentRequest?.status == "approved" ||
                     paymentRequest?.status == "paid"
                   ? "green"
-                  : paymentRequest?.status == "reviewed"
+                  : paymentRequest?.status == "reviewed" ||
+                    paymentRequest?.status == "pending-approval"
                   ? "yellow"
                   : "red"
               }
@@ -957,7 +959,8 @@ export default function PaymentRequest({ params }) {
                           addonBefore={
                             <Form.Item
                               noStyle
-                              name="currency"
+                              name="currencyEd"
+                              initialValue={currency}
                               rules={[
                                 {
                                   validator(rule, value) {
@@ -981,7 +984,7 @@ export default function PaymentRequest({ params }) {
                                 onChange={(value) =>
                                   (paymentRequest.currency = value)
                                 }
-                                defaultValue={paymentRequest.currency}
+                                
                                 value={paymentRequest.currency}
                                 options={[
                                   {

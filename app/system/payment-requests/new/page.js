@@ -170,7 +170,7 @@ export default function NewPaymentRequest() {
         approver: level1Approver,
         // purchaseOrder: params?.poId,
         docIds: _fileList,
-        status:'reviewed'
+        status:'pending-approval'
       }),
     })
       .then((res) => {
