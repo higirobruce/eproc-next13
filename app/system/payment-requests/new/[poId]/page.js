@@ -106,7 +106,7 @@ export default function NewPaymentRequest({ params }) {
   let [title, setTitle] = useState("");
   let [description, setDescription] = useState("");
   let [amount, setAmout] = useState(null);
-  let [currency, setCurrency] = useState("RWF");
+  let [currency, setCurrency] = useState(null);
   let [docId, setDocId] = useState(null);
   let [files, setFiles] = useState([]);
   let [submitting, setSubmitting] = useState(false);
@@ -118,8 +118,8 @@ export default function NewPaymentRequest({ params }) {
 
   useEffect(() => {
     getPoDetails(params?.poId, router).then((res) => {
-      setPo(res);
       setCurrency(res?.items[0]?.currency);
+      setPo(res);
     });
 
     getPoPaymentProgress(params?.poId, router).then((res) => {
@@ -132,8 +132,6 @@ export default function NewPaymentRequest({ params }) {
       setTotalPaid(res?.totalPaymentVal);
     });
   }, [params]);
-
-  useEffect(() => {}, [currency]);
 
   useEffect(() => {}, [files]);
 
@@ -368,7 +366,7 @@ export default function NewPaymentRequest({ params }) {
                         addonBefore={
                           <Form.Item
                             noStyle
-                            name="currency"
+                            name="currencyP"
                             rules={[
                               {
                                 validator(rule, value) {
@@ -385,27 +383,29 @@ export default function NewPaymentRequest({ params }) {
                               },
                             ]}
                           >
-                            <Select
-                              onChange={(value) => setCurrency(value)}
-                              defaultValue="RWF"
-                              options={[
-                                {
-                                  value: "RWF",
-                                  label: "RWF",
-                                  key: "RWF",
-                                },
-                                {
-                                  value: "USD",
-                                  label: "USD",
-                                  key: "USD",
-                                },
-                                {
-                                  value: "EUR",
-                                  label: "EUR",
-                                  key: "EUR",
-                                },
-                              ]}
-                            ></Select>
+                            {currency && (
+                              <Select
+                                onChange={(value) => setCurrency(value)}
+                                defaultValue={currency}
+                                options={[
+                                  {
+                                    value: "RWF",
+                                    label: "RWF",
+                                    key: "RWF",
+                                  },
+                                  {
+                                    value: "USD",
+                                    label: "USD",
+                                    key: "USD",
+                                  },
+                                  {
+                                    value: "EUR",
+                                    label: "EUR",
+                                    key: "EUR",
+                                  },
+                                ]}
+                              ></Select>
+                            )}
                           </Form.Item>
                         }
                         value={amount}
