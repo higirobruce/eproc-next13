@@ -307,17 +307,16 @@ export default function PaymentRequest({ params }) {
       });
       setPo(res?.purchaseOrder);
 
-      getPoPaidRequests(res?.purchaseOrder?._id, router).then((res) => {
-        // setPoVal(res?.poVal);
-        setTotalPaid(res?.totalPaymentVal);
-      });
+      res?.purchaseOrder?._id &&
+        getPoPaidRequests(res?.purchaseOrder?._id, router).then((res) => {
+          // setPoVal(res?.poVal);
+          setTotalPaid(res?.totalPaymentVal);
+        });
       let statusCode = getRequestStatusCode(res?.status);
       setCurrentCode(statusCode);
       setBudgeted(res?.budgeted);
       setCurrency(_paymentRequest?.currency);
     });
-
-    
 
     const getBase64 = (file) =>
       new Promise((resolve, reject) => {
@@ -517,7 +516,7 @@ export default function PaymentRequest({ params }) {
   }
 
   function sendReview() {
-    paymentRequest.approver = level1Approver;
+    paymentRequest.approver = level1Approver || paymentRequest?.approver?._id;
     paymentRequest.reviewedBy = user?._id;
     paymentRequest.reviewedAt = moment();
     paymentRequest.status = "reviewed";
@@ -535,6 +534,8 @@ export default function PaymentRequest({ params }) {
     })
       .then((res) => getResultFromServer(res))
       .then((res) => {
+        setShowAddApproverForm(false)
+        setOpen(false)
         refresh();
       });
   }
@@ -556,7 +557,7 @@ export default function PaymentRequest({ params }) {
       paymentRequest.hof_approvalDate = null;
       paymentRequest.rejectionDate = null;
       paymentRequest.reasonForRejection = null;
-      paymentRequest.approver = null;
+      // paymentRequest.approver = null;
       paymentRequest.reviewedAt = null;
       paymentRequest.reviewedBy = null;
     }
@@ -1209,7 +1210,7 @@ export default function PaymentRequest({ params }) {
                         value={paymentRequest?.budgeted ? "Yes" : "No"}
                         // style={{ width: "100%" }}
                         placeholder="Please select"
-                        disabled={paymentRequest?.category === "external"}
+                        // disabled={paymentRequest?.category === "external"}
                         onChange={(value) => {
                           paymentRequest.budgeted = value;
                           if (value === false) paymentRequest.budgetLine = null;
@@ -1282,7 +1283,7 @@ export default function PaymentRequest({ params }) {
                       onChange={(value, option) => {
                         paymentRequest.budgetLine = value;
                       }}
-                      disabled={paymentRequest?.category === "external"}
+                      // disabled={paymentRequest?.category === "external"}
                       // filterSort={(optionA, optionB) =>
                       //   (optionA?.label ?? "")
                       //     .toLowerCase()
@@ -1336,55 +1337,59 @@ export default function PaymentRequest({ params }) {
             </div>
           </Form>
 
-          <div className="bg-gray-50 py-3 px-10  my-5 rounded">
-            <div className="flex flex-row items-center text-blue-500">
-              <LightBulbIcon className="h-8 w-8" />
-              <div>
-                <Typography.Title level={5}>Hints</Typography.Title>
+          {paymentRequest?.category === "external" && (
+            <div className="bg-gray-50 py-3 px-10  my-5 rounded">
+              <div className="flex flex-row items-center text-blue-500">
+                <LightBulbIcon className="h-8 w-8" />
+                <div>
+                  <Typography.Title level={5}>Hints</Typography.Title>
+                </div>
               </div>
-            </div>
 
-            <div className="flex flex-col space-y-3 w-1/2 mt-5">
-              <Typography.Text>
-                <div className="text-gray-700 grid grid-cols-2">
-                  <div>Related PO {po?.number} (Total Value): </div>
-                  <div className="font-semibold">
-                    {po?.items[0]?.currency +
-                      " " +
-                      getPoTotalVal().grossTotal?.toLocaleString()}
+              <div className="flex flex-col space-y-3 w-1/2 mt-5">
+                <Typography.Text>
+                  <div className="text-gray-700 grid grid-cols-2">
+                    <div>Related PO {po?.number} (Total Value): </div>
+                    <div className="font-semibold">
+                      {po?.items[0]?.currency +
+                        " " +
+                        getPoTotalVal().grossTotal?.toLocaleString()}
+                    </div>
                   </div>
-                </div>
-              </Typography.Text>
+                </Typography.Text>
 
-              <Typography.Text>
-                <div className="text-gray-700 grid grid-cols-2">
-                  <div>Paid Requests' Value: </div>
-                  <div className="font-semibold">
-                    {po?.items[0]?.currency + " " + totalPaid?.toLocaleString()}
+                <Typography.Text>
+                  <div className="text-gray-700 grid grid-cols-2">
+                    <div>Paid Requests' Value: </div>
+                    <div className="font-semibold">
+                      {po?.items[0]?.currency +
+                        " " +
+                        totalPaid?.toLocaleString()}
+                    </div>
                   </div>
-                </div>
-              </Typography.Text>
+                </Typography.Text>
 
-              <Typography.Text>
-                <div className="text-gray-700 grid grid-cols-2">
-                  <div>Linked Payment Requests' Value: </div>
-                  <div
-                    className={`font-semibold
+                <Typography.Text>
+                  <div className="text-gray-700 grid grid-cols-2">
+                    <div>Linked Payment Requests' Value: </div>
+                    <div
+                      className={`font-semibold
                   
                       ${
                         amount > getPoTotalVal().grossTotal - totalPaymentVal &&
                         "text-red-500"
                       }
                   `}
-                  >
-                    {po?.items[0]?.currency +
-                      " " +
-                      (totalPaymentVal + amount)?.toLocaleString()}
+                    >
+                      {po?.items[0]?.currency +
+                        " " +
+                        (totalPaymentVal + amount)?.toLocaleString()}
+                    </div>
                   </div>
-                </div>
-              </Typography.Text>
+                </Typography.Text>
+              </div>
             </div>
-          </div>
+          )}
 
           {paymentRequest?.status == "withdrawn" && (
             <div className="text-sm text-red-600 p-3 bg-red-50 rounded-md flex flex-col justify-center items-center">
@@ -1702,7 +1707,8 @@ export default function PaymentRequest({ params }) {
                   {showAddApproverForm ? "" : "No approver selected yet"}
                 </div> */}
                     {!showAddApproverForm &&
-                      user?.permissions?.canEditPaymentRequests && (
+                      user?.permissions?.canEditPaymentRequests &&
+                      !user?.approver && (
                         <div className="flex flex-row items-center space-x-1">
                           <Button
                             type="primary"
@@ -1730,7 +1736,9 @@ export default function PaymentRequest({ params }) {
                   </div>
                 )}
 
-              {showAddApproverForm && (
+              {(showAddApproverForm ||
+                (paymentRequest?.approver &&
+                  paymentRequest?.status == "pending-review")) && (
                 <div className="w-1/3">
                   <Form layout="vertical">
                     <Form.Item
@@ -1745,6 +1753,7 @@ export default function PaymentRequest({ params }) {
                     >
                       <Select
                         // defaultValue={defaultApprover}
+                        defaultValue={paymentRequest?.approver?._id}
                         placeholder="Select Approver"
                         showSearch
                         onChange={(value) => {
@@ -1768,7 +1777,7 @@ export default function PaymentRequest({ params }) {
                       <Button
                         onClick={sendReview}
                         type="primary"
-                        disabled={!level1Approver}
+                        disabled={!level1Approver && !paymentRequest?.approver?._id}
                       >
                         Submit
                       </Button>
