@@ -260,7 +260,7 @@ export default function PaymentRequest({ params }) {
         let uid = `rc-upload-${moment().milliseconds()}-${i}`;
         let _url = `${url}/file/paymentRequests/${encodeURI(doc)}`;
         let status = "done";
-        let name = `Invoice ${i + 1}.pdf`;
+        let name = `${doc}`;
 
         let response = await fetch(_url);
         let data = await response.blob();
@@ -1954,7 +1954,8 @@ export default function PaymentRequest({ params }) {
                   </>
                 )}
 
-              {user?.userType !== "VENDOR" && paymentRequest?.status !== "approved" &&
+              {user?.userType !== "VENDOR" &&
+                paymentRequest?.status !== "approved" &&
                 paymentRequest?.status !== "paid" && (
                   <div className="text-sm text-gray-600 p-3 bg-gray-50 rounded-md flex flex-col justify-center items-center">
                     <LockClosedIcon className="h-10 w-10 text-blue-400" />
