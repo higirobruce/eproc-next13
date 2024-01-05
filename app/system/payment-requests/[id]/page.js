@@ -46,6 +46,7 @@ import {
   DocumentMagnifyingGlassIcon,
   LockClosedIcon,
   UserGroupIcon,
+  LightBulbIcon,
 } from "@heroicons/react/24/outline";
 import UploadPaymentReq from "@/app/components/uploadPaymentReq";
 import UpdatePaymentReqDoc from "@/app/components/updatePaymentReqDoc";
@@ -109,6 +110,31 @@ async function getPoPaymentProgress(id, router) {
   } else {
     return null;
   }
+}
+
+async function getPoPaidRequests(id, router) {
+  let token = localStorage.getItem("token");
+  const res = await fetch(`${url}/purchaseOrders/paymentsDone/${id}`, {
+    method: "GET",
+    headers: {
+      Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+      token: token,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push("/auth");
+    }
+    // This will activate the closest `error.js` Error Boundary
+    return null;
+    // throw new Error("Failed to fetch data");
+  }
+
+  return res.json();
 }
 
 async function getApprovers() {
@@ -247,6 +273,7 @@ export default function PaymentRequest({ params }) {
   let [po, setPo] = useState(null);
   let [poVal, setPoVal] = useState(0);
   let [totalPaymentVal, setTotalPaymentVal] = useState(0);
+  let [totalPaid, setTotalPaid] = useState(0);
 
   useEffect(() => {
     getPaymentRequestDetails(params.id, router).then((res) => {
@@ -279,11 +306,18 @@ export default function PaymentRequest({ params }) {
         });
       });
       setPo(res?.purchaseOrder);
+
+      getPoPaidRequests(res?.purchaseOrder?._id, router).then((res) => {
+        // setPoVal(res?.poVal);
+        setTotalPaid(res?.totalPaymentVal);
+      });
       let statusCode = getRequestStatusCode(res?.status);
       setCurrentCode(statusCode);
       setBudgeted(res?.budgeted);
       setCurrency(_paymentRequest?.currency);
     });
+
+    
 
     const getBase64 = (file) =>
       new Promise((resolve, reject) => {
@@ -686,15 +720,88 @@ export default function PaymentRequest({ params }) {
   }
 
   function refresh() {
-    getPaymentRequestDetails(params.id).then((res) => {
-      let _status = res?.status;
-      if (_status == "reviewed") res.status = "pending-approval";
+    getPaymentRequestDetails(params.id, router).then((res) => {
+      if (res?.status == "reviewed") res.status = "pending-approval";
       setPaymentRequest(res);
-      let statusCode = getRequestStatusCode(_status);
+      let _files = [];
+
+      let _paymentRequest = res;
+
+      _paymentRequest?.docIds?.map(async (doc, i) => {
+        let uid = `rc-upload-${moment().milliseconds()}-${i}`;
+        let _url = `${url}/file/paymentRequests/${encodeURI(doc)}`;
+        let status = "done";
+        let name = `${doc}`;
+
+        let response = await fetch(_url);
+        let data = await response.blob();
+        getBase64(data).then((res) => {
+          let newFile = new File([data], name, {
+            uid,
+            url: _url,
+            status,
+            name,
+            // type:'pdf'
+          });
+          _files.push(newFile);
+          setFiles(_files);
+        });
+      });
+      setPo(res?.purchaseOrder);
+      let statusCode = getRequestStatusCode(res?.status);
       setCurrentCode(statusCode);
-      setShowAddApproverForm(false);
-      setLevel1Approver(null);
+      setBudgeted(res?.budgeted);
+      setCurrency(_paymentRequest?.currency);
     });
+
+    const getBase64 = (file) =>
+      new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+      });
+
+    getApprovers()
+      .then((res) => {
+        let approversList = res?.filter((a) => a?._id !== user?._id);
+        setLevel1Approvers(res);
+        let hod = approversList?.filter(
+          (a) => a?.department?._id === user?.department
+        );
+      })
+      .catch((err) => {
+        messageApi.open({
+          type: "error",
+          content: "Something happened! Please try again.",
+        });
+      });
+
+    getAccounts().then((res) => {
+      setAccounts(res?.value);
+    });
+
+    getDistributionRules().then((res) => {
+      setDistributionRules(res?.value);
+    });
+    fetch(`${url}/budgetLines`, {
+      method: "GET",
+      headers: {
+        Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        setBudgetLines(res);
+      })
+      .catch((err) => {
+        messageApi.open({
+          type: "error",
+          content: "Connection Error!",
+        });
+      });
   }
 
   function getResultFromServer(res) {
@@ -1228,6 +1335,56 @@ export default function PaymentRequest({ params }) {
               )}
             </div>
           </Form>
+
+          <div className="bg-gray-50 py-3 px-10  my-5 rounded">
+            <div className="flex flex-row items-center text-blue-500">
+              <LightBulbIcon className="h-8 w-8" />
+              <div>
+                <Typography.Title level={5}>Hints</Typography.Title>
+              </div>
+            </div>
+
+            <div className="flex flex-col space-y-3 w-1/2 mt-5">
+              <Typography.Text>
+                <div className="text-gray-700 grid grid-cols-2">
+                  <div>Related PO {po?.number} (Total Value): </div>
+                  <div className="font-semibold">
+                    {po?.items[0]?.currency +
+                      " " +
+                      getPoTotalVal().grossTotal?.toLocaleString()}
+                  </div>
+                </div>
+              </Typography.Text>
+
+              <Typography.Text>
+                <div className="text-gray-700 grid grid-cols-2">
+                  <div>Paid Requests' Value: </div>
+                  <div className="font-semibold">
+                    {po?.items[0]?.currency + " " + totalPaid?.toLocaleString()}
+                  </div>
+                </div>
+              </Typography.Text>
+
+              <Typography.Text>
+                <div className="text-gray-700 grid grid-cols-2">
+                  <div>Linked Payment Requests' Value: </div>
+                  <div
+                    className={`font-semibold
+                  
+                      ${
+                        amount > getPoTotalVal().grossTotal - totalPaymentVal &&
+                        "text-red-500"
+                      }
+                  `}
+                  >
+                    {po?.items[0]?.currency +
+                      " " +
+                      (totalPaymentVal + amount)?.toLocaleString()}
+                  </div>
+                </div>
+              </Typography.Text>
+            </div>
+          </div>
 
           {paymentRequest?.status == "withdrawn" && (
             <div className="text-sm text-red-600 p-3 bg-red-50 rounded-md flex flex-col justify-center items-center">
