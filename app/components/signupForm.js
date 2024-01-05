@@ -1557,7 +1557,7 @@ const SignupForm = () => {
             type: "error",
             content: res.errorMessage,
           });
-          router.push("/auth");
+          // router.push("/auth");
         }
       })
       .catch((err) => {

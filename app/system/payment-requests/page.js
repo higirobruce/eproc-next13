@@ -186,8 +186,7 @@ export default function UserRequests() {
           ? item.status == "approved (hod)"
           : user?.permissions?.canApproveAsHod
           ? user._id == item?.approver?._id &&
-            (item?.status == "pending-review" ||
-              item?.status == "reviewed")
+            (item?.status == "pending-review" || item?.status == "reviewed")
           : true
       );
 
@@ -236,17 +235,19 @@ export default function UserRequests() {
                       />
                     </div>
                   )}
-                <div className="flex flex-row items-center space-x-1">
-                  <div>My requests</div>
-                  {
-                    <Checkbox
-                      checked={onlyMine}
-                      onChange={(e) => {
-                        setOnlyMine(e.target.checked);
-                      }}
-                    />
-                  }
-                </div>
+                {user?.userType !== "VENDOR" && (
+                  <div className="flex flex-row items-center space-x-1">
+                    <div>My requests</div>
+                    {
+                      <Checkbox
+                        checked={onlyMine}
+                        onChange={(e) => {
+                          setOnlyMine(e.target.checked);
+                        }}
+                      />
+                    }
+                  </div>
+                )}
               </div>
             </div>
             <Row className="flex flex-row justify-between items-center space-x-4">

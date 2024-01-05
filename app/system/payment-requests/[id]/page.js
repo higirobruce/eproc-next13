@@ -984,7 +984,6 @@ export default function PaymentRequest({ params }) {
                                 onChange={(value) =>
                                   (paymentRequest.currency = value)
                                 }
-                                
                                 value={paymentRequest.currency}
                                 options={[
                                   {
@@ -1240,9 +1239,13 @@ export default function PaymentRequest({ params }) {
           {paymentRequest?.status !== "withdrawn" && (
             <>
               {/* Approval flow */}
-              <div>
-                <Typography.Title level={4}>Request Approval</Typography.Title>
-              </div>
+              {user?.userType !== "VENDOR" && (
+                <div>
+                  <Typography.Title level={4}>
+                    Request Approval
+                  </Typography.Title>
+                </div>
+              )}
 
               {paymentRequest?.approver && (
                 <div className="mx-3 mt-5 ">
@@ -1618,14 +1621,16 @@ export default function PaymentRequest({ params }) {
               )}
 
               {/* Payment process */}
-              <div className="flex flex-row justify-between items-center">
-                <Typography.Title level={4}>Payment process</Typography.Title>
-                <div>
-                  {paymentRequest?.status == "approved" && (
-                    <Tag color="orange">payment is due</Tag>
-                  )}
+              {user?.userType !== "VENDOR" && (
+                <div className="flex flex-row justify-between items-center">
+                  <Typography.Title level={4}>Payment process</Typography.Title>
+                  <div>
+                    {paymentRequest?.status == "approved" && (
+                      <Tag color="orange">payment is due</Tag>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {paymentRequest?.status === "approved" &&
                 user?.permissions.canApproveAsHof &&
@@ -1949,7 +1954,7 @@ export default function PaymentRequest({ params }) {
                   </>
                 )}
 
-              {paymentRequest?.status !== "approved" &&
+              {user?.userType !== "VENDOR" && paymentRequest?.status !== "approved" &&
                 paymentRequest?.status !== "paid" && (
                   <div className="text-sm text-gray-600 p-3 bg-gray-50 rounded-md flex flex-col justify-center items-center">
                     <LockClosedIcon className="h-10 w-10 text-blue-400" />

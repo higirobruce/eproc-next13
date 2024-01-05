@@ -217,7 +217,7 @@ export default function PurchaseOrders() {
 
         !purchaseOrderStillOpen &&
           poVal !== -1 &&
-          message.error("No new payment requests allowed; existing ones reached or exceeded expected total value. Review for payment requests!", 10);
+          message.error("Payment requests have exceeded Purchase Order value. Please check status of existing requests!", 10);
       })
       .catch((err) => {
         console.log(err)
