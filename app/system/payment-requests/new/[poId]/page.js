@@ -346,7 +346,7 @@ export default function NewPaymentRequest({ params }) {
                                 (poVal > -1 &&
                                   value >
                                     getPoTotalVal()?.grossTotal -
-                                      totalPaymentVal) ||
+                                      totalPaymentVal-value) ||
                                 (poVal == -1 &&
                                   value > getPoTotalVal()?.grossTotal)
                               ) {

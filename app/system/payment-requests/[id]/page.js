@@ -1043,7 +1043,8 @@ export default function PaymentRequest({ params }) {
                                   ((poVal > -1 &&
                                     value >
                                       getPoTotalVal()?.grossTotal -
-                                        totalPaymentVal) ||
+                                        totalPaymentVal -
+                                        value) ||
                                     (poVal == -1 &&
                                       value > getPoTotalVal()?.grossTotal)) &&
                                   paymentRequest?.category === "external"
