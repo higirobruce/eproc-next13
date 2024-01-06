@@ -1043,10 +1043,9 @@ export default function PaymentRequest({ params }) {
                                   ((poVal > -1 &&
                                     value >
                                       getPoTotalVal()?.grossTotal -
-                                        totalPaymentVal ) ||
+                                        totalPaymentVal) ||
                                     (poVal == -1 &&
-                                      value >
-                                        getPoTotalVal()?.grossTotal)) &&
+                                      value > getPoTotalVal()?.grossTotal)) &&
                                   paymentRequest?.category === "external"
                                 ) {
                                   reject(
@@ -1193,125 +1192,130 @@ export default function PaymentRequest({ params }) {
               </div>
 
               {/* Budgeted */}
-              <div className="flex flex-col space-y-1 items-start">
-                <div className="text-xs text-gray-400">Budgeted:</div>
-                {!editRequest && (
-                  <div className="text-sm font-semibold text-gray-600">
-                    {paymentRequest?.budgeted ? "Yes" : "No"}
-                  </div>
-                )}
-                {editRequest && (
-                  <div className="text-xs text-gray-400">
-                    <Form.Item name="budgeted">
-                      <Select
-                        // mode="multiple"
-                        // allowClear
-                        defaultValue={paymentRequest?.budgeted ? "Yes" : "No"}
-                        value={paymentRequest?.budgeted ? "Yes" : "No"}
-                        // style={{ width: "100%" }}
-                        placeholder="Please select"
-                        // disabled={paymentRequest?.category === "external"}
-                        onChange={(value) => {
-                          paymentRequest.budgeted = value;
-                          if (value === false) paymentRequest.budgetLine = null;
-                          setBudgeted(value);
-                          // handleUpdateRequest(r);
-                        }}
-                        options={[
-                          { value: true, label: "Yes" },
-                          { value: false, label: "No" },
-                        ]}
-                      />
-                    </Form.Item>
-                  </div>
-                )}
-              </div>
+              {user?.userType !== "VENDOR" && (
+                <div className="flex flex-col space-y-1 items-start">
+                  <div className="text-xs text-gray-400">Budgeted:</div>
+                  {!editRequest && (
+                    <div className="text-sm font-semibold text-gray-600">
+                      {paymentRequest?.budgeted ? "Yes" : "No"}
+                    </div>
+                  )}
+                  {editRequest && (
+                    <div className="text-xs text-gray-400">
+                      <Form.Item name="budgeted">
+                        <Select
+                          // mode="multiple"
+                          // allowClear
+                          defaultValue={paymentRequest?.budgeted ? "Yes" : "No"}
+                          value={paymentRequest?.budgeted ? "Yes" : "No"}
+                          // style={{ width: "100%" }}
+                          placeholder="Please select"
+                          // disabled={paymentRequest?.category === "external"}
+                          onChange={(value) => {
+                            paymentRequest.budgeted = value;
+                            if (value === false)
+                              paymentRequest.budgetLine = null;
+                            setBudgeted(value);
+                            // handleUpdateRequest(r);
+                          }}
+                          options={[
+                            { value: true, label: "Yes" },
+                            { value: false, label: "No" },
+                          ]}
+                        />
+                      </Form.Item>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Budget Line */}
-              <div className="flex flex-col space-y-1 items-start">
-                <div className="text-xs text-gray-400">Budget Line:</div>
-                {!editRequest && (
-                  <div className="text-sm font-semibold text-gray-600">
-                    {paymentRequest?.budgetLine?.description}
-                  </div>
-                )}
+              {user?.userType !== "VENDOR" && (
+                <div className="flex flex-col space-y-1 items-start">
+                  <div className="text-xs text-gray-400">Budget Line:</div>
+                  {!editRequest && (
+                    <div className="text-sm font-semibold text-gray-600">
+                      {paymentRequest?.budgetLine?.description}
+                    </div>
+                  )}
 
-                {editRequest && budgeted && (
-                  // <Select
-                  //   // mode="multiple"
-                  //   // allowClear
-                  //   className="ml-3"
-                  //   defaultValue={data?.budgetLine}
-                  //   style={{ width: "100%" }}
-                  //   placeholder="Please select"
-                  //   onChange={(value) => {
-                  //     let r = { ...data };
-                  //     r.budgetLine = value;
-                  //     handleUpdateRequest(r);
-                  //   }}
-                  // >
-                  //   {servCategories?.map((s) => {
-                  //     return (
-                  //       <Select.Option
-                  //         key={s._id}
-                  //         value={s.description}
-                  //       >
-                  //         {s.description}
-                  //       </Select.Option>
-                  //     );
-                  //   })}
-                  // </Select>
+                  {editRequest && budgeted && (
+                    // <Select
+                    //   // mode="multiple"
+                    //   // allowClear
+                    //   className="ml-3"
+                    //   defaultValue={data?.budgetLine}
+                    //   style={{ width: "100%" }}
+                    //   placeholder="Please select"
+                    //   onChange={(value) => {
+                    //     let r = { ...data };
+                    //     r.budgetLine = value;
+                    //     handleUpdateRequest(r);
+                    //   }}
+                    // >
+                    //   {servCategories?.map((s) => {
+                    //     return (
+                    //       <Select.Option
+                    //         key={s._id}
+                    //         value={s.description}
+                    //       >
+                    //         {s.description}
+                    //       </Select.Option>
+                    //     );
+                    //   })}
+                    // </Select>
 
-                  <Form.Item
-                    name="budgetLine"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Budget Line is required",
-                      },
-                    ]}
-                    initialValue={paymentRequest?.budgetLine?._id}
-                  >
-                    <Select
-                      // defaultValue={budgetLine}
+                    <Form.Item
+                      name="budgetLine"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Budget Line is required",
+                        },
+                      ]}
+                      initialValue={paymentRequest?.budgetLine?._id}
+                    >
+                      <Select
+                        // defaultValue={budgetLine}
 
-                      // className="ml-3"
-                      placeholder="Select service category"
-                      showSearch
-                      // defaultValue={paymentRequest?.budgetLine?._id}
-                      value={paymentRequest?.budgetLine?._id}
-                      onChange={(value, option) => {
-                        paymentRequest.budgetLine = value;
-                      }}
-                      // disabled={paymentRequest?.category === "external"}
-                      // filterSort={(optionA, optionB) =>
-                      //   (optionA?.label ?? "")
-                      //     .toLowerCase()
-                      //     .localeCompare(
-                      //       (optionB?.label ?? "").toLowerCase()
-                      //     )
-                      // }
-                      filterOption={(inputValue, option) => {
-                        return option.label
-                          .toLowerCase()
-                          .includes(inputValue.toLowerCase());
-                      }}
-                      options={budgetLines.map((s) => {
-                        return {
-                          label: s.description.toUpperCase(),
-                          options: s.budgetlines.map((sub) => {
-                            return {
-                              label: sub.description,
-                              value: sub._id,
-                              title: sub.description,
-                            };
-                          }),
-                        };
-                      })}
-                    ></Select>
-                  </Form.Item>
-                )}
-              </div>
+                        // className="ml-3"
+                        placeholder="Select service category"
+                        showSearch
+                        // defaultValue={paymentRequest?.budgetLine?._id}
+                        value={paymentRequest?.budgetLine?._id}
+                        onChange={(value, option) => {
+                          paymentRequest.budgetLine = value;
+                        }}
+                        // disabled={paymentRequest?.category === "external"}
+                        // filterSort={(optionA, optionB) =>
+                        //   (optionA?.label ?? "")
+                        //     .toLowerCase()
+                        //     .localeCompare(
+                        //       (optionB?.label ?? "").toLowerCase()
+                        //     )
+                        // }
+                        filterOption={(inputValue, option) => {
+                          return option.label
+                            .toLowerCase()
+                            .includes(inputValue.toLowerCase());
+                        }}
+                        options={budgetLines.map((s) => {
+                          return {
+                            label: s.description.toUpperCase(),
+                            options: s.budgetlines.map((sub) => {
+                              return {
+                                label: sub.description,
+                                value: sub._id,
+                                title: sub.description,
+                              };
+                            }),
+                          };
+                        })}
+                      ></Select>
+                    </Form.Item>
+                  )}
+                </div>
+              )}
 
               {editRequest && (
                 <div>
@@ -1789,7 +1793,7 @@ export default function PaymentRequest({ params }) {
               )}
 
               {/* Payment process */}
-              { (
+              {
                 <div className="flex flex-row justify-between items-center">
                   <Typography.Title level={4}>Payment process</Typography.Title>
                   <div>
@@ -1798,7 +1802,7 @@ export default function PaymentRequest({ params }) {
                     )}
                   </div>
                 </div>
-              )}
+              }
 
               {paymentRequest?.status === "approved" &&
                 user?.permissions.canApproveAsHof &&
@@ -2122,8 +2126,7 @@ export default function PaymentRequest({ params }) {
                   </>
                 )}
 
-              {
-                paymentRequest?.status !== "approved" &&
+              {paymentRequest?.status !== "approved" &&
                 paymentRequest?.status !== "paid" && (
                   <div className="text-sm text-gray-600 p-3 bg-gray-50 rounded-md flex flex-col justify-center items-center">
                     <LockClosedIcon className="h-10 w-10 text-blue-400" />
