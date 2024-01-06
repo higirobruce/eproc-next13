@@ -1337,7 +1337,7 @@ export default function PaymentRequest({ params }) {
             </div>
           </Form>
 
-          {paymentRequest?.category === "external" && (
+          {paymentRequest?.category === "external" && editRequest && (
             <div className="bg-gray-50 py-3 px-10  my-5 rounded">
               <div className="flex flex-row items-center text-blue-500">
                 <LightBulbIcon className="h-8 w-8" />
@@ -1409,7 +1409,7 @@ export default function PaymentRequest({ params }) {
                 </div>
               )}
 
-              {paymentRequest?.approver && (
+              {paymentRequest?.approver && user?.userType !== "VENDOR" && (
                 <div className="mx-3 mt-5 ">
                   <Steps
                     direction="vertical"
@@ -1789,7 +1789,7 @@ export default function PaymentRequest({ params }) {
               )}
 
               {/* Payment process */}
-              {user?.userType !== "VENDOR" && (
+              { (
                 <div className="flex flex-row justify-between items-center">
                   <Typography.Title level={4}>Payment process</Typography.Title>
                   <div>
@@ -2122,7 +2122,7 @@ export default function PaymentRequest({ params }) {
                   </>
                 )}
 
-              {user?.userType !== "VENDOR" &&
+              {
                 paymentRequest?.status !== "approved" &&
                 paymentRequest?.status !== "paid" && (
                   <div className="text-sm text-gray-600 p-3 bg-gray-50 rounded-md flex flex-col justify-center items-center">
