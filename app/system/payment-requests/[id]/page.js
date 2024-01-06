@@ -1044,7 +1044,7 @@ export default function PaymentRequest({ params }) {
                                     value >
                                       getPoTotalVal()?.grossTotal -
                                         totalPaymentVal -
-                                        value) ||
+                                        paymentRequest?.amount) ||
                                     (poVal == -1 &&
                                       value > getPoTotalVal()?.grossTotal)) &&
                                   paymentRequest?.category === "external"
@@ -1381,14 +1381,20 @@ export default function PaymentRequest({ params }) {
                       className={`font-semibold
                   
                       ${
-                        amount > getPoTotalVal().grossTotal - totalPaymentVal &&
-                        "text-red-500"
+                        amount >
+                          getPoTotalVal().grossTotal -
+                            totalPaymentVal -
+                            paymentRequest?.amount && "text-red-500"
                       }
                   `}
                     >
                       {po?.items[0]?.currency +
                         " " +
-                        (totalPaymentVal + amount)?.toLocaleString()}
+                        (
+                          totalPaymentVal +
+                          amount -
+                          paymentRequest?.amount
+                        )?.toLocaleString()}
                     </div>
                   </div>
                 </Typography.Text>
