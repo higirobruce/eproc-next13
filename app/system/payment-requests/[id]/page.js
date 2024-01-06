@@ -312,6 +312,8 @@ export default function PaymentRequest({ params }) {
           // setPoVal(res?.poVal);
           setTotalPaid(res?.totalPaymentVal);
         });
+
+      setAmount(res?.amount)
       let statusCode = getRequestStatusCode(res?.status);
       setCurrentCode(statusCode);
       setBudgeted(res?.budgeted);
@@ -749,6 +751,7 @@ export default function PaymentRequest({ params }) {
           setFiles(_files);
         });
       });
+      setAmount(res?.amount)
       setPo(res?.purchaseOrder);
       let statusCode = getRequestStatusCode(res?.status);
       setCurrentCode(statusCode);
