@@ -284,10 +284,10 @@ const PaymentRequestsTable = ({
       key: "status",
       sorter: (a, b) =>
         getHighLevelStatus(
-          a?.status.charAt(0).toUpperCase() + a?.status.slice(1)
+          a?.status?.charAt(0).toUpperCase() + a?.status.slice(1)
         ).localeCompare(
           getHighLevelStatus(
-            b?.status.charAt(0).toUpperCase() + b?.status.slice(1)
+            b?.status?.charAt(0).toUpperCase() + b?.status.slice(1)
           )
         ),
       render: (_, record) => (
@@ -295,11 +295,11 @@ const PaymentRequestsTable = ({
           <Badge
             color={getTagColor(
               getHighLevelStatus(
-                record?.status.charAt(0).toUpperCase() + record?.status.slice(1)
+                record?.status?.charAt(0).toUpperCase() + record?.status.slice(1)
               )
             )}
             text={getHighLevelStatus(
-              record?.status.charAt(0).toUpperCase() + record?.status.slice(1)
+              record?.status?.charAt(0).toUpperCase() + record?.status.slice(1)
             )}
           />
         </>
