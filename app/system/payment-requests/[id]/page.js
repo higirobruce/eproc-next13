@@ -534,8 +534,8 @@ export default function PaymentRequest({ params }) {
     })
       .then((res) => getResultFromServer(res))
       .then((res) => {
-        setShowAddApproverForm(false)
-        setOpen(false)
+        setShowAddApproverForm(false);
+        setOpen(false);
         refresh();
       });
   }
@@ -1043,11 +1043,10 @@ export default function PaymentRequest({ params }) {
                                   ((poVal > -1 &&
                                     value >
                                       getPoTotalVal()?.grossTotal -
-                                        totalPaymentVal -
-                                        value) ||
+                                        totalPaymentVal ) ||
                                     (poVal == -1 &&
                                       value >
-                                        getPoTotalVal()?.grossTotal - value)) &&
+                                        getPoTotalVal()?.grossTotal)) &&
                                   paymentRequest?.category === "external"
                                 ) {
                                   reject(
@@ -1116,6 +1115,7 @@ export default function PaymentRequest({ params }) {
                           // defaultValue={paymentRequest.amount}
                           value={paymentRequest.amount}
                           onChange={(e) => {
+                            setAmout(e);
                             paymentRequest.amount = e;
                           }}
                         />
@@ -1777,7 +1777,9 @@ export default function PaymentRequest({ params }) {
                       <Button
                         onClick={sendReview}
                         type="primary"
-                        disabled={!level1Approver && !paymentRequest?.approver?._id}
+                        disabled={
+                          !level1Approver && !paymentRequest?.approver?._id
+                        }
                       >
                         Submit
                       </Button>
