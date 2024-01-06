@@ -371,6 +371,7 @@ export default function NewPaymentRequest({ params }) {
                               {
                                 validator(rule, value) {
                                   return new Promise((resolve, reject) => {
+                                    value=currency
                                     if (value !== po?.items[0]?.currency) {
                                       reject(
                                         "The currency can not differ from the PO currency!"
@@ -387,6 +388,7 @@ export default function NewPaymentRequest({ params }) {
                               <Select
                                 onChange={(value) => setCurrency(value)}
                                 defaultValue={currency}
+                                value={currency}
                                 options={[
                                   {
                                     value: "RWF",
