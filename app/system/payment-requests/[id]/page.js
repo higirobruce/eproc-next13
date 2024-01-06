@@ -236,7 +236,7 @@ export default function PaymentRequest({ params }) {
   let [paymentForm] = Form.useForm();
   let [title, setTitle] = useState("");
   let [description, setDescription] = useState("");
-  let [amount, setAmout] = useState(null);
+  let [amount, setAmount] = useState(null);
   let [docId, setDocId] = useState(null);
   let [files, setFiles] = useState([]);
   let [filesProof, setFilesProof] = useState([]);
@@ -542,6 +542,7 @@ export default function PaymentRequest({ params }) {
 
   function updateRequest(docIds) {
     // docIds[0] = null;
+    paymentRequest.amount = amount
     if (
       !docIds.includes(null) &&
       !docIds.includes(undefined) &&
@@ -1043,8 +1044,7 @@ export default function PaymentRequest({ params }) {
                                   ((poVal > -1 &&
                                     value >
                                       getPoTotalVal()?.grossTotal -
-                                        totalPaymentVal -
-                                        paymentRequest?.amount) ||
+                                        totalPaymentVal ) ||
                                     (poVal == -1 &&
                                       value > getPoTotalVal()?.grossTotal)) &&
                                   paymentRequest?.category === "external"
@@ -1115,8 +1115,8 @@ export default function PaymentRequest({ params }) {
                           // defaultValue={paymentRequest.amount}
                           value={paymentRequest.amount}
                           onChange={(e) => {
-                            setAmout(e);
-                            paymentRequest.amount = e;
+                            setAmount(e);
+                            // paymentRequest.amount = e;
                           }}
                         />
                       </Form.Item>
@@ -1383,17 +1383,14 @@ export default function PaymentRequest({ params }) {
                       ${
                         amount >
                           getPoTotalVal().grossTotal -
-                            totalPaymentVal -
-                            paymentRequest?.amount && "text-red-500"
+                            totalPaymentVal  && "text-red-500"
                       }
                   `}
                     >
                       {po?.items[0]?.currency +
                         " " +
                         (
-                          totalPaymentVal +
-                          amount -
-                          paymentRequest?.amount
+                          totalPaymentVal + amount
                         )?.toLocaleString()}
                     </div>
                   </div>
