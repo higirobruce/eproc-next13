@@ -859,11 +859,11 @@ export default function PaymentRequest({ params }) {
           (paymentRequest?.status == "pending-review" ||
             paymentRequest?.status == "declined" ||
             paymentRequest?.status == "withdrawn" ||
-            paymentRequest?.status.includes("pending-approval"))) ||
+            paymentRequest?.status?.includes("pending-approval"))) ||
           ((paymentRequest?.approver?._id === user?._id ||
             user?.permissions?.canApproveAsHof) &&
-            (paymentRequest?.status.includes("pending-review") ||
-              paymentRequest?.status.includes("pending-approval")))) && (
+            (paymentRequest?.status?.includes("pending-review") ||
+              paymentRequest?.status?.includes("pending-approval")))) && (
           <Switch
             checked={editRequest}
             checkedChildren={<EditOutlined />}
@@ -916,7 +916,7 @@ export default function PaymentRequest({ params }) {
               color={
                 paymentRequest?.status == "pending-review"
                   ? "yellow"
-                  : paymentRequest?.status.includes("approved (")
+                  : paymentRequest?.status?.includes("approved (")
                   ? "orange"
                   : paymentRequest?.status == "approved" ||
                     paymentRequest?.status == "paid"
@@ -2253,7 +2253,7 @@ export default function PaymentRequest({ params }) {
                 color: paymentRequest?.status !== "declined" ? "blue" : "red",
                 dot:
                   paymentRequest?.status == "reviewed" ||
-                  paymentRequest?.status.includes("approved") ||
+                  paymentRequest?.status?.includes("approved") ||
                   paymentRequest?.status == "paid" ? (
                     <CheckCircleOutlined className=" text-green-500" />
                   ) : paymentRequest?.status == "declined" ? (
@@ -2275,7 +2275,7 @@ export default function PaymentRequest({ params }) {
                     <CheckCircleOutlined className=" text-green-500" />
                   )) ||
                   ((paymentRequest?.status == "reviewed" ||
-                    paymentRequest?.status.includes("approved (")) && (
+                    paymentRequest?.status?.includes("approved (")) && (
                     <LoadingOutlined className=" text-blue-500" />
                   )),
               },

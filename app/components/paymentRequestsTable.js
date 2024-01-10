@@ -156,7 +156,7 @@ const PaymentRequestsTable = ({
   });
 
   function getHighLevelStatus(status) {
-    if (status.includes("Approved (")) return "Pending-approval";
+    if (status?.includes("Approved (")) return "Pending-approval";
     else if (status === "Pending-approval" || status === "Reviewed")
       return "Pending-approval";
     else return status;
