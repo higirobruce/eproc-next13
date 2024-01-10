@@ -159,7 +159,7 @@ const PaymentRequestsTable = ({
     if (status && status?.includes("Approved (")) return "Pending-approval";
     else if (status === "Pending-approval" || status === "Reviewed")
       return "Pending-approval";
-    else return status;
+    else return status || "Pending-approval";
   }
 
   const cancel = () => {
