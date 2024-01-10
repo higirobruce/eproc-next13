@@ -425,34 +425,36 @@ export default function NewPaymentRequest({ params }) {
               </div>
 
               {/* Form grid 3 */}
-              <div>
-                {/* Budgeted */}
+              {user?.userType !== "VENDOR" && (
                 <div>
-                  <div>Budgeted?</div>
-                  <div className="font-semibold">
-                    {po?.request?.budgeted ? "Yes" : "No"}
-                  </div>
-                </div>
-
-                {/* Budget Lines */}
-                {po?.request?.budgetLine && (
-                  // <Form.Item label="Budget Line" name="budgetLine">
-                  //   <Input
-                  //     onChange={(e) => {
-                  //       setBudgetLine(e.target.value);
-                  //     }}
-                  //     placeholder=""
-                  //   />
-                  // </Form.Item>
-
-                  <div className="mt-10">
-                    <div>Budget Line</div>
+                  {/* Budgeted */}
+                  <div>
+                    <div>Budgeted?</div>
                     <div className="font-semibold">
-                      {po?.request?.budgetLine?.description}
+                      {po?.request?.budgeted ? "Yes" : "No"}
                     </div>
                   </div>
-                )}
-              </div>
+
+                  {/* Budget Lines */}
+                  {po?.request?.budgetLine && (
+                    // <Form.Item label="Budget Line" name="budgetLine">
+                    //   <Input
+                    //     onChange={(e) => {
+                    //       setBudgetLine(e.target.value);
+                    //     }}
+                    //     placeholder=""
+                    //   />
+                    // </Form.Item>
+
+                    <div className="mt-10">
+                      <div>Budget Line</div>
+                      <div className="font-semibold">
+                        {po?.request?.budgetLine?.description}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <Button
