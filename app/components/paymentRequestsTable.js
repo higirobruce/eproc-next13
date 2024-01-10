@@ -9,7 +9,7 @@ import {
   Table,
   Tag,
   Typography,
-  Tooltip
+  Tooltip,
 } from "antd";
 import {
   FileTextOutlined,
@@ -170,7 +170,7 @@ const PaymentRequestsTable = ({
     if (status === "Pending-approval" || status === "Reviewed") return "yellow";
     else if (status === "Pending-review") return "yellow";
     else if (status === "Approved" || status == "Paid") return "green";
-    else if (status === "Declined" || status =='Withdrawn') return "red";
+    else if (status === "Declined" || status == "Withdrawn") return "red";
   };
 
   useEffect(() => {
@@ -295,7 +295,8 @@ const PaymentRequestsTable = ({
           <Badge
             color={getTagColor(
               getHighLevelStatus(
-                record?.status?.charAt(0).toUpperCase() + record?.status.slice(1)
+                record?.status?.charAt(0).toUpperCase() +
+                  record?.status.slice(1)
               )
             )}
             text={getHighLevelStatus(
@@ -319,7 +320,10 @@ const PaymentRequestsTable = ({
         ),
       render: (_, record) => (
         <Tag color={`${record?.category === "internal" ? "blue" : "magenta"}`}>
-          {record?.category?.charAt(0).toUpperCase() + record?.category?.slice(1)}
+          {record?.category
+            ? record?.category?.charAt(0).toUpperCase() +
+              record?.category?.slice(1)
+            : "-"}
         </Tag>
       ),
     },
@@ -338,13 +342,13 @@ const PaymentRequestsTable = ({
             return (
               <Tooltip title={doc}>
                 <Typography.Text ellipsis>
-                <Link
-                  href={`${url}/file/paymentRequests/${encodeURI(doc)}`}
-                  target="_blank"
-                >
-                  {truncatedFileName}
-                </Link>
-              </Typography.Text>
+                  <Link
+                    href={`${url}/file/paymentRequests/${encodeURI(doc)}`}
+                    target="_blank"
+                  >
+                    {truncatedFileName}
+                  </Link>
+                </Typography.Text>
               </Tooltip>
             );
           })}
