@@ -119,6 +119,7 @@ export default function NewPaymentRequest({ params }) {
   useEffect(() => {
     getPoDetails(params?.poId, router).then((res) => {
       setCurrency(res?.items[0]?.currency);
+      console.log(res);
       setPo(res);
     });
 
@@ -346,7 +347,8 @@ export default function NewPaymentRequest({ params }) {
                                 (poVal > -1 &&
                                   value >
                                     getPoTotalVal()?.grossTotal -
-                                      totalPaymentVal-value) ||
+                                      totalPaymentVal -
+                                      value) ||
                                 (poVal == -1 &&
                                   value > getPoTotalVal()?.grossTotal)
                               ) {
@@ -371,7 +373,7 @@ export default function NewPaymentRequest({ params }) {
                               {
                                 validator(rule, value) {
                                   return new Promise((resolve, reject) => {
-                                    value=currency
+                                    value = currency;
                                     if (value !== po?.items[0]?.currency) {
                                       reject(
                                         "The currency can not differ from the PO currency!"
@@ -420,6 +422,36 @@ export default function NewPaymentRequest({ params }) {
                   <div>Invoice attachement(s)</div>
                   <UploadPaymentReq files={files} setFiles={setFiles} />
                 </div>
+              </div>
+
+              {/* Form grid 3 */}
+              <div>
+                {/* Budgeted */}
+                <div>
+                  <div>Budgeted?</div>
+                  <div className="font-semibold">
+                    {po?.request?.budgeted ? "Yes" : "No"}
+                  </div>
+                </div>
+
+                {/* Budget Lines */}
+                {po?.request?.budgetLine && (
+                  // <Form.Item label="Budget Line" name="budgetLine">
+                  //   <Input
+                  //     onChange={(e) => {
+                  //       setBudgetLine(e.target.value);
+                  //     }}
+                  //     placeholder=""
+                  //   />
+                  // </Form.Item>
+
+                  <div className="mt-10">
+                    <div>Budget Line</div>
+                    <div className="font-semibold">
+                      {po?.request?.budgetLine?.description}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
