@@ -63,9 +63,11 @@ async function getPaymentRequestDetails(id, router) {
       token: token,
       "Content-Type": "application/json",
     },
-  });
+  }).catch(err=>{
+    console.log(err)
+  })
 
-  if (!res.ok) {
+  if (!res?.ok) {
     // This will activate the closest `error.js` Error Boundary
 
     if (res.status === 401) {
@@ -93,9 +95,11 @@ async function getPoPaymentProgress(id, router) {
         token: token,
         "Content-Type": "application/json",
       },
-    });
+    }).catch(err=>{
+      console.log(err)
+    })
 
-    if (!res.ok) {
+    if (!res?.ok) {
       if (res.status === 401) {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
@@ -121,9 +125,11 @@ async function getPoPaidRequests(id, router) {
       token: token,
       "Content-Type": "application/json",
     },
-  });
+  }).catch(err=>{
+    console.log(err)
+  })
 
-  if (!res.ok) {
+  if (!res?.ok) {
     if (res.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
@@ -147,9 +153,11 @@ async function getApprovers() {
       token: token,
       "Content-Type": "application/json",
     },
-  });
+  }).catch(err=>{
+    console.log(err)
+  })
 
-  if (!res.ok) {
+  if (!res?.ok) {
     // This will activate the closest `error.js` Error Boundary
 
     return null;
@@ -169,9 +177,11 @@ async function getAccounts() {
       token: token,
       "Content-Type": "application/json",
     },
-  });
+  }).catch(err=>{
+    console.log(err)
+  })
 
-  if (!res.ok) {
+  if (!res?.ok) {
     // This will activate the closest `error.js` Error Boundary
 
     return null;
@@ -191,9 +201,11 @@ async function getDistributionRules() {
       token: token,
       "Content-Type": "application/json",
     },
-  });
+  }).catch(err=>{
+    console.log(err)
+  })
 
-  if (!res.ok) {
+  if (!res?.ok) {
     // This will activate the closest `error.js` Error Boundary
 
     return null;
@@ -215,9 +227,11 @@ async function getFile(path) {
       token: token,
       "Content-Type": "application/json",
     },
-  });
+  }).catch(err=>{
+    console.log(err)
+  })
 
-  if (!res.ok) {
+  if (!res?.ok) {
     // This will activate the closest `error.js` Error Boundary
 
     return null;
@@ -737,7 +751,7 @@ export default function PaymentRequest({ params }) {
         let status = "done";
         let name = `${doc}`;
 
-        let response = await fetch(_url);
+        let response = await fetch(_url).catch(err=>{console.log(err)});
         let data = await response.blob();
         getBase64(data).then((res) => {
           let newFile = new File([data], name, {
