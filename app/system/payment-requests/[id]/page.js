@@ -1156,7 +1156,7 @@ export default function PaymentRequest({ params }) {
                             )}`
                           : doc;
                       return (
-                        <div className="border-b-2 border-b-slate-600">
+                        <div className="flex flex-col space-x-2 border-b-2 border-b-slate-600">
                           <Tooltip title={doc}>
                             <Typography.Text ellipsis>
                               <Link
