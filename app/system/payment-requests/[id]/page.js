@@ -47,6 +47,7 @@ import {
   LockClosedIcon,
   UserGroupIcon,
   LightBulbIcon,
+  CloudArrowUpIcon,
 } from "@heroicons/react/24/outline";
 import UploadPaymentReq from "@/app/components/uploadPaymentReq";
 import UpdatePaymentReqDoc from "@/app/components/updatePaymentReqDoc";
@@ -63,9 +64,9 @@ async function getPaymentRequestDetails(id, router) {
       token: token,
       "Content-Type": "application/json",
     },
-  }).catch(err=>{
-    console.log(err)
-  })
+  }).catch((err) => {
+    console.log(err);
+  });
 
   if (!res?.ok) {
     // This will activate the closest `error.js` Error Boundary
@@ -95,9 +96,9 @@ async function getPoPaymentProgress(id, router) {
         token: token,
         "Content-Type": "application/json",
       },
-    }).catch(err=>{
-      console.log(err)
-    })
+    }).catch((err) => {
+      console.log(err);
+    });
 
     if (!res?.ok) {
       if (res.status === 401) {
@@ -125,9 +126,9 @@ async function getPoPaidRequests(id, router) {
       token: token,
       "Content-Type": "application/json",
     },
-  }).catch(err=>{
-    console.log(err)
-  })
+  }).catch((err) => {
+    console.log(err);
+  });
 
   if (!res?.ok) {
     if (res.status === 401) {
@@ -153,9 +154,9 @@ async function getApprovers() {
       token: token,
       "Content-Type": "application/json",
     },
-  }).catch(err=>{
-    console.log(err)
-  })
+  }).catch((err) => {
+    console.log(err);
+  });
 
   if (!res?.ok) {
     // This will activate the closest `error.js` Error Boundary
@@ -177,9 +178,9 @@ async function getAccounts() {
       token: token,
       "Content-Type": "application/json",
     },
-  }).catch(err=>{
-    console.log(err)
-  })
+  }).catch((err) => {
+    console.log(err);
+  });
 
   if (!res?.ok) {
     // This will activate the closest `error.js` Error Boundary
@@ -201,9 +202,9 @@ async function getDistributionRules() {
       token: token,
       "Content-Type": "application/json",
     },
-  }).catch(err=>{
-    console.log(err)
-  })
+  }).catch((err) => {
+    console.log(err);
+  });
 
   if (!res?.ok) {
     // This will activate the closest `error.js` Error Boundary
@@ -227,9 +228,9 @@ async function getFile(path) {
       token: token,
       "Content-Type": "application/json",
     },
-  }).catch(err=>{
-    console.log(err)
-  })
+  }).catch((err) => {
+    console.log(err);
+  });
 
   if (!res?.ok) {
     // This will activate the closest `error.js` Error Boundary
@@ -262,6 +263,7 @@ export default function PaymentRequest({ params }) {
   let [amountOverride, setAmountOverride] = useState(0);
 
   let [editRequest, setEditRequest] = useState(false);
+  let [updateFiles, setUpdateFiles] = useState(false);
 
   const [open, setOpen] = useState(false);
   const [openConfirmDeliv, setOpenConfirmDeliv] = useState([]);
@@ -303,7 +305,9 @@ export default function PaymentRequest({ params }) {
         let status = "done";
         let name = `${doc}`;
 
-        let response = await fetch(_url);
+        let response = await fetch(_url).catch((err) => {
+          console.log(err);
+        });
         let data = await response.blob();
         getBase64(data).then((res) => {
           let newFile = new File([data], name, {
@@ -327,7 +331,7 @@ export default function PaymentRequest({ params }) {
           setTotalPaid(res?.totalPaymentVal);
         });
 
-      setAmount(res?.amount)
+      setAmount(res?.amount);
       let statusCode = getRequestStatusCode(res?.status);
       setCurrentCode(statusCode);
       setBudgeted(res?.budgeted);
@@ -751,7 +755,9 @@ export default function PaymentRequest({ params }) {
         let status = "done";
         let name = `${doc}`;
 
-        let response = await fetch(_url).catch(err=>{console.log(err)});
+        let response = await fetch(_url).catch((err) => {
+          console.log(err);
+        });
         let data = await response.blob();
         getBase64(data).then((res) => {
           let newFile = new File([data], name, {
@@ -765,7 +771,7 @@ export default function PaymentRequest({ params }) {
           setFiles(_files);
         });
       });
-      setAmount(res?.amount)
+      setAmount(res?.amount);
       setPo(res?.purchaseOrder);
       let statusCode = getRequestStatusCode(res?.status);
       setCurrentCode(statusCode);
@@ -1145,8 +1151,31 @@ export default function PaymentRequest({ params }) {
 
               {/* Request Attached Invoice*/}
               <div className="flex flex-col  space-y-2 ">
-                <div className="text-xs text-gray-400">Attached Invoice(s)</div>
-                {!editRequest && (
+                <div className="flex flex-row items-center space-x-2">
+                  <div className="text-xs text-gray-400">
+                    Attached Invoice(s)
+                  </div>
+                  {((user?.permissions?.canApproveAsHod &&
+                    user?._id === paymentRequest?.approver?._id) ||
+                    (paymentRequest?.status == "pending-review" &&
+                      user?._id == paymentRequest?.createdBy?._id) ||
+                    user?.permissions?.canApproveAsHof) && (
+                    <div
+                      onClick={() => setUpdateFiles(true)}
+                      className="text-grey-500 hover:text-blue-500 cursor-pointer flex flex-row items-center space-x-1"
+                    >
+                      <CloudArrowUpIcon className="h-5 w-5 " />{" "}
+                      <div>update</div>
+                    </div>
+                    // <UpdatePaymentReqDoc
+                    //   iconOnly={true}
+                    //   uuid={doc}
+                    //   label="update"
+                    //   reloadFileList={refresh}
+                    // />
+                  )}
+                </div>
+                {!editRequest && !updateFiles && (
                   <div className="grid grid-cols-2 gap-y-2">
                     {paymentRequest?.docIds?.map((doc, i) => {
                       const truncatedFileName =
@@ -1156,7 +1185,7 @@ export default function PaymentRequest({ params }) {
                             )}`
                           : doc;
                       return (
-                        <div className="flex flex-col space-x-2 border-b-2 border-b-slate-600">
+                        <div className="flex flex-col border-b-2 border-b-slate-600">
                           <Tooltip title={doc}>
                             <Typography.Text ellipsis>
                               <Link
@@ -1186,27 +1215,13 @@ export default function PaymentRequest({ params }) {
                               </div>
                             </div>
                           </Link> */}
-
-                          {((user?.permissions?.canApproveAsHod &&
-                            user?._id === paymentRequest?.approver?._id) ||
-                            (paymentRequest.status == "pending-review" &&
-                              user?._id == paymentRequest?.createdBy?._id) ||
-                            user?.permissions?.canApproveAsHof) && (
-                              <></>
-                            // <UpdatePaymentReqDoc
-                            //   iconOnly={true}
-                            //   uuid={doc}
-                            //   label="update"
-                            //   reloadFileList={refresh}
-                            // />
-                          )}
                         </div>
                       );
                     })}
                   </div>
                 )}
 
-                {editRequest && (
+                {(editRequest || updateFiles) && (
                   <UploadOtherFiles files={files} setFiles={setFiles} />
                 )}
               </div>
@@ -1337,7 +1352,7 @@ export default function PaymentRequest({ params }) {
                 </div>
               )}
 
-              {editRequest && (
+              {(editRequest || updateFiles) && (
                 <div>
                   <Button
                     loading={saving}
@@ -1349,6 +1364,7 @@ export default function PaymentRequest({ params }) {
                           messageApi.error("Please attach atleast one file!");
                         } else {
                           setEditRequest(false);
+                          setUpdateFiles(false);
                           handleUpload("update");
                         }
                       });
@@ -1400,14 +1416,20 @@ export default function PaymentRequest({ params }) {
                       className={`font-semibold
                   
                       ${
-                        amount > getPoTotalVal().grossTotal - totalPaymentVal + paymentRequest?.amount &&
-                        "text-red-500"
+                        amount >
+                          getPoTotalVal().grossTotal -
+                            totalPaymentVal +
+                            paymentRequest?.amount && "text-red-500"
                       }
                   `}
                     >
                       {po?.items[0]?.currency +
                         " " +
-                        (totalPaymentVal + amount - paymentRequest?.amount)?.toLocaleString()}
+                        (
+                          totalPaymentVal +
+                          amount -
+                          paymentRequest?.amount
+                        )?.toLocaleString()}
                     </div>
                   </div>
                 </Typography.Text>
