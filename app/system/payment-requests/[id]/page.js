@@ -35,6 +35,8 @@ import {
   PlusOutlined,
   QuestionCircleOutlined,
   SaveOutlined,
+  UploadOutlined,
+  FileSyncOutlined
 } from "@ant-design/icons";
 import Link from "next/link";
 import moment from "moment";
@@ -48,6 +50,7 @@ import {
   UserGroupIcon,
   LightBulbIcon,
   CloudArrowUpIcon,
+  XCircleIcon,
 } from "@heroicons/react/24/outline";
 import UploadPaymentReq from "@/app/components/uploadPaymentReq";
 import UpdatePaymentReqDoc from "@/app/components/updatePaymentReqDoc";
@@ -1159,20 +1162,50 @@ export default function PaymentRequest({ params }) {
                     user?._id === paymentRequest?.approver?._id) ||
                     (paymentRequest?.status == "pending-review" &&
                       user?._id == paymentRequest?.createdBy?._id) ||
-                    user?.permissions?.canApproveAsHof) && (
-                    <div
-                      onClick={() => setUpdateFiles(true)}
-                      className="text-grey-500 hover:text-blue-500 cursor-pointer flex flex-row items-center space-x-1"
-                    >
-                      <CloudArrowUpIcon className="h-5 w-5 " />{" "}
-                      <div>update</div>
-                    </div>
-                    // <UpdatePaymentReqDoc
-                    //   iconOnly={true}
-                    //   uuid={doc}
-                    //   label="update"
-                    //   reloadFileList={refresh}
-                    // />
+                    user?.permissions?.canApproveAsHof) &&
+                    !updateFiles && (
+                      // <div
+                      //   onClick={() => setUpdateFiles(true)}
+                      //   className="text-grey-500 hover:text-blue-500 cursor-pointer flex flex-row items-center space-x-1"
+                      // >
+                      //   <CloudArrowUpIcon className="h-5 w-5 " />{" "}
+                      //   <div>update</div>
+                      // </div>
+
+                      <Button
+                        // className="bg-blue-50"
+                        size="small"
+                        type="text"
+                        onClick={() => setUpdateFiles(true)}
+                        icon={<FileSyncOutlined width='10px'/>}
+                      >
+                        {/* Update */}
+                      </Button>
+                      // <UpdatePaymentReqDoc
+                      //   iconOnly={true}
+                      //   uuid={doc}
+                      //   label="update"
+                      //   reloadFileList={refresh}
+                      // />
+                    )}
+                  {updateFiles && (
+                    <>
+                      <Button
+                        // className="bg-orange-50"
+                        size="small"
+                        type="text"
+                        onClick={() => setUpdateFiles(false)}
+                        icon={<CloseOutlined  width='10px'/>}
+                      >
+                        {/* Cancel */}
+                      </Button>
+                    </>
+                    // <div
+                    //   onClick={() => setUpdateFiles(false)}
+                    //   className="rounded border border-gray-500 text-grey-500 hover:text-blue-500 cursor-pointer flex flex-row items-center space-x-1"
+                    // >
+                    //   <XCircleIcon className="h-5 w-5 "/> <div>cancle</div>
+                    // </div>
                   )}
                 </div>
                 {!editRequest && !updateFiles && (
