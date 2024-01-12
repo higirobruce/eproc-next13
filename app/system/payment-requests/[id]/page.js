@@ -794,12 +794,13 @@ export default function PaymentRequest({ params }) {
                             (paymentRequest.status == "pending-review" &&
                               user?._id == paymentRequest?.createdBy?._id) ||
                             user?.permissions?.canApproveAsHof) && (
-                            <UpdatePaymentReqDoc
-                              iconOnly={true}
-                              uuid={doc}
-                              label="update"
-                              reloadFileList={refresh}
-                            />
+                              <></>
+                            // <UpdatePaymentReqDoc
+                            //   iconOnly={true}
+                            //   uuid={doc}
+                            //   label="update"
+                            //   reloadFileList={refresh}
+                            // />
                           )}
                         </div>
                       );
@@ -1404,13 +1405,14 @@ export default function PaymentRequest({ params }) {
                         </Typography.Text>
                       </Tooltip>
                       {user?.permissions?.canApproveAsHof && (
-                        <UpdatePaymentReqDoc
-                          iconOnly={true}
-                          uuid={doc}
-                          label="update"
-                          reloadFileList={refresh}
-                          paymentProof={true}
-                        />
+                        <></>
+                        // <UpdatePaymentReqDoc
+                        //   iconOnly={true}
+                        //   uuid={doc}
+                        //   label="update"
+                        //   reloadFileList={refresh}
+                        //   paymentProof={true}
+                        // />
                       )}
                     </div>
                   );
