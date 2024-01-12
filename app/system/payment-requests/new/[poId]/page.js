@@ -212,7 +212,8 @@ export default function NewPaymentRequest({ params }) {
         createdBy: user?._id,
         purchaseOrder: params?.poId,
         docIds: _fileList,
-        budgetLine: po?.request?.budgetLine?._id
+        budgetLine: po?.request?.budgetLine?._id,
+        budgeted: po?.request?.budgeted
       }),
     })
       .then((res) => {
