@@ -2040,14 +2040,24 @@ const SignupForm = () => {
                       <div className="grid grid-cols-2 gap-x-5">
                         <div>
                           <div>Hq Address</div>
-                          <Form.Item name="hqAddress">
+                          <Form.Item name="hqAddress" rules={[
+                              {
+                                required: true,
+                                message: "Input required",
+                              },
+                            ]}>
                             <Input />
                           </Form.Item>
                         </div>
 
                         <div>
                           <div>Country</div>
-                          <Form.Item name="country">
+                          <Form.Item name="country" rules={[
+                              {
+                                required: true,
+                                message: "Input required",
+                              },
+                            ]}>
                             <Input />
                           </Form.Item>
                         </div>
