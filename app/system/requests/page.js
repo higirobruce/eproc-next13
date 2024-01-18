@@ -1091,7 +1091,8 @@ export default function UserRequests() {
                               .includes(inputValue.toLowerCase())
                           }
                           // defaultValue="RWF"
-                          options={[...serviceCategories, {description: 'Others'}].map((s) => {
+                          // options={[...serviceCategories, {description: 'Others'}].map((s) => {
+                            options={serviceCategories.map((s) => {
                             return {
                               value: s.description,
                               label: s.description,
