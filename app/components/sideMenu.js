@@ -39,7 +39,7 @@ const SideMenu = ({ setScreen, screen, user }) => {
       if (user?.permissions?.canViewDashboard) {
         _items.push({
           label: "Dashboard",
-          key: "dashboard",
+          key: "system/dashboard",
           icon: <PieChartOutlined />,
         });
       }
@@ -47,7 +47,7 @@ const SideMenu = ({ setScreen, screen, user }) => {
       if (user?.permissions?.canViewRequests) {
         _items.push({
           label: "Purchase Requests",
-          key: "requests",
+          key: "system/requests",
           icon: <SolutionOutlined />,
         });
       }
@@ -55,7 +55,7 @@ const SideMenu = ({ setScreen, screen, user }) => {
       if (user?.permissions?.canViewTenders) {
         _items.push({
           label: "Tenders",
-          key: "tenders",
+          key: "system/tenders",
           icon: <MessageOutlined />,
         });
       }
@@ -63,7 +63,7 @@ const SideMenu = ({ setScreen, screen, user }) => {
       if (user?.permissions?.canViewContracts) {
         _items.push({
           label: "Contracts",
-          key: "contracts",
+          key: "system/contracts",
           icon: <FileDoneOutlined />,
         });
       }
@@ -71,14 +71,14 @@ const SideMenu = ({ setScreen, screen, user }) => {
       if (user?.permissions?.canViewPurchaseOrders) {
         _items.push({
           label: "Purchase Orders",
-          key: "purchase-orders",
+          key: "system/purchase-orders",
           icon: <OrderedListOutlined />,
         });
       }
 
       _items.push({
         label: "Payment requests",
-        key: "payment-requests",
+        key: "system/payment-requests",
         icon: <DollarOutlined />,
       });
 
@@ -89,7 +89,7 @@ const SideMenu = ({ setScreen, screen, user }) => {
       if (user?.permissions?.canViewVendors) {
         _items.push({
           label: "Vendors",
-          key: "vendors",
+          key: "system/vendors",
           icon: <UsergroupAddOutlined />,
         });
       }
@@ -102,7 +102,7 @@ const SideMenu = ({ setScreen, screen, user }) => {
 
         _items.push({
           label: "Internal Users",
-          key: "users",
+          key: "system/users",
           icon: <UserOutlined />,
         },)
       }
@@ -114,26 +114,26 @@ const SideMenu = ({ setScreen, screen, user }) => {
       _items = [
         {
           label: "Tenders",
-          key: "tenders",
+          key: "system/tenders",
           icon: <MessageOutlined />,
         },
         {
           label: "My Contracts",
-          key: "contracts",
+          key: "system/contracts",
           icon: <FileDoneOutlined />,
         },
         {
           label: "My Purchase Orders",
-          key: "purchase-orders",
+          key: "system/purchase-orders",
           icon: <OrderedListOutlined />,
         },
         {
           label: "My Payment requests",
-          key: "payment-requests",
+          key: "system/payment-requests",
           icon: <DollarOutlined />,
         }
         // {
-        //   key: "logout",
+        //   key: "system/logout",
         //   label:"Logout",
         //   danger: true,
         //   icon: <LogoutOutlined className="text-red-400" />,
