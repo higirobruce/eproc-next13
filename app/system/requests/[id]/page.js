@@ -42,7 +42,7 @@ async function geRequestDetails(id, router, messageApi) {
   return res.json();
 }
 
-export async function fileExists(filepath) {
+async function fileExists(filepath) {
   return await fetch(`${filepath}`)
     .then((res) => res.json())
     .then((res) => {
