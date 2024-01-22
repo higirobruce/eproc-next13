@@ -36,7 +36,7 @@ import {
   QuestionCircleOutlined,
   SaveOutlined,
   UploadOutlined,
-  FileSyncOutlined,
+  FileSyncOutlined
 } from "@ant-design/icons";
 import Link from "next/link";
 import moment from "moment";
@@ -55,7 +55,6 @@ import {
 import UploadPaymentReq from "@/app/components/uploadPaymentReq";
 import UpdatePaymentReqDoc from "@/app/components/updatePaymentReqDoc";
 let url = process.env.NEXT_PUBLIC_BKEND_URL;
-let fend_url = process.env.NEXT_PUBLIC_FTEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
@@ -305,9 +304,7 @@ export default function PaymentRequest({ params }) {
 
       _paymentRequest?.docIds?.map(async (doc, i) => {
         let uid = `rc-upload-${moment().milliseconds()}-${i}`;
-        let _url = `${fend_url}/api/?folder=paymentRequests&name=${encodeURI(
-          doc
-        )}`;
+        let _url = `${url}/file/paymentRequests/${encodeURI(doc)}`;
         let status = "done";
         let name = `${doc}`;
 
@@ -757,9 +754,7 @@ export default function PaymentRequest({ params }) {
 
       _paymentRequest?.docIds?.map(async (doc, i) => {
         let uid = `rc-upload-${moment().milliseconds()}-${i}`;
-        let _url = `${fend_url}/api/?folder=paymentRequests&name=${encodeURI(
-          doc
-        )}`;
+        let _url = `${url}/file/paymentRequests/${encodeURI(doc)}`;
         let status = "done";
         let name = `${doc}`;
 
@@ -1182,7 +1177,7 @@ export default function PaymentRequest({ params }) {
                         size="small"
                         type="text"
                         onClick={() => setUpdateFiles(true)}
-                        icon={<FileSyncOutlined width="10px" />}
+                        icon={<FileSyncOutlined width='10px'/>}
                       >
                         {/* Update */}
                       </Button>
@@ -1200,7 +1195,7 @@ export default function PaymentRequest({ params }) {
                         size="small"
                         type="text"
                         onClick={() => setUpdateFiles(false)}
-                        icon={<CloseOutlined width="10px" />}
+                        icon={<CloseOutlined  width='10px'/>}
                       >
                         {/* Cancel */}
                       </Button>
@@ -1227,7 +1222,7 @@ export default function PaymentRequest({ params }) {
                           <Tooltip title={doc}>
                             <Typography.Text ellipsis>
                               <Link
-                                href={`${fend_url}/api/?folder=paymentRequests&name=${encodeURI(
+                                href={`${url}/file/paymentRequests/${encodeURI(
                                   doc
                                 )}`}
                                 target="_blank"
@@ -1243,7 +1238,7 @@ export default function PaymentRequest({ params }) {
                           </Tooltip>
 
                           {/* <Link
-                            href={`${fend_url}/api/?folder=paymentRequests&name=${encodeURI(doc)}`}
+                            href={`${url}/file/paymentRequests/${encodeURI(doc)}`}
                             target="_blank"
                           >
                             <div className="text-xs">
@@ -2238,7 +2233,7 @@ export default function PaymentRequest({ params }) {
                           <Tooltip title={doc}>
                             <Typography.Text ellipsis>
                               <Link
-                                href={`${fend_url}/api/?folder=paymentRequests&name=${encodeURI(
+                                href={`${url}/file/paymentRequests/${encodeURI(
                                   doc
                                 )}`}
                                 target="_blank"
