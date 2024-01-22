@@ -36,6 +36,7 @@ const PaymentRequestsTable = ({
   let [selectedRow, setSelectedRow] = useState("");
   const antIcon = <LoadingOutlined style={{ fontSize: 9 }} spin />;
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
+  let fTend_url = process.env.NEXT_PUBLIC_FTEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
@@ -343,7 +344,9 @@ const PaymentRequestsTable = ({
               <Tooltip title={doc}>
                 <Typography.Text ellipsis>
                   <Link
-                    href={`${url}/file/paymentRequests/${encodeURI(doc)}`}
+                    href={`${fTend_url}/api?folder=paymentRequests&name=${encodeURI(
+                      doc
+                    )}`}
                     target="_blank"
                   >
                     {truncatedFileName}
