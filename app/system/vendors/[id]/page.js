@@ -47,6 +47,7 @@ import { v4 } from "uuid";
 import UploadVatCerts from "@/app/components/uploadVatCerts";
 
 let url = process.env.NEXT_PUBLIC_BKEND_URL;
+let fendUrl = process.env.NEXT_PUBLIC_FTEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
 let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
@@ -819,7 +820,7 @@ export default function page({ params }) {
                   {rowData?.rdbCertId && (
                     <div className="flex flex-row items-center">
                       <Link
-                        href={`${url}/file/rdbCerts/${rowData?.rdbCertId}.pdf`}
+                        href={`${fendUrl}/api?folder=rdbCerts&name=${rowData?.rdbCertId}.pdf`}
                         target="_blank"
                       >
                         <Typography.Link>
@@ -868,7 +869,7 @@ export default function page({ params }) {
                   {rowData?.vatCertId && (
                     <div className="flex flex-row items-center">
                       <Link
-                        href={`${url}/file/vatCerts/${rowData?.vatCertId}.pdf`}
+                        href={`${fendUrl}/api?folder=vatCerts&name=${rowData?.vatCertId}.pdf`}
                         target="_blank"
                       >
                         <Typography.Link>VAT Certificate</Typography.Link>
