@@ -45,6 +45,7 @@ export default function PurchaseOrders() {
   let router = useRouter();
   const [dataLoaded, setDataLoaded] = useState(false);
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
+  let fendUrl = process.env.NEXT_PUBLIC_FTEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
   let [pOs, setPOs] = useState(null);
@@ -217,14 +218,16 @@ export default function PurchaseOrders() {
 
         !purchaseOrderStillOpen &&
           poVal !== -1 &&
-          message.error("Payment requests have exceeded Purchase Order value. Please check status of existing requests!", 10);
+          message.error(
+            "Payment requests have exceeded Purchase Order value. Please check status of existing requests!",
+            10
+          );
       })
       .catch((err) => {
-        console.log(err)
+        console.log(err);
         setSubmitting(false);
       })
-      .finally((err) => {
-      });
+      .finally((err) => {});
   }
 
   function getPOs() {}
@@ -843,7 +846,7 @@ export default function PurchaseOrders() {
                           {po?.reqAttachmentDocId && (
                             <Link
                               target="_blank"
-                              href={`${url}/file/reqAttachments/${po?.reqAttachmentDocId}.pdf`}
+                              href={`${fendUrl}/api?folder=reqAttachments&name=${po?.reqAttachmentDocId}.pdf`}
                             >
                               <Typography.Link className="flex flex-row items-center space-x-1">
                                 <div>Reference doc</div>{" "}
