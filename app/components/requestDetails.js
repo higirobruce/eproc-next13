@@ -444,7 +444,6 @@ const RequestDetails = ({
         <div style={{ maxHeight: 80, overflowY: "scroll" }}>{item?.title}</div>
       ),
     },
-
     {
       title: "Quantity",
       dataIndex: "quantity",
