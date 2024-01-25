@@ -371,6 +371,7 @@ const RequestDetails = ({
   let user = JSON.parse(localStorage.getItem("user"));
   let token = localStorage.getItem("token");
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
+  let fendUrl = process.env.NEXT_PUBLIC_FTEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
   let [tender, setTender] = useState(null);
@@ -443,7 +444,6 @@ const RequestDetails = ({
         <div style={{ maxHeight: 80, overflowY: "scroll" }}>{item?.title}</div>
       ),
     },
-
     {
       title: "Quantity",
       dataIndex: "quantity",
@@ -486,7 +486,7 @@ const RequestDetails = ({
               <div key={p}>
                 {p && (
                   <Link
-                    href={`${url}/file/termsOfReference/${p}`}
+                    href={`${fendUrl}/api?folder=termsOfReference&name=${p}`}
                     target="_blank"
                   >
                     <Typography.Link

@@ -289,11 +289,11 @@ const UsersRequestsTable = ({
           <Badge
             color={getTagColor(
               getHighLevelStatus(
-                record?.status.charAt(0).toUpperCase() + record?.status.slice(1)
+                record?.status?.charAt(0).toUpperCase() + record?.status.slice(1)
               )
             )}
             text={getHighLevelStatus(
-              record?.status.charAt(0).toUpperCase() + record?.status.slice(1)
+              record?.status?.charAt(0).toUpperCase() + record?.status.slice(1)
             )}
           />
         </>

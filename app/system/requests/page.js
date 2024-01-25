@@ -85,7 +85,11 @@ export default function UserRequests() {
   let token = localStorage.getItem("token");
 
   useEffect(() => {
-    // loadRequests()
+
+    if (user?.userType == "VENDOR") {
+      router.push("system/tenders");
+    } else {
+      // loadRequests()
     //   .then((res) => res.json())
     //   .then((res) => {
     //     setDataLoaded(true);
@@ -189,6 +193,8 @@ export default function UserRequests() {
             "Something happened fetching budget lines! Please try again.",
         });
       });
+    }
+    
   }, []);
 
   useEffect(() => {
@@ -1091,7 +1097,8 @@ export default function UserRequests() {
                               .includes(inputValue.toLowerCase())
                           }
                           // defaultValue="RWF"
-                          options={[...serviceCategories, {description: 'Others'}].map((s) => {
+                          // options={[...serviceCategories, {description: 'Others'}].map((s) => {
+                            options={serviceCategories.map((s) => {
                             return {
                               value: s.description,
                               label: s.description,

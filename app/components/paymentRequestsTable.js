@@ -9,7 +9,7 @@ import {
   Table,
   Tag,
   Typography,
-  Tooltip
+  Tooltip,
 } from "antd";
 import {
   FileTextOutlined,
@@ -36,6 +36,7 @@ const PaymentRequestsTable = ({
   let [selectedRow, setSelectedRow] = useState("");
   const antIcon = <LoadingOutlined style={{ fontSize: 9 }} spin />;
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
+  let fTend_url = process.env.NEXT_PUBLIC_FTEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
 
@@ -156,10 +157,10 @@ const PaymentRequestsTable = ({
   });
 
   function getHighLevelStatus(status) {
-    if (status.includes("Approved (")) return "Pending-approval";
+    if (status && status?.includes("Approved (")) return "Pending-approval";
     else if (status === "Pending-approval" || status === "Reviewed")
       return "Pending-approval";
-    else return status;
+    else return status || "Pending-approval";
   }
 
   const cancel = () => {
@@ -170,7 +171,7 @@ const PaymentRequestsTable = ({
     if (status === "Pending-approval" || status === "Reviewed") return "yellow";
     else if (status === "Pending-review") return "yellow";
     else if (status === "Approved" || status == "Paid") return "green";
-    else if (status === "Declined" || status =='Withdrawn') return "red";
+    else if (status === "Declined" || status == "Withdrawn") return "red";
   };
 
   useEffect(() => {
@@ -284,10 +285,10 @@ const PaymentRequestsTable = ({
       key: "status",
       sorter: (a, b) =>
         getHighLevelStatus(
-          a?.status.charAt(0).toUpperCase() + a?.status.slice(1)
+          a?.status?.charAt(0).toUpperCase() + a?.status.slice(1)
         ).localeCompare(
           getHighLevelStatus(
-            b?.status.charAt(0).toUpperCase() + b?.status.slice(1)
+            b?.status?.charAt(0).toUpperCase() + b?.status.slice(1)
           )
         ),
       render: (_, record) => (
@@ -295,11 +296,12 @@ const PaymentRequestsTable = ({
           <Badge
             color={getTagColor(
               getHighLevelStatus(
-                record?.status.charAt(0).toUpperCase() + record?.status.slice(1)
+                record?.status?.charAt(0).toUpperCase() +
+                  record?.status.slice(1)
               )
             )}
             text={getHighLevelStatus(
-              record?.status.charAt(0).toUpperCase() + record?.status.slice(1)
+              record?.status?.charAt(0).toUpperCase() + record?.status.slice(1)
             )}
           />
         </>
@@ -311,15 +313,18 @@ const PaymentRequestsTable = ({
       align: "center",
       sorter: (a, b) =>
         getHighLevelStatus(
-          a?.category.charAt(0).toUpperCase() + a?.category.slice(1)
+          a?.category?.charAt(0).toUpperCase() + a?.category?.slice(1)
         ).localeCompare(
           getHighLevelStatus(
-            b?.category.charAt(0).toUpperCase() + b?.category.slice(1)
+            b?.category?.charAt(0).toUpperCase() + b?.category?.slice(1)
           )
         ),
       render: (_, record) => (
         <Tag color={`${record?.category === "internal" ? "blue" : "magenta"}`}>
-          {record?.category.charAt(0).toUpperCase() + record?.category.slice(1)}
+          {record?.category
+            ? record?.category?.charAt(0).toUpperCase() +
+              record?.category?.slice(1)
+            : "-"}
         </Tag>
       ),
     },
@@ -338,13 +343,15 @@ const PaymentRequestsTable = ({
             return (
               <Tooltip title={doc}>
                 <Typography.Text ellipsis>
-                <Link
-                  href={`${url}/file/paymentRequests/${encodeURI(doc)}`}
-                  target="_blank"
-                >
-                  {truncatedFileName}
-                </Link>
-              </Typography.Text>
+                  <Link
+                    href={`${fTend_url}/api?folder=paymentRequests&name=${encodeURI(
+                      doc
+                    )}`}
+                    target="_blank"
+                  >
+                    {truncatedFileName}
+                  </Link>
+                </Typography.Text>
               </Tooltip>
             );
           })}

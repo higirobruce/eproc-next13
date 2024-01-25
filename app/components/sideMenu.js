@@ -133,7 +133,7 @@ const SideMenu = ({ setScreen, screen, user }) => {
           icon: <DollarOutlined />,
         }
         // {
-        //   key: "logout",
+        //   key: "system/logout",
         //   label:"Logout",
         //   danger: true,
         //   icon: <LogoutOutlined className="text-red-400" />,

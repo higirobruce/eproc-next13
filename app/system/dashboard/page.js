@@ -23,6 +23,7 @@ import { motion } from "framer-motion";
 export default function page() {
   const [dataLoaded, setDataLoaded] = useState(false);
   let token = localStorage.getItem("token");
+  let user = JSON.parse(localStorage?.getItem("user"));
   const [requests, setRequests] = useState([]);
   const [tenders, setTenders] = useState([]);
   const [contracts, setContracts] = useState([]);
@@ -42,89 +43,93 @@ export default function page() {
   const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
-    loadTenders()
-      .then((res) => getResultFromServer(res))
-      .then((res) => {
-        setTenders(res);
-        loadAvgBidsPerTender()
-          .then((res) => getResultFromServer(res))
-          .then((res) => {
-            // alert(JSON.stringify(res))
-            setAvgBids(Math.round(res[0]?.avg * 100) / 100);
+    if (user?.userType == "VENDOR") {
+      router.push("system/tenders");
+    } else {
+      loadTenders()
+        .then((res) => getResultFromServer(res))
+        .then((res) => {
+          setTenders(res);
+          loadAvgBidsPerTender()
+            .then((res) => getResultFromServer(res))
+            .then((res) => {
+              // alert(JSON.stringify(res))
+              setAvgBids(Math.round(res[0]?.avg * 100) / 100);
+            });
+          loadTendersStats()
+            .then((res) => getResultFromServer(res))
+            .then((res) => {
+              setOpenTenders(Math.round((res?.open / res?.total) * 100) / 100);
+              setClosedTenders(
+                Math.round((res?.closed / res?.total) * 100) / 100
+              );
+            });
+        })
+        .catch((err) => {
+          messageApi.open({
+            type: "error",
+            content: "Something happened! Please try again.",
           });
-        loadTendersStats()
-          .then((res) => getResultFromServer(res))
-          .then((res) => {
-            setOpenTenders(Math.round((res?.open / res?.total) * 100) / 100);
-            setClosedTenders(
-              Math.round((res?.closed / res?.total) * 100) / 100
-            );
+        });
+
+      loadRequests()
+        .then((res) => getResultFromServer(res))
+        .then((res) => {
+          setRequests(res);
+          loadRequestsByBudgetStatus()
+            .then((res) => getResultFromServer(res))
+            .then((resBudg) => {
+              let _budgeted = resBudg?.filter((r) => r._id === true);
+              let _unbudgeted = resBudg?.filter((r) => r._id === false);
+              let _total = _budgeted[0]?.count + _unbudgeted[0]?.count;
+              setBudgeted(Math.round((_budgeted[0]?.count / _total) * 100));
+              setUnbudgeted(Math.round((_unbudgeted[0]?.count / _total) * 100));
+              setDataLoaded(true);
+            });
+        })
+        .catch((err) => {
+          messageApi.open({
+            type: "error",
+            content: "Something happened! Please try again.",
           });
-      })
-      .catch((err) => {
-        messageApi.open({
-          type: "error",
-          content: "Something happened! Please try again.",
         });
-      });
 
-    loadRequests()
-      .then((res) => getResultFromServer(res))
-      .then((res) => {
-        setRequests(res);
-        loadRequestsByBudgetStatus()
-          .then((res) => getResultFromServer(res))
-          .then((resBudg) => {
-            let _budgeted = resBudg?.filter((r) => r._id === true);
-            let _unbudgeted = resBudg?.filter((r) => r._id === false);
-            let _total = _budgeted[0]?.count + _unbudgeted[0]?.count;
-            setBudgeted(Math.round((_budgeted[0]?.count / _total) * 100));
-            setUnbudgeted(Math.round((_unbudgeted[0]?.count / _total) * 100));
-            setDataLoaded(true);
+      loadContracts()
+        .then((res) => getResultFromServer(res))
+        .then((res) => {
+          setContracts(res);
+        })
+        .catch((err) => {
+          messageApi.open({
+            type: "error",
+            content: "Something happened! Please try again.",
           });
-      })
-      .catch((err) => {
-        messageApi.open({
-          type: "error",
-          content: "Something happened! Please try again.",
         });
-      });
 
-    loadContracts()
-      .then((res) => getResultFromServer(res))
-      .then((res) => {
-        setContracts(res);
-      })
-      .catch((err) => {
-        messageApi.open({
-          type: "error",
-          content: "Something happened! Please try again.",
+      loadPurchaseOrders()
+        .then((res) => getResultFromServer(res))
+        .then((res) => {
+          setPurchaseOrders(res);
+        })
+        .catch((err) => {
+          messageApi.open({
+            type: "error",
+            content: "Something happened! Please try again.",
+          });
         });
-      });
 
-    loadPurchaseOrders()
-      .then((res) => getResultFromServer(res))
-      .then((res) => {
-        setPurchaseOrders(res);
-      })
-      .catch((err) => {
-        messageApi.open({
-          type: "error",
-          content: "Something happened! Please try again.",
+      loadVendors()
+        .then((res) => getResultFromServer(res))
+        .then((res) => {
+          setVendors(res);
+        })
+        .catch((err) => {
+          messageApi.open({
+            type: "error",
+            content: "Something happened! Please try again.",
+          });
         });
-      });
-
-    loadVendors()
-      .then((res) => getResultFromServer(res))
-      .then((res) => {
-        setVendors(res);
-      })
-      .catch((err) => {
-        messageApi.open({
-          type: "error",
-          content: "Something happened! Please try again.",
-        });
-      });
+    }
   }, []);
 
   async function loadTenders() {

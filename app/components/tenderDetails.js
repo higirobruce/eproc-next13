@@ -109,6 +109,7 @@ const TenderDetails = ({
 }) => {
   const [form] = Form.useForm();
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
+  let fendUrl = process.env.NEXT_PUBLIC_FTEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
   let token = localStorage.getItem("token");
@@ -210,7 +211,7 @@ const TenderDetails = ({
                   return (
                     <div key={p}>
                       <Link
-                        href={`${url}/file/termsOfReference/${p}`}
+                        href={`${fendUrl}/api?folder=termsOfReference&name=${p}`}
                         target="_blank"
                       >
                         <Typography.Link className="flex flex-row items-center space-x-2">
@@ -264,7 +265,7 @@ const TenderDetails = ({
                   return (
                     <div key={p}>
                       <Link
-                        href={`${url}/file/termsOfReference/${p}`}
+                        href={`${fendUrl}/api?folder=termsOfReference&name=${p}`}
                         target="_blank"
                       >
                         <Typography.Link className="flex flex-row items-center space-x-2">
@@ -2547,7 +2548,7 @@ const TenderDetails = ({
           <div className="flex flex-col space-y-3">
             <div>
               <Link
-                href={`${url}/file/tenderDocs/${data?.docId}.pdf`}
+                href={`${fendUrl}/api?folder=tenderDocs&name=${data?.docId}.pdf`}
                 target="_blank"
               >
                 <Typography.Link>
@@ -2567,7 +2568,7 @@ const TenderDetails = ({
                     uuid={data?.docId}
                     setTendeDocSelected={() => {}}
                     setStatus={() => {}}
-                    label="Update doc"
+                    label="Update the doc"
                   />
                   {/* <div className="text-sm text-blue-500">
                   Update tender document
@@ -3099,7 +3100,7 @@ const TenderDetails = ({
 
                                               <div className="flex flex-col">
                                                 <Link
-                                                  href={`${url}/file/bidDocs/${item?.proposalDocId}.pdf`}
+                                                  href={`${fendUrl}/api?folder=bidDocs&name=${item?.proposalDocId}.pdf`}
                                                   target="_blank"
                                                 >
                                                   <Typography.Link className="flex flex-row items-center space-x-2">
@@ -3111,7 +3112,7 @@ const TenderDetails = ({
                                                 </Link>
 
                                                 <Link
-                                                  href={`${url}/file/bidDocs/${item?.otherDocId}.pdf`}
+                                                  href={`${fendUrl}/api?folder=bidDocs&name=${item?.otherDocId}.pdf`}
                                                   target="_blank"
                                                 >
                                                   <Typography.Link className="flex flex-row items-center space-x-2">

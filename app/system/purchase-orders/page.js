@@ -45,6 +45,7 @@ export default function PurchaseOrders() {
   let router = useRouter();
   const [dataLoaded, setDataLoaded] = useState(false);
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
+  let fendUrl = process.env.NEXT_PUBLIC_FTEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
   let [pOs, setPOs] = useState(null);
@@ -92,7 +93,7 @@ export default function PurchaseOrders() {
       dataIndex: "estimatedUnitCost",
       key: "estimatedUnitCost",
       render: (_, item) => (
-        <>{item?.currency +' '+ (item?.estimatedUnitCost).toLocaleString()}</>
+        <>{item?.currency + " " + (item?.estimatedUnitCost).toLocaleString()}</>
       ),
     },
     {
@@ -101,7 +102,8 @@ export default function PurchaseOrders() {
       key: "totalAmount",
       render: (_, item) => (
         <>
-          {item?.currency +' '+
+          {item?.currency +
+            " " +
             (item?.quantity * item?.estimatedUnitCost).toLocaleString()}
         </>
       ),
@@ -189,6 +191,43 @@ export default function PurchaseOrders() {
           setDataLoaded(true);
         });
     }
+  }
+
+  function createPaymentRequest(po) {
+    setSubmitting(true);
+
+    fetch(`${url}/purchaseOrders/paymentProgress/${po?._id}`, {
+      method: "GET",
+      headers: {
+        Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+        token: token,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        console.log(res);
+        let { totalPaymentVal, poVal } = res;
+
+        let purchaseOrderStillOpen = poVal > totalPaymentVal;
+
+        (purchaseOrderStillOpen || poVal == -1) &&
+          router.push(`/system/payment-requests/new/${po?._id}`);
+
+        !purchaseOrderStillOpen && poVal !== -1 && setSubmitting(false);
+
+        !purchaseOrderStillOpen &&
+          poVal !== -1 &&
+          message.error(
+            "Payment requests have exceeded Purchase Order value. Please check status of existing requests!",
+            10
+          );
+      })
+      .catch((err) => {
+        console.log(err);
+        setSubmitting(false);
+      })
+      .finally((err) => {});
   }
 
   function getPOs() {}
@@ -305,14 +344,22 @@ export default function PurchaseOrders() {
               pagination={false}
             />
             <Typography.Title level={5} className="self-end">
-              Total (Tax Excl.): {po?.items[0]?.currency + ' ' + getPoTotalVal().totalVal?.toLocaleString()}{" "}
-              
+              Total (Tax Excl.):{" "}
+              {po?.items[0]?.currency +
+                " " +
+                getPoTotalVal().totalVal?.toLocaleString()}{" "}
             </Typography.Title>
             <Typography.Title level={5} className="self-end">
-              Tax: {po?.items[0]?.currency + ' ' +getPoTotalVal().totalTax?.toLocaleString()} 
+              Tax:{" "}
+              {po?.items[0]?.currency +
+                " " +
+                getPoTotalVal().totalTax?.toLocaleString()}
             </Typography.Title>
             <Typography.Title level={5} className="self-end">
-              Gross Total: {po?.items[0]?.currency + ' ' +getPoTotalVal().grossTotal?.toLocaleString()} 
+              Gross Total:{" "}
+              {po?.items[0]?.currency +
+                " " +
+                getPoTotalVal().grossTotal?.toLocaleString()}
             </Typography.Title>
             <Typography.Title level={3}>Details</Typography.Title>
             {po?.sections?.map((section) => {
@@ -799,7 +846,7 @@ export default function PurchaseOrders() {
                           {po?.reqAttachmentDocId && (
                             <Link
                               target="_blank"
-                              href={`${url}/file/reqAttachments/${po?.reqAttachmentDocId}.pdf`}
+                              href={`${fendUrl}/api?folder=reqAttachments&name=${po?.reqAttachmentDocId}.pdf`}
                             >
                               <Typography.Link className="flex flex-row items-center space-x-1">
                                 <div>Reference doc</div>{" "}
@@ -967,21 +1014,17 @@ export default function PurchaseOrders() {
                               />
                             </div>
 
+                            {/* Payment request */}
                             {
                               // _.round(po?.deliveryProgress,1) >= 100 &&
                               <div>
                                 <Button
                                   type="default"
-                                  // disabled={!documentFullySigned(po)}
+                                  disabled={!documentFullySigned(po)}
                                   size="small"
                                   // loading={submitting}
                                   icon={<DollarOutlined />}
-                                  onClick={() => {
-                                    setSubmitting(true);
-                                    router.push(
-                                      `/system/payment-requests/new/${po?._id}`
-                                    );
-                                  }}
+                                  onClick={() => createPaymentRequest(po)}
                                 >
                                   Payment
                                 </Button>

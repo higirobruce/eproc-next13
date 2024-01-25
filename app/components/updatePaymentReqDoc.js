@@ -36,7 +36,7 @@ function UpdatePaymentReqDoc({
         } else if (status == "removed") {
           reloadFileList();
           messageApi.success("File removed!");
-        } else {
+        } else if(status=='done'){
           reloadFileList();
           messageApi.success("Successfully uploaded the file!");
         }
@@ -56,15 +56,16 @@ function UpdatePaymentReqDoc({
       // setFiles(_files);
     },
     beforeUpload: (file) => {
-      console.log("Fillleee", file.name);
+      console.log("Fillleee", file.name?.split('.')[0]);
+      uuid=file.name?.split('.')[0];
 
-      let isPDF = file.type == "application/pdf";
-      if (!isPDF) {
-        messageApi.error(`${file.name} is not a PDF file`);
-      } else {
-      }
+      // let isPDF = file.type == "application/pdf";
+      // if (!isPDF) {
+      //   messageApi.error(`${file.name} is not a PDF file`);
+      // } else {
+      // }
 
-      return isPDF || Upload.LIST_IGNORE;
+      // return isPDF || Upload.LIST_IGNORE;
     },
     action: `${url}/uploads/updatePaymentRequests?id=${uuid}&&paymentProof=${paymentProof}`,
     headers: {

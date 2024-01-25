@@ -129,26 +129,30 @@ export default function Users() {
   const onFinish = (values) => {};
 
   useEffect(() => {
-    loadUsers();
-
-    fetch(`${url}/dpts`, {
-      method: "GET",
-      headers: {
-        Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
-        token: token,
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        setDpts(res);
+    if (user?.userType == "VENDOR") {
+      router.push("system/tenders");
+    }else{
+      loadUsers();
+      fetch(`${url}/dpts`, {
+        method: "GET",
+        headers: {
+          Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+          token: token,
+          "Content-Type": "application/json",
+        },
       })
-      .catch((err) => {
-        messageApi.open({
-          type: "error",
-          content: "Connection Error!",
+        .then((res) => res.json())
+        .then((res) => {
+          setDpts(res);
+        })
+        .catch((err) => {
+          messageApi.open({
+            type: "error",
+            content: "Connection Error!",
+          });
         });
-      });
+    }
+   
   }, []);
 
   useEffect(() => {

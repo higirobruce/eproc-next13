@@ -52,10 +52,10 @@ function UploadPaymentReq({
     },
     beforeUpload: (file) => {
       let isPDF = file.type == "application/pdf";
-      if (!isPDF) {
-        messageApi.error(`${file.name} is not a PDF file`);
-        return false || Upload.LIST_IGNORE;
-      }
+      // if (!isPDF) {
+      //   messageApi.error(`${file.name} is not a PDF file`);
+      //   return false || Upload.LIST_IGNORE;
+      // }
       // let _fileList = [...fileList]
 
       // _fileList[uuid].push(file);

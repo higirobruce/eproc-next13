@@ -22,7 +22,9 @@ function UploadOtherFiles({
 
   const props = {
     onRemove: (file) => {
-      const index = files?.indexOf(file?.originFileObj);
+      
+      const index = files?.indexOf(file);
+      
       const newFileList = files?.slice();
       newFileList?.splice(index, 1);
       // setFileList(newFileList);
@@ -37,11 +39,11 @@ function UploadOtherFiles({
       setFiles(_files);
     },
     beforeUpload: (file) => {
-      let isPDF = file.type == "application/pdf";
-      if (!isPDF) {
-        messageApi.error(`${file.name} is not a PDF file`);
-        return false || Upload.LIST_IGNORE;
-      }
+      // let isPDF = file.type == "application/pdf";
+      // if (!isPDF) {
+      //   messageApi.error(`${file.name} is not a PDF file`);
+      //   return false || Upload.LIST_IGNORE;
+      // }
       // let _fileList = [...fileList]
 
       // _fileList[uuid].push(file);
