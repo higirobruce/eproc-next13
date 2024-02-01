@@ -2072,94 +2072,94 @@ export default function PaymentRequest({ params }) {
                         </Form.Item> 
                       </div>*/}
 
-                        <div className="mr-10 space-y-2 flex flex-col">
+                      <div className="mr-10 space-y-2 flex flex-col">
                           {/* <InputNumber
-                    size="small"
-                    name="title"
-                    className="text-xs w-full"
-                    placeholder={paymentRequest?.amount}
-                    onChange={(e) => {
-                      paymentRequest.amount = e;
-                    }}
-                  /> */}
-                          <div className="flex flex-row space-x-2 items-center mt-10">
-                            <Switch
-                              onChange={setOverrideAmount}
-                              checked={overrideAmount}
-                              disabled={paymentRequest?.currency === "RWF"}
-                            />
-                            <div>Override Amount</div>
-                          </div>
-                          {overrideAmount && (
-                            <div>
-                              <Form.Item>
-                                <Form.Item
-                                  label="Override RWF Amount"
-                                  name="overrideAmount"
-                                  noStyle
-                                  rules={[
-                                    {
-                                      required: true,
-                                      message: "Amount is required",
-                                    },
-                                    {
-                                      validator(rule, value) {
-                                        return new Promise(
-                                          (resolve, reject) => {
-                                            if (value <= 0) {
-                                              reject(
-                                                "The amount should exceed Zero"
-                                              );
-                                            } else {
-                                              resolve();
-                                            }
-                                          }
-                                        );
-                                      },
-                                    },
-                                  ]}
-                                  initialValue={0}
-                                >
-                                  <InputNumber
-                                    label="Override RWF Amount"
-                                    style={{ width: "100%" }}
-                                    addonBefore={
-                                      <Form.Item
-                                        noStyle
-                                        // name="currency"
-                                      >
-                                        <Select
-                                          disabled={true}
-                                          defaultValue="RWF"
-                                          value="RWF"
-                                          options={[
-                                            {
-                                              value: "RWF",
-                                              label: "RWF",
-                                              key: "RWF",
-                                            },
-                                            // {
-                                            //   value: "USD",
-                                            //   label: "USD",
-                                            //   key: "USD",
-                                            // },
-                                            // {
-                                            //   value: "EUR",
-                                            //   label: "EUR",
-                                            //   key: "EUR",
-                                            // },
-                                          ]}
-                                        ></Select>
-                                      </Form.Item>
-                                    }
-                                    // defaultValue={paymentRequest.amount}
-                                    value={amountOverride}
-                                    onChange={setAmountOverride}
-                                  />
-                                </Form.Item>
-                              </Form.Item>
+                            size="small"
+                            name="title"
+                            className="text-xs w-full"
+                            placeholder={paymentRequest?.amount}
+                            onChange={(e) => {
+                              paymentRequest.amount = e;
+                            }}
+                          /> */}
+                          {/* <div className="flex flex-row space-x-2 items-center mt-10">
+                              <Switch
+                                onChange={setOverrideAmount}
+                                checked={overrideAmount}
+                                disabled={paymentRequest?.currency === "RWF"}
+                              />
+                              <div>Override Amount</div>
                             </div>
-                          )}
+                            {overrideAmount && (
+                              <div>
+                                <Form.Item>
+                                  <Form.Item
+                                    label="Override RWF Amount"
+                                    name="overrideAmount"
+                                    noStyle
+                                    rules={[
+                                      {
+                                        required: true,
+                                        message: "Amount is required",
+                                      },
+                                      {
+                                        validator(rule, value) {
+                                          return new Promise(
+                                            (resolve, reject) => {
+                                              if (value <= 0) {
+                                                reject(
+                                                  "The amount should exceed Zero"
+                                                );
+                                              } else {
+                                                resolve();
+                                              }
+                                            }
+                                          );
+                                        },
+                                      },
+                                    ]}
+                                    initialValue={0}
+                                  >
+                                    <InputNumber
+                                      label="Override RWF Amount"
+                                      style={{ width: "100%" }}
+                                      addonBefore={
+                                        <Form.Item
+                                          noStyle
+                                          // name="currency"
+                                        >
+                                          <Select
+                                            disabled={true}
+                                            defaultValue="RWF"
+                                            value="RWF"
+                                            options={[
+                                              {
+                                                value: "RWF",
+                                                label: "RWF",
+                                                key: "RWF",
+                                              },
+                                              // {
+                                              //   value: "USD",
+                                              //   label: "USD",
+                                              //   key: "USD",
+                                              // },
+                                              // {
+                                              //   value: "EUR",
+                                              //   label: "EUR",
+                                              //   key: "EUR",
+                                              // },
+                                            ]}
+                                          ></Select>
+                                        </Form.Item>
+                                      }
+                                      // defaultValue={paymentRequest.amount}
+                                      value={amountOverride}
+                                      onChange={setAmountOverride}
+                                    />
+                                  </Form.Item>
+                                </Form.Item>
+                              </div>
+                          )} */}
                         </div>
                       </div>
 
