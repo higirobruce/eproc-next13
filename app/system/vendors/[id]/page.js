@@ -654,6 +654,7 @@ export default function page({ params }) {
                         onChange: (e) => {
                           let r = { ...rowData };
                           r.email = e;
+                          r.tempEmail = e;
                           setRowData(r);
                         },
                         text: rowData?.email,
