@@ -2034,11 +2034,36 @@ const SignupForm = () => {
                       </div>
 
                       <div className="grid grid-cols-2 gap-5">
+                        <div>
+                          <div>Experience (in Years)</div>
+                          <Form.Item
+                            name="experience"
+                            rules={[
+                              {
+                                type: "integer",
+                                message: "The input is not valid Number",
+                              },
+                            ]}
+                          >
+                            <InputNumber style={{ width: "100%" }} />
+                          </Form.Item>
+                        </div>
+
                         {otherAreaOfExpertise && (
                           <div>
                             <div className="flex flex-row spacex-3">
-                              Description for other Area of Expertise{" "}
+                              
+                              Specify your “Other” Area of Expertise
                               <div className="text-red-500">*</div>
+                              <div>
+                                <Tooltip
+                                  placement="top"
+                                  title="100 characters max."
+                                  arrow={false}
+                                >
+                                  <QuestionCircleOutlined />
+                                </Tooltip>
+                              </div>
                             </div>
 
                             <Form.Item
@@ -2054,21 +2079,6 @@ const SignupForm = () => {
                             </Form.Item>
                           </div>
                         )}
-
-                        <div>
-                          <div>Experience (in Years)</div>
-                          <Form.Item
-                            name="experience"
-                            rules={[
-                              {
-                                type: "integer",
-                                message: "The input is not valid Number",
-                              },
-                            ]}
-                          >
-                            <InputNumber style={{ width: "100%" }} />
-                          </Form.Item>
-                        </div>
                       </div>
                     </div>
                   </div>
