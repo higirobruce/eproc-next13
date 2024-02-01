@@ -2035,7 +2035,11 @@ const SignupForm = () => {
                       <div className="grid grid-cols-2 gap-5">
                         {otherAreaOfExpertise && (
                           <div>
-                            <div>Description for other Area of Expertise</div>
+                            <div className="flex flex-row spacex-3">
+                              Description for other Area of Expertise{" "}
+                              <div className="text-red-500">*</div>
+                            </div>
+
                             <Form.Item
                               name="otherAreaOfExpertise"
                               rules={[
