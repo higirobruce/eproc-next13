@@ -172,6 +172,7 @@ export default function page({ params }) {
     })
       .then((res) => res.json())
       .then((res) => {
+        
         setServCategories(res);
       })
       .catch((err) => {

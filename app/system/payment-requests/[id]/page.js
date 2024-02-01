@@ -680,41 +680,41 @@ export default function PaymentRequest({ params }) {
     let _amount = overrideAmount ? amountOverride : paymentRequest?.amount;
     let _currency = overrideAmount ? "RWF" : paymentRequest?.currency;
 
-    if (paymentRequest?.category === "internal")
-      paymentRequest.journalEntry = {
-        Memo: paymentRequest?.title,
-        ReferenceDate: moment(),
-        JournalEntryLines: [
-          {
-            AccountCode: debitAccount,
+    // if (paymentRequest?.category === "internal")
+    //   paymentRequest.journalEntry = {
+    //     Memo: paymentRequest?.title,
+    //     ReferenceDate: moment(),
+    //     JournalEntryLines: [
+    //       {
+    //         AccountCode: debitAccount,
 
-            // FCCurrency: paymentRequest?.currency,
-            LineMemo: paymentRequest?.title,
-            CostingCode: distributionRuleDb,
-            ...(_currency !== "RWF" && {
-              FCCurrency: _currency,
-              FCDebit: _amount,
-            }),
-            ...(_currency == "RWF" && {
-              Debit: _amount,
-            }),
-          },
-          {
-            AccountCode: creditAccount,
+    //         // FCCurrency: paymentRequest?.currency,
+    //         LineMemo: paymentRequest?.title,
+    //         CostingCode: distributionRuleDb,
+    //         ...(_currency !== "RWF" && {
+    //           FCCurrency: _currency,
+    //           FCDebit: _amount,
+    //         }),
+    //         ...(_currency == "RWF" && {
+    //           Debit: _amount,
+    //         }),
+    //       },
+    //       {
+    //         AccountCode: creditAccount,
 
-            // FCCurrency: _currency,
-            LineMemo: paymentRequest?.title,
-            CostingCode: distributionRuleCr,
-            ...(_currency !== "RWF" && {
-              FCCurrency: _currency,
-              FCCredit: _amount,
-            }),
-            ...(_currency == "RWF" && {
-              Credit: _amount,
-            }),
-          },
-        ],
-      };
+    //         // FCCurrency: _currency,
+    //         LineMemo: paymentRequest?.title,
+    //         CostingCode: distributionRuleCr,
+    //         ...(_currency !== "RWF" && {
+    //           FCCurrency: _currency,
+    //           FCCredit: _amount,
+    //         }),
+    //         ...(_currency == "RWF" && {
+    //           Credit: _amount,
+    //         }),
+    //       },
+    //     ],
+    //   };
 
     let updates = { ...paymentRequest };
 
@@ -1896,7 +1896,8 @@ export default function PaymentRequest({ params }) {
                       />
 
                       <div className="grid lg:grid-cols-2 gap-6 divide-x">
-                        {/* <div className="flex flex-col">
+                        
+                      {/* <div className="flex flex-col">
                         <div>DistributionRule</div>
                         <Form.Item
                           // label="Select level 1 approver"
@@ -1930,7 +1931,9 @@ export default function PaymentRequest({ params }) {
                           ></Select>
                         </Form.Item>
                       </div> */}
-                        <Form.Item
+
+                        {/* Distribution Rule */}
+                        {/* <Form.Item
                           label="Distribution Rule - Debit Acc"
                           name="currency"
                           rules={[
@@ -1961,9 +1964,11 @@ export default function PaymentRequest({ params }) {
                               };
                             })}
                           ></Select>
-                        </Form.Item>
+                        </Form.Item> */}
 
-                        <div>
+                        {/* Debit Account */}
+
+                        {/* <div>
                           <Form.Item
                             label="Debit Account"
                             name="accountToDebit"
@@ -2030,7 +2035,7 @@ export default function PaymentRequest({ params }) {
                               })}
                             ></Select>
                           </Form.Item>
-                        </div>
+                        </div> */}
                         {/* <div className="flex flex-row items-center"></div> */}
 
                         {/*<div className="flex flex-row items-center">
@@ -2077,7 +2082,7 @@ export default function PaymentRequest({ params }) {
                       paymentRequest.amount = e;
                     }}
                   /> */}
-                          <div className="flex flex-row space-x-2 items-center">
+                          <div className="flex flex-row space-x-2 items-center mt-10">
                             <Switch
                               onChange={setOverrideAmount}
                               checked={overrideAmount}
@@ -2169,11 +2174,12 @@ export default function PaymentRequest({ params }) {
                           type="primary"
                           disabled={
                             !filesProof ||
-                            filesProof.length == 0 ||
-                            !debitAccount ||
-                            !creditAccount ||
-                            !distributionRuleCr ||
-                            !distributionRuleDb
+                            filesProof.length == 0 
+                            // ||
+                            // !debitAccount ||
+                            // !creditAccount ||
+                            // !distributionRuleCr ||
+                            // !distributionRuleDb
                           }
                         >
                           Submit
@@ -2269,7 +2275,7 @@ export default function PaymentRequest({ params }) {
                 </div>
               )}
 
-              {paymentRequest?.journalEntry &&
+              {/* {paymentRequest?.journalEntry &&
                 !paymentRequest?.journalEntry?.Memo && (
                   <div>
                     <Tag color="">
@@ -2279,9 +2285,7 @@ export default function PaymentRequest({ params }) {
                       <div className="grid grid-cols-2 gap-2">
                         <div className="flex flex-col space-y-2">
                           <div className="mt-2">
-                            {/* <div className="text-xs text-gray-400">
-                              Debit: 10090189 - Legal
-                            </div> */}
+                            
 
                             <Tag color="blue">
                               Debit:{" "}
@@ -2315,7 +2319,7 @@ export default function PaymentRequest({ params }) {
                       </div>
                     )}
                   </div>
-                )}
+                )} */}
             </>
           )}
         </div>
