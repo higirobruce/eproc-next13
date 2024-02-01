@@ -28,6 +28,7 @@ import UploadRDCerts from "./uploadRDBCerts";
 import { v4 } from "uuid";
 import UploadVatCerts from "./uploadVatCerts";
 import { decode as base64_decode, encode as base64_encode } from "base-64";
+import * as _ from "lodash";
 
 const { Option } = Select;
 
@@ -1499,6 +1500,7 @@ const SignupForm = () => {
   let [type, setType] = useState("VENDOR");
   let [dpts, setDpts] = useState([]);
   let [servCategories, setServCategories] = useState([]);
+  let [otherAreaOfExpertise, setOtherAreaOfExpertise] = useState(false);
 
   const [form] = Form.useForm();
   const [rdbCertId, setRdbCertId] = useState(null);
@@ -1510,6 +1512,14 @@ const SignupForm = () => {
 
   const onFinish = (values) => {
     setSubmitting(true);
+    let services = values.services;
+    let updatedServices = services.map((s) => {
+      let s2 = s;
+      if (s == "Other") {
+        s2 = `Other - ${values.otherAreaOfExpertise}`;
+      }
+      return s2;
+    });
 
     fetch(`${url}/users`, {
       method: "POST",
@@ -1537,7 +1547,7 @@ const SignupForm = () => {
         hqAddress: values.hqAddress,
         country: values.country,
         passportNid: values.passportNid,
-        services: values.services,
+        services: updatedServices,
         rdbCertId: rdbSelected ? rdbCertId : null,
         vatCertId: vatSelected ? vatCertId : null,
         tempPassword: "password",
@@ -2000,6 +2010,14 @@ const SignupForm = () => {
                               mode="multiple"
                               allowClear
                               // style={{width:'100%'}}
+                              onChange={(value) => {
+                                if (_.includes(value, "Other")) {
+                                  setOtherAreaOfExpertise(true);
+                                  console.log(value);
+                                } else {
+                                  setOtherAreaOfExpertise(false);
+                                }
+                              }}
                               placeholder="Please select"
                             >
                               {servCategories?.map((s) => {
@@ -2015,6 +2033,23 @@ const SignupForm = () => {
                       </div>
 
                       <div className="grid grid-cols-2 gap-5">
+                        {otherAreaOfExpertise && (
+                          <div>
+                            <div>Description for other Area of Expertise</div>
+                            <Form.Item
+                              name="otherAreaOfExpertise"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Input required",
+                                },
+                              ]}
+                            >
+                              <Input style={{ width: "100%" }} />
+                            </Form.Item>
+                          </div>
+                        )}
+
                         <div>
                           <div>Experience (in Years)</div>
                           <Form.Item
