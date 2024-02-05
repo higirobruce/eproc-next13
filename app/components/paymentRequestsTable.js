@@ -344,7 +344,7 @@ const PaymentRequestsTable = ({
               <Tooltip title={doc}>
                 <Typography.Text ellipsis>
                   <Link
-                    href={`${fTend_url}/api?folder=paymentRequests&name=${encodeURI(
+                    href={`${fTend_url}/api?folder=paymentRequests&name=${encodeURIComponent(
                       doc
                     )}`}
                     target="_blank"

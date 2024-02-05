@@ -305,7 +305,7 @@ export default function PaymentRequest({ params }) {
 
       _paymentRequest?.docIds?.map(async (doc, i) => {
         let uid = `rc-upload-${moment().milliseconds()}-${i}`;
-        let _url = `${fend_url}/api/?folder=paymentRequests&name=${encodeURI(
+        let _url = `${fend_url}/api/?folder=paymentRequests&name=${encodeURIComponent(
           doc
         )}`;
         let status = "done";
@@ -757,7 +757,7 @@ export default function PaymentRequest({ params }) {
 
       _paymentRequest?.docIds?.map(async (doc, i) => {
         let uid = `rc-upload-${moment().milliseconds()}-${i}`;
-        let _url = `${fend_url}/api/?folder=paymentRequests&name=${encodeURI(
+        let _url = `${fend_url}/api/?folder=paymentRequests&name=${encodeURIComponent(
           doc
         )}`;
         let status = "done";
@@ -1227,7 +1227,7 @@ export default function PaymentRequest({ params }) {
                           <Tooltip title={doc}>
                             <Typography.Text ellipsis>
                               <Link
-                                href={`${fend_url}/api/?folder=paymentRequests&name=${encodeURI(
+                                href={`${fend_url}/api/?folder=paymentRequests&name=${encodeURIComponent(
                                   doc
                                 )}`}
                                 target="_blank"
@@ -1243,7 +1243,7 @@ export default function PaymentRequest({ params }) {
                           </Tooltip>
 
                           {/* <Link
-                            href={`${fend_url}/api/?folder=paymentRequests&name=${encodeURI(doc)}`}
+                            href={`${fend_url}/api/?folder=paymentRequests&name=${encodeURIComponent(doc)}`}
                             target="_blank"
                           >
                             <div className="text-xs">
@@ -2238,7 +2238,7 @@ export default function PaymentRequest({ params }) {
                           <Tooltip title={doc}>
                             <Typography.Text ellipsis>
                               <Link
-                                href={`${fend_url}/api/?folder=paymentRequests&name=${encodeURI(
+                                href={`${fend_url}/api/?folder=paymentRequests&name=${encodeURIComponent(
                                   doc
                                 )}`}
                                 target="_blank"
