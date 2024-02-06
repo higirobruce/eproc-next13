@@ -81,7 +81,7 @@ function UploadPaymentReq({
 
       <>
         {contextHolder}
-        <Upload {...props} headers={{}} multiple showUploadList={!iconOnly}>
+        <Upload {...props} headers={{}} showUploadList={!iconOnly}>
           {/* <Button icon={<UploadOutlined />}>{label ? label : "Upload"}</Button> */}
           {iconOnly && (
             <div className="text-grey-500 hover:text-blue-500 cursor-pointer flex flex-row items-center space-x-1">

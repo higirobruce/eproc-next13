@@ -28,6 +28,7 @@ import UploadRDCerts from "./uploadRDBCerts";
 import { v4 } from "uuid";
 import UploadVatCerts from "./uploadVatCerts";
 import { decode as base64_decode, encode as base64_encode } from "base-64";
+import * as _ from "lodash";
 
 const { Option } = Select;
 
@@ -1488,6 +1489,7 @@ let countries = [
 
 const SignupForm = () => {
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
+  let fendUrl = process.env.NEXT_PUBLIC_FTEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
   let [token, setToken] = useState(null);
@@ -1499,6 +1501,7 @@ const SignupForm = () => {
   let [type, setType] = useState("VENDOR");
   let [dpts, setDpts] = useState([]);
   let [servCategories, setServCategories] = useState([]);
+  let [otherAreaOfExpertise, setOtherAreaOfExpertise] = useState(false);
 
   const [form] = Form.useForm();
   const [rdbCertId, setRdbCertId] = useState(null);
@@ -1510,6 +1513,14 @@ const SignupForm = () => {
 
   const onFinish = (values) => {
     setSubmitting(true);
+    let services = values.services;
+    let updatedServices = services.map((s) => {
+      let s2 = s;
+      if (s == "Other") {
+        s2 = `Other - ${values.otherAreaOfExpertise}`;
+      }
+      return s2;
+    });
 
     fetch(`${url}/users`, {
       method: "POST",
@@ -1537,7 +1548,7 @@ const SignupForm = () => {
         hqAddress: values.hqAddress,
         country: values.country,
         passportNid: values.passportNid,
-        services: values.services,
+        services: updatedServices,
         rdbCertId: rdbSelected ? rdbCertId : null,
         vatCertId: vatSelected ? vatCertId : null,
         tempPassword: "password",
@@ -1607,6 +1618,10 @@ const SignupForm = () => {
     })
       .then((res) => res.json())
       .then((res) => {
+        res.push({
+          _id: "other",
+          description: "Other",
+        });
         setServCategories(res);
       })
       .catch((err) => {
@@ -1852,7 +1867,7 @@ const SignupForm = () => {
 
                       <div className="grid grid-cols-2 gap-5">
                         <div>
-                        <div className="flex flex-row spacex-3">
+                          <div className="flex flex-row spacex-3">
                             Email<div className="text-red-500">*</div>
                           </div>
                           <Form.Item
@@ -1996,6 +2011,14 @@ const SignupForm = () => {
                               mode="multiple"
                               allowClear
                               // style={{width:'100%'}}
+                              onChange={(value) => {
+                                if (_.includes(value, "Other")) {
+                                  setOtherAreaOfExpertise(true);
+                                  console.log(value);
+                                } else {
+                                  setOtherAreaOfExpertise(false);
+                                }
+                              }}
                               placeholder="Please select"
                             >
                               {servCategories?.map((s) => {
@@ -2025,6 +2048,37 @@ const SignupForm = () => {
                             <InputNumber style={{ width: "100%" }} />
                           </Form.Item>
                         </div>
+
+                        {otherAreaOfExpertise && (
+                          <div>
+                            <div className="flex flex-row spacex-3">
+                              
+                              Specify your “Other” Area of Expertise
+                              <div className="text-red-500">*</div>
+                              <div>
+                                <Tooltip
+                                  placement="top"
+                                  title="100 characters max."
+                                  arrow={false}
+                                >
+                                  <QuestionCircleOutlined />
+                                </Tooltip>
+                              </div>
+                            </div>
+
+                            <Form.Item
+                              name="otherAreaOfExpertise"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Input required",
+                                },
+                              ]}
+                            >
+                              <Input style={{ width: "100%" }} />
+                            </Form.Item>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -2072,28 +2126,30 @@ const SignupForm = () => {
                             </Tooltip>
                           </div>
                         </div>
-                        
+
                         <Form.Item
                           name="rdbRegistraction"
-                          rules={[
-                            // {
-                            //   validator: (_, value) =>
-                            //     rdbSelected
-                            //       ? Promise.resolve()
-                            //       : Promise.reject(
-                            //           new Error(
-                            //             "Please attach your incorporation document"
-                            //           )
-                            //         ),
-                            // },
-                          ]}
+                          rules={
+                            [
+                              // {
+                              //   validator: (_, value) =>
+                              //     rdbSelected
+                              //       ? Promise.resolve()
+                              //       : Promise.reject(
+                              //           new Error(
+                              //             "Please attach your incorporation document"
+                              //           )
+                              //         ),
+                              // },
+                            ]
+                          }
                         >
                           <UploadRDCerts
                             uuid={rdbCertId}
                             setSelected={setRDBSelected}
                             setId={setRdbCertId}
                             iconOnly={false}
-                            setStatus={()=>{}}
+                            setStatus={() => {}}
                           />
                         </Form.Item>
                       </div>
@@ -2104,8 +2160,7 @@ const SignupForm = () => {
                             uuid={vatCertId}
                             setId={setVatCertId}
                             setSelected={setVatSelected}
-                            setStatus={()=>{}}
-                            
+                            setStatus={() => {}}
                           />
                         </Form.Item>
                       </div>
@@ -2114,7 +2169,7 @@ const SignupForm = () => {
                   </div>
                 </div>
 
-                {/* <Form.Item
+                <Form.Item
                   name="agreement"
                   valuePropName="checked"
                   rules={[
@@ -2130,9 +2185,15 @@ const SignupForm = () => {
                   {...tailFormItemLayout}
                 >
                   <Checkbox>
-                    I have read the <a href="">agreement</a>
+                    I have read the{" "}
+                    <a
+                      href={`${fendUrl}/api/?folder=termsAndConditions&name=tcs.pdf`}
+                      target="_blank"
+                    >
+                      agreement
+                    </a>
                   </Checkbox>
-                </Form.Item> */}
+                </Form.Item>
 
                 <Form.Item className="pb-5" {...tailFormItemLayout}>
                   {submitting ? (

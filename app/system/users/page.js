@@ -58,7 +58,7 @@ import { useRouter } from "next/navigation";
 
 export default function Users() {
   let user = JSON.parse(localStorage.getItem("user"));
-  let router = useRouter()
+  let router = useRouter();
   let token = localStorage.getItem("token");
   const [dataLoaded, setDataLoaded] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
@@ -131,12 +131,13 @@ export default function Users() {
   useEffect(() => {
     if (user?.userType == "VENDOR") {
       router.push("system/tenders");
-    }else{
+    } else {
       loadUsers();
       fetch(`${url}/dpts`, {
         method: "GET",
         headers: {
-          Authorization: "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
+          Authorization:
+            "Basic " + window.btoa(`${apiUsername}:${apiPassword}`),
           token: token,
           "Content-Type": "application/json",
         },
@@ -152,7 +153,6 @@ export default function Users() {
           });
         });
     }
-   
   }, []);
 
   useEffect(() => {
@@ -591,8 +591,16 @@ export default function Users() {
     })
       .then((res) => res.json())
       .then((res) => {
-        loadUsers();
-        form.resetFields();
+        if (res.error) {
+          messageApi.open({
+            type: "error",
+            content: `${res.errorMessage}`,
+          });
+        } else {
+          loadUsers();
+          form.resetFields();
+          setOpenCreateUser(false);
+        }
       })
       .catch((err) => {
         messageApi.open({
@@ -1180,7 +1188,6 @@ export default function Users() {
           form.validateFields().then(
             (value) => {
               createUser(value);
-              setOpenCreateUser(false);
             },
             (reason) => {}
           );
@@ -1254,7 +1261,7 @@ export default function Users() {
                 <div className="grid grid-cols-2 gap-5">
                   <div>
                     <div className="flex flex-row spacex-3">
-                      Phone number 
+                      Phone number
                       {/* <div className="text-red-500">*</div> */}
                     </div>
                     <Form.Item
@@ -1304,7 +1311,7 @@ export default function Users() {
                       Email
                       <div className="text-red-500">*</div>
                     </div>
-                   
+
                     <Form.Item
                       name="email"
                       // label="E-mail"

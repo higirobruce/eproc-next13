@@ -317,9 +317,17 @@ export default function page({ params }) {
     })
       .then((res) => res.json())
       .then((res) => {
-        res.avgRate = rowData.avgRate;
-        setRowData(res);
-        refresh();
+        if (res?.error) {
+          messageApi.open({
+            type: "error",
+            content: `${res?.errorMessage}`,
+          });
+        } else {
+          res.avgRate = rowData.avgRate;
+          setRowData(res);
+          refresh();
+          setEditVendor(false);
+        }
       })
       .catch((err) => {
         messageApi.open({
@@ -449,7 +457,6 @@ export default function page({ params }) {
                   icon={<SaveOutlined />}
                   type="primary"
                   onClick={() => {
-                    setEditVendor(false);
                     updateVendor();
                   }}
                 />
@@ -654,6 +661,7 @@ export default function page({ params }) {
                         onChange: (e) => {
                           let r = { ...rowData };
                           r.email = e;
+                          r.tempEmail = e;
                           setRowData(r);
                         },
                         text: rowData?.email,
