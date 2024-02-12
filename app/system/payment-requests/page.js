@@ -180,13 +180,13 @@ export default function UserRequests() {
 
   const getMyPendingRequest = (value) => {
     setMyPendingRequest(value);
+    console.log(tempDataset);
     if (value) {
       const statusFilter = tempDataset.filter((item) =>
-        user?.permissions?.canApproveAsHof
+        user?.permissions?.canApproveAsHod && user._id == item?.approver?._id
+          ? item?.status == "pending-approval" || item?.status == "reviewed"
+          : user?.permissions?.canApproveAsHof
           ? item.status == "approved (hod)"
-          : user?.permissions?.canApproveAsHod
-          ? user._id == item?.approver?._id &&
-            (item?.status == "pending-review" || item?.status == "reviewed")
           : true
       );
 
