@@ -828,7 +828,7 @@ export default function page({ params }) {
                   {rowData?.rdbCertId && (
                     <div className="flex flex-row items-center">
                       <Link
-                        href={`${fendUrl}/api?folder=rdbCerts&name=${rowData?.rdbCertId}.pdf`}
+                        href={`${fendUrl}/api?folder=rdbCerts&name=${encodeURIComponent(rowData?.rdbCertId)}.pdf`}
                         target="_blank"
                       >
                         <Typography.Link>
@@ -877,7 +877,7 @@ export default function page({ params }) {
                   {rowData?.vatCertId && (
                     <div className="flex flex-row items-center">
                       <Link
-                        href={`${fendUrl}/api?folder=vatCerts&name=${rowData?.vatCertId}.pdf`}
+                        href={`${fendUrl}/api?folder=vatCerts&name=${encodeURIComponent(rowData?.vatCertId)}.pdf`}
                         target="_blank"
                       >
                         <Typography.Link>VAT Certificate</Typography.Link>
