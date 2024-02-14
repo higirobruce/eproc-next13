@@ -134,12 +134,8 @@ export default function page({ params }) {
         await Promise.all(itemFiles).then((values) => values)
         // await Promise.all(items).then((values) => values)
       );
-      setFileList(
-        await Promise.all(itemFiles).then((values) => values)
-      );
-      setFiles(
-        await Promise.all(itemFiles).then((values) => values)
-      );
+      setFileList(await Promise.all(itemFiles).then((values) => values));
+      setFiles(await Promise.all(itemFiles).then((values) => values));
       setRowData(res);
     });
   }
@@ -304,11 +300,10 @@ export default function page({ params }) {
     })
       .then((res) => getResultFromServer(res))
       .then((res1) => {
-        console.log(res1.error)
+        console.log(res1.error);
         if (res1.error || res1.code) {
-
-          let response = res1.error || res1.code
-          console.log(res1.error || res1.code)
+          let response = res1.error || res1.code;
+          console.log(res1.error || res1.code);
           messageApi.open({
             type: "error",
             content: response?.message?.value,
@@ -471,7 +466,7 @@ export default function page({ params }) {
 
     let _files = [...files];
 
-    let _f = __filePaths.filter((f) => f.length > 0);
+    let _f = __filePaths.filter((f) => f?.length > 0);
     console.log("Uploading files", _f);
 
     let i = 0;
@@ -481,7 +476,7 @@ export default function page({ params }) {
       });
     });
 
-    if (files?.every((child) => child.length < 1)) {
+    if (files?.every((child) => child?.length < 1) || _f?.length < 1 || !files) {
       messageApi.error("Please add at least one doc.");
       // setConfirmLoading(false);
     } else {
@@ -509,10 +504,7 @@ export default function page({ params }) {
 
               console.log(_filenames);
 
-             
               _files[rowIndex][fileIndex] = _filenames[0];
-
-              
             })
             .catch((err) => {
               console.log(err);
