@@ -2569,6 +2569,7 @@ const TenderDetails = ({
                     setTendeDocSelected={() => {}}
                     setStatus={() => {}}
                     label="Update the doc"
+                    loading={loading}
                   />
                   {/* <div className="text-sm text-blue-500">
                   Update tender document
