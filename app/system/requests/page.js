@@ -34,8 +34,10 @@ import UsersRequestsTable from "../../components/userRequestsTable";
 import { useRouter } from "next/navigation";
 import { encode } from "base-64";
 import { motion } from "framer-motion";
+import { useUser } from "@/app/context/UserContext";
 
 export default function UserRequests() {
+  const { user, login, logout } = useUser();
   let router = useRouter();
   const [serviceCategories, setServiceCategories] = useState([]);
   let [serviceCategory, setServiceCategory] = useState("");
@@ -45,7 +47,8 @@ export default function UserRequests() {
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
-  let user = JSON.parse(localStorage.getItem("user"));
+  
+  // let user = JSON.parse(localStorage.getItem("user"));
   let [dataset, setDataset] = useState([]);
   let [tempDataset, setTempDataset] = useState([]);
   let [updatingId, setUpdatingId] = useState("");

@@ -11,6 +11,7 @@ import { encode } from "base-64";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import moment from "moment";
+import { useUser } from "@/app/context/UserContext";
 
 let url = process.env.NEXT_PUBLIC_BKEND_URL;
 let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
@@ -45,7 +46,9 @@ async function getTenderDetails(id, router) {
 
 export default function page({ params }) {
   let router = useRouter();
-  let user = JSON.parse(localStorage.getItem("user"));
+  const { user, login, logout } = useUser();
+
+  // let user = JSON.parse(localStorage.getItem("user"));
   let token = localStorage.getItem("token");
 
   const [messageApi, contextHolder] = message.useMessage();

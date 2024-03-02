@@ -47,8 +47,10 @@ import { useRouter } from "next/navigation";
 import UploadRDCerts from "@/app/components/uploadRDBCerts";
 import UploadVatCerts from "@/app/components/uploadVatCerts";
 import { v4 } from "uuid";
+import { useUser } from "@/app/context/UserContext";
 
 export default function page() {
+  const { user, login, logout } = useUser();
   let router = useRouter();
   const [form] = Form.useForm();
   const [dataLoaded, setDataLoaded] = useState(false);
@@ -57,7 +59,7 @@ export default function page() {
   let fendUrl = process.env.NEXT_PUBLIC_FTEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
-  let user = JSON.parse(localStorage.getItem("user"));
+  // let user = JSON.parse(localStorage.getItem("user"));
   let token = localStorage.getItem("token");
   let [dataset, setDataset] = useState([]);
   let [updatingId, setUpdatingId] = useState("");
@@ -86,6 +88,10 @@ export default function page() {
   const [fileUploadStatus, setFileUploadStatus] = useState("");
 
   const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
+
+  useEffect(() => {
+    console.log("User context", user);
+  }, []);
 
   useEffect(() => {
     if (rdbSelected) {
@@ -907,7 +913,9 @@ export default function page() {
                     {user?.rdbCertId && (
                       <div className="flex flex-row items-center">
                         <Link
-                          href={`${fendUrl}/api?folder=rdbCerts&name=${encodeURIComponent(user?.rdbCertId)}.pdf`}
+                          href={`${fendUrl}/api?folder=rdbCerts&name=${encodeURIComponent(
+                            user?.rdbCertId
+                          )}.pdf`}
                           target="_blank"
                         >
                           <Typography.Link>
@@ -956,7 +964,9 @@ export default function page() {
                     {user?.vatCertId && (
                       <div className="flex flex-row items-center">
                         <Link
-                          href={`${fendUrl}/api?folder=vatCerts&name=${encodeURIComponent(user?.vatCertId)}.pdf`}
+                          href={`${fendUrl}/api?folder=vatCerts&name=${encodeURIComponent(
+                            user?.vatCertId
+                          )}.pdf`}
                           target="_blank"
                         >
                           <Typography.Link>VAT Certificate</Typography.Link>
@@ -1218,8 +1228,8 @@ export default function page() {
       .then((res) => res.json())
       .then((res) => {
         res.avgRate = user.avgRate;
-        localStorage.setItem("user", JSON.stringify(res));
-        user = res;
+        // localStorage.setItem("user", JSON.stringify(res));
+        login(res);
         setRowData(res);
         // refresh();
       })
@@ -1247,8 +1257,8 @@ export default function page() {
       .then((res) => res.json())
       .then((res) => {
         res.avgRate = user.avgRate;
-        localStorage.setItem("user", JSON.stringify(res));
-        user = res;
+        // localStorage.setItem("user", JSON.stringify(res));
+        login(res);
         setRowData(res);
         // refresh();
       })

@@ -20,6 +20,7 @@ import {
 } from "antd";
 import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useUser } from "../context/UserContext";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -59,6 +60,7 @@ const residences = [
 ];
 
 const LoginForm = ({ goTo }) => {
+  const { user, login, logout } = useUser();
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
   let apiUsername = process.env.NEXT_PUBLIC_API_USERNAME;
   let apiPassword = process.env.NEXT_PUBLIC_API_PASSWORD;
@@ -96,7 +98,8 @@ const LoginForm = ({ goTo }) => {
               type: "success",
               content: "Success!!",
             });
-            localStorage.setItem("user", JSON.stringify(res.user));
+            login(res.user);
+            // localStorage.setItem("user", JSON.stringify(res.user));
             localStorage.setItem("token", res?.token);
             goTo
               ? router.push(`${goTo}`)
@@ -161,7 +164,7 @@ const LoginForm = ({ goTo }) => {
           type: "success",
           content: "Success!!",
         });
-        localStorage.setItem("user", JSON.stringify(res));
+        // localStorage.setItem("user", JSON.stringify(res));
         setSubmitting(false);
         setForgotPassword(false);
       })
@@ -184,9 +187,9 @@ const LoginForm = ({ goTo }) => {
   const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
   useEffect(() => {
-    let sessionExpired = searchParams.get('sessionExpired')
-    if(sessionExpired==true || sessionExpired==='true'){
-      messageApi.info('Session has expired! Please login again!')
+    let sessionExpired = searchParams.get("sessionExpired");
+    if (sessionExpired == true || sessionExpired === "true") {
+      messageApi.info("Session has expired! Please login again!");
     }
     setLoaded(true);
   }, []);

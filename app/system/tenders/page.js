@@ -28,9 +28,11 @@ import TenderDetails from "../../components/tenderDetails";
 import TendersTable from "../../components/tendersTable";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { useUser } from "@/app/context/UserContext";
 
 export default function Tenders() {
-  let user = JSON.parse(localStorage.getItem("user"));
+  const { user, login, logout } = useUser();
+  // let user = JSON.parse(localStorage.getItem("user"));
   let router = useRouter()
   let token = localStorage.getItem("token");
   const [dataLoaded, setDataLoaded] = useState(false);
