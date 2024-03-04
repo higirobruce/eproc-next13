@@ -22,6 +22,7 @@ import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useUser } from "../context/UserContext";
 import * as jose from "jose";
+import * as jwt_decode from "jwt-decode";
 const { Title } = Typography;
 const { Option } = Select;
 const residences = [
@@ -96,7 +97,9 @@ const LoginForm = ({ goTo }) => {
       .then(async (res) => {
         const secret = new TextEncoder().encode(SALT);
         const jwt = res.token;
-        const { payload, protectedHeader } = await jose.jwtVerify(jwt, secret);
+        // const { payload, protectedHeader } = await jose.jwtVerify(jwt, secret);
+        const payload = jwt_decode.jwtDecode(jwt);
+        
 
         if (payload.allowed) {
           if (payload.userObj.status === "approved") {
