@@ -21,7 +21,7 @@ import {
 import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useUser } from "../context/UserContext";
-
+import * as jose from "jose";
 const { Title } = Typography;
 const { Option } = Select;
 const residences = [
@@ -59,6 +59,8 @@ const residences = [
   },
 ];
 
+let SALT =
+  process.env.NEXT_PUBLIC_TOKEN_SALT || "968d8b95-72cd-4470-b13e-1017138d32cf";
 const LoginForm = ({ goTo }) => {
   const { user, login, logout } = useUser();
   let url = process.env.NEXT_PUBLIC_BKEND_URL;
@@ -91,21 +93,25 @@ const LoginForm = ({ goTo }) => {
       }),
     })
       .then((res) => res.json())
-      .then((res) => {
-        if (res.allowed) {
-          if (res.user.status === "approved") {
+      .then(async (res) => {
+        const secret = new TextEncoder().encode(SALT);
+        const jwt = res.token;
+        const { payload, protectedHeader } = await jose.jwtVerify(jwt, secret);
+
+        if (payload.allowed) {
+          if (payload.userObj.status === "approved") {
             messageApi.open({
               type: "success",
               content: "Success!!",
             });
-            login(res.user);
-            // localStorage.setItem("user", JSON.stringify(res.user));
+            login(payload.userObj);
+            // localStorage.setItem("user", JSON.stringify(payload.userObj));
             localStorage.setItem("token", res?.token);
             goTo
               ? router.push(`${goTo}`)
               : router.push(
                   `${
-                    res.user?.userType === "VENDOR"
+                    payload.userObj?.userType === "VENDOR"
                       ? "/system/tenders"
                       : "/system/dashboard"
                   }`
