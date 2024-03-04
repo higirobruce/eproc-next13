@@ -297,7 +297,7 @@ export default function UserRequests() {
   const save = (_fileList) => {
     if (values && values[0]) {
       setConfirmLoading(true);
-      let user = JSON.parse(localStorage.getItem("user"));
+      // let user = JSON.parse(localStorage.getItem("user"));
       let _values = [...values];
       _values.map((v, index) => {
         v.paths = _fileList[index];
