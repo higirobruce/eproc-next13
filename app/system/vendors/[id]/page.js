@@ -45,6 +45,7 @@ import { motion } from "framer-motion";
 import UploadRDCerts from "@/app/components/uploadRDBCerts";
 import { v4 } from "uuid";
 import UploadVatCerts from "@/app/components/uploadVatCerts";
+import { useUser } from "@/app/context/UserContext";
 
 let url = process.env.NEXT_PUBLIC_BKEND_URL;
 let fendUrl = process.env.NEXT_PUBLIC_FTEND_URL;
@@ -77,7 +78,8 @@ async function getVendorDetails(id, router) {
 }
 
 export default function page({ params }) {
-  let user = JSON.parse(localStorage.getItem("user"));
+  const { user, login, logout } = useUser();
+  // let user = JSON.parse(localStorage.getItem("user"));
   let token = localStorage.getItem("token");
   let router = useRouter();
   const [passwordForm] = Form.useForm();
@@ -828,7 +830,7 @@ export default function page({ params }) {
                   {rowData?.rdbCertId && (
                     <div className="flex flex-row items-center">
                       <Link
-                        href={`${fendUrl}/api?folder=rdbCerts&name=${rowData?.rdbCertId}.pdf`}
+                        href={`${fendUrl}/api?folder=rdbCerts&name=${encodeURIComponent(rowData?.rdbCertId)}.pdf`}
                         target="_blank"
                       >
                         <Typography.Link>
@@ -877,7 +879,7 @@ export default function page({ params }) {
                   {rowData?.vatCertId && (
                     <div className="flex flex-row items-center">
                       <Link
-                        href={`${fendUrl}/api?folder=vatCerts&name=${rowData?.vatCertId}.pdf`}
+                        href={`${fendUrl}/api?folder=vatCerts&name=${encodeURIComponent(rowData?.vatCertId)}.pdf`}
                         target="_blank"
                       >
                         <Typography.Link>VAT Certificate</Typography.Link>

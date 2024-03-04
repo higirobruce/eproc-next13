@@ -78,7 +78,8 @@ async function getContractDetails(id, router) {
 }
 
 export default function page({ params }) {
-  let user = JSON.parse(localStorage.getItem("user"));
+  const { user, login, logout } = useUser();
+  // let user = JSON.parse(localStorage.getItem("user"));
   let token = localStorage.getItem("token");
   let [contract, setContract] = useState({});
   let router = useRouter();

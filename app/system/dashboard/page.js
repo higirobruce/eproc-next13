@@ -19,11 +19,13 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { encode } from "base-64";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { useUser } from "@/app/context/UserContext";
 
 export default function page() {
+  const { user, login, logout } = useUser();
   const [dataLoaded, setDataLoaded] = useState(false);
   let token = localStorage.getItem("token");
-  let user = JSON.parse(localStorage?.getItem("user"));
+  // let user = JSON.parse(localStorage?.getItem("user"));
   const [requests, setRequests] = useState([]);
   const [tenders, setTenders] = useState([]);
   const [contracts, setContracts] = useState([]);

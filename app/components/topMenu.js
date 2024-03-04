@@ -14,8 +14,10 @@ import {
 import { Menu } from "antd";
 import {useRouter} from "next/navigation";
 import Image from "next/image";
+import { useUser } from "../context/UserContext";
 
 const TopMenu = ({ setScreen, screen, handleLogout }) => {
+  const { user, login, logout } = useUser();
   const [current, setCurrent] = useState(screen);
   const [items, setItems] = useState([]);
   let router = useRouter()
@@ -23,7 +25,7 @@ const TopMenu = ({ setScreen, screen, handleLogout }) => {
   useEffect(() => {}, [screen]);
 
   useEffect(() => {
-    let user = JSON.parse(localStorage.getItem("user"));
+    // let user = JSON.parse(localStorage.getItem("user"));
     let _items = [];
     _items = [
       {
@@ -36,7 +38,7 @@ const TopMenu = ({ setScreen, screen, handleLogout }) => {
       {
         // key: "username",
         label: `Hi, ${
-          user.userType === "VENDOR"
+          user?.userType === "VENDOR"
             ? user?.contactPersonNames
             : user?.firstName
         }`,
@@ -62,15 +64,16 @@ const TopMenu = ({ setScreen, screen, handleLogout }) => {
     setItems(_items);
   }, []);
 
-  const logout = () => {
+  const _handleLogout = () => {
     handleLogout(true);
+    logout();
     localStorage.removeItem("user");
     router.push("/auth")
     // handleLogout(false)
   };
   const onClick = (e) => {
     if (e.key === "logout") {
-      logout();
+      _handleLogout();
     } else {
       router.push(`/${e.key}`)
       // setScreen(e.key);

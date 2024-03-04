@@ -50,6 +50,7 @@ import { encode } from "base-64";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { useUser } from "@/app/context/UserContext";
 
 let modules = {
   toolbar: [
@@ -81,7 +82,8 @@ let formats = [
 
 export default function Contracts() {
   let router = useRouter();
-  let user = JSON.parse(localStorage.getItem("user"));
+  const { user, login, logout } = useUser();
+  // let user = JSON.parse(localStorage.getItem("user"));
   let token = localStorage.getItem("token");
   const [dataLoaded, setDataLoaded] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
@@ -137,7 +139,7 @@ export default function Contracts() {
   }, [assets]);
 
   useEffect(() => {
-    setItems(contract?.request.items);
+    setItems(contract?.request?.items);
     let t = 0;
     let tax = 0;
     items?.map((i) => {
