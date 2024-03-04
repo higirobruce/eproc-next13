@@ -189,7 +189,7 @@ export default function Tenders() {
   const save = () => {
     console.log("Received values of form:", values);
     setConfirmLoading(true);
-    let user = JSON.parse(localStorage.getItem("user"));
+    // let user = JSON.parse(localStorage.getItem("user"));
 
     fetch(`${url}/tenders/`, {
       method: "POST",
