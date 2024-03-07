@@ -20,6 +20,7 @@ import { encode } from "base-64";
 import html2pdf from "html2pdf.js";
 import ReactDOMServer from "react-dom/server";
 import { useRouter } from "next/navigation";
+import { useUser } from "@/app/context/UserContext";
 let modules = {
   toolbar: [
     [{ header: [1, 2, false] }],
