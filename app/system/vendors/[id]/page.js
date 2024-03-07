@@ -488,7 +488,7 @@ export default function page({ params }) {
                 <div>General Information</div>
 
                 {updatingId !== rowData?._id && (
-                  <div>
+                  <div className="flex flex-row space-x-3">
                     {rowData?.status === "pending-approval" && (
                       <span>
                         <Popconfirm
@@ -521,7 +521,7 @@ export default function page({ params }) {
                       </span>
                     )}
 
-                    {rowData?.status === "approved" && (
+                    {(rowData?.status === "approved" || rowData?.status === "pending-approval") && (
                       <span>
                         <Popconfirm
                           title="Reject vendor"
