@@ -87,6 +87,7 @@ export default function UserRequests() {
     })
       .then((res) => getResultFromServer(res))
       .then((res) => {
+        console.log(res)
         setDataLoaded(true);
         setDataset(res);
         setTempDataset(res);
@@ -185,8 +186,10 @@ export default function UserRequests() {
     console.log(tempDataset);
     if (value) {
       const statusFilter = tempDataset.filter((item) =>
-        user?.permissions?.canApproveAsHod && user._id == item?.approver?._id
-          ? item?.status == "pending-approval" || item?.status == "reviewed"
+        user?.permissions?.canApproveAsHod
+          ? (item?.status == "pending-approval" ||
+              item?.status == "reviewed") &&
+            item?.approver?._id == user?._id
           : user?.permissions?.canApproveAsHof
           ? item.status == "approved (hod)"
           : true
