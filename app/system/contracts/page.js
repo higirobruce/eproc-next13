@@ -1252,8 +1252,7 @@ export default function Contracts() {
               );
             })}
 
-            { user?.permissions?.canApproveAsLegal && (contract?.status === "draft" ||
-              contract?.status == "pending-signature") && (
+            { user?.permissions?.canApproveAsLegal && !documentFullySignedInternally(contract) && (
               <div className="flex flex-col ring-1 ring-gray-300 rounded py-5 space-y-3 items-center justify-center  hover:bg-gray-50">
                 <Image
                   src="/icons/icons8-signature-80.png"
