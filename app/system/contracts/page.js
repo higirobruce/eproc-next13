@@ -558,7 +558,6 @@ export default function Contracts() {
             <Typography.Title level={4} className="self-end">
               Gross Total:{" "}
               {items && items[0]?.currency + " " + grossTotal?.toLocaleString()}
-
             </Typography.Title>
 
             {/* Sections */}
@@ -1252,6 +1251,61 @@ export default function Contracts() {
                 </div>
               );
             })}
+
+            { user?.permissions?.canApproveAsLegal && (contract?.status === "draft" ||
+              contract?.status == "pending-signature") && (
+              <div className="flex flex-col ring-1 ring-gray-300 rounded py-5 space-y-3 items-center justify-center  hover:bg-gray-50">
+                <Image
+                  src="/icons/icons8-signature-80.png"
+                  width={40}
+                  height={40}
+                />
+                <div
+                  className="cursor-pointer underline hover:text-blue-600"
+                  onClick={() => {
+                    let signs = [...signatories];
+                    let newSignatory = { onBehalfOf: "Irembo Ltd" };
+                    // signs?.length < 2
+                    //   ?
+                    //   : {
+                    //       onBehalfOf: vendor?.companyName,
+                    //       title: vendor?.title,
+                    //       names: vendor?.contactPersonNames,
+                    //       email: vendor?.email,
+                    //     };
+                    let nSignatories = signs.length;
+                    let lastSignatory = signs[nSignatories - 1];
+                    let lastIsIrembo =
+                      lastSignatory?.onBehalfOf === "Irembo Ltd";
+                    if (lastIsIrembo) signs.push(newSignatory);
+                    else {
+                      signs.splice(lastSignatory - 1, 0, newSignatory);
+                    }
+                    // signs.push(newSignatory);
+                    setSignatories(signs);
+                  }}
+                >
+                  Add intenal Signatory
+                </div>
+                <div
+                  className="cursor-pointer underline"
+                  onClick={() => {
+                    let signs = [...signatories];
+                    let newSignatory = {
+                      onBehalfOf: contract?.vendor?.companyName,
+                      title: contract?.vendor?.title,
+                      names: contract?.vendor?.contactPersonNames,
+                      email: contract?.vendor?.email,
+                    };
+
+                    signs.push(newSignatory);
+                    setSignatories(signs);
+                  }}
+                >
+                  Add external Signatory
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </Modal>
@@ -1342,13 +1396,6 @@ export default function Contracts() {
       });
 
     //call API to sign
-  }
-
-  function documentFullySigned(document) {
-    let totSignatories = document?.signatories;
-    let signatures = document?.signatories?.filter((s) => s.signed);
-
-    return totSignatories?.length === signatures?.length;
   }
 
   function previousSignatorySigned(signatories, index) {
