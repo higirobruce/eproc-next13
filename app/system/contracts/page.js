@@ -844,9 +844,11 @@ export default function Contracts() {
       })
         .then((res) => getResultFromServer(res))
         .then((res) => {
-          let _contracts = user?.permissions?.canApproveAsLegal
-            ? res
-            : res?.filter((r) => r.status !== "draft");
+          let _contracts =
+            user?.permissions?.canApproveAsLegal ||
+            user?.permissions?.canApproveAsPM
+              ? res
+              : res?.filter((r) => r.status !== "draft");
           setContracts(_contracts);
           setTempContracts(_contracts);
           setDataLoaded(true);
@@ -863,18 +865,62 @@ export default function Contracts() {
         title="Display Contract"
         centered
         open={openViewContract}
-        onOk={() => {
-          (editContract && contract?.status === "draft") ||
-            (user?.permissions?.canApproveAsLegal &&
-              !documentFullySignedInternally(contract) &&
-              handleUpdateContract(sections, signatories, "draft"));
-          setOpenViewContract(false);
-        }}
-        okText={
-          editContract && contract?.status === "draft"
-            ? "Save and Send contract"
-            : "Ok"
-        }
+        footer={[
+          !editContract && (
+            <Button key="1" onClick={() => setOpenViewContract(false)}>
+              Close
+            </Button>
+          ),
+          editContract &&
+            (contract?.status === "draft" ||
+              (user?.permissions?.canApproveAsPM &&
+                !documentFullySignedInternally(contract)) ||
+              (contract?.status === "legal-review" &&
+                user?.permissions?.canApproveAsLegal &&
+                !documentFullySignedInternally(contract))) && (
+              <Button
+                key="2"
+                onClick={() => {
+                  user?.permissions?.canApproveAsPM &&
+                    handleUpdateContract(sections, signatories);
+                  user?.permissions?.canApproveAsLegal &&
+                    handleUpdateContract(sections, signatories, "draft");
+                  setOpenViewContract(false);
+                }}
+              >
+                Update draft
+              </Button>
+            ),
+
+          !editContract &&
+            !documentFullySignedInternally(contract) &&
+            ((user?.permissions?.canApproveAsPM &&
+              contract?.status === "draft") ||
+              (user?.permissions?.canApproveAsLegal &&
+                contract?.status === "legal-review")) && (
+              <Button
+                key="3"
+                type="primary"
+                onClick={() => {
+                  user?.permissions?.canApproveAsLegal &&
+                    handleUpdateContract(sections, signatories, "legal-review");
+                  user?.permissions?.canApproveAsPM &&
+                    handleUpdateContract(sections, signatories, "draft");
+                  setOpenViewContract(false);
+                }}
+              >
+                Save and Submit
+              </Button>
+            ),
+        ]}
+        // onOk={() => {
+        //   contract?.status === "draft" ||
+        //   (user?.permissions?.canApproveAsLegal &&
+        //     !documentFullySignedInternally(contract))
+        //     ? handleUpdateContract(sections, signatories)
+        //     : handleUpdateContract(sections, signatories);
+        // }}
+        // okText={contract?.status === "draft" ? "Save draft" : "Save and Submit"}
         onCancel={() => setOpenViewContract(false)}
         width={"80%"}
         bodyStyle={{ maxHeight: "700px", overflow: "scroll" }}
@@ -902,16 +948,17 @@ export default function Contracts() {
             {/* {contract?.status !== "draft" && (
               <Button icon={<PrinterOutlined />}>Print</Button>
             )} */}
-            {contract?.status === "draft" &&
-              (user?.permissions?.canEditContracts ||
-                user?.permissions?.canApproveAsLegal) && (
-                <Switch
-                  checkedChildren={<EditOutlined />}
-                  unCheckedChildren={<EyeOutlined />}
-                  defaultChecked={editContract}
-                  onChange={(checked) => setEditContract(checked)}
-                />
-              )}
+            {((user?.permissions?.canApproveAsPM &&
+              contract?.status === "draft") ||
+              (user?.permissions?.canApproveAsLegal &&
+                contract?.status === "legal-review")) && (
+              <Switch
+                checkedChildren={<EditOutlined />}
+                unCheckedChildren={<EyeOutlined />}
+                defaultChecked={editContract}
+                onChange={(checked) => setEditContract(checked)}
+              />
+            )}
           </div>
           {/* Parties */}
           <div className="grid grid-cols-2 gap-5 ">
@@ -996,7 +1043,8 @@ export default function Contracts() {
                       level={4}
                       editable={
                         editContract &&
-                        contract?.status === "draft" && {
+                        (contract?.status === "draft" ||
+                          contract?.status === "legal-review") && {
                           onChange: (e) => {
                             section.title = e;
                             _sections[index]
@@ -1010,57 +1058,61 @@ export default function Contracts() {
                     >
                       {s.title}
                     </Typography.Title>
-                    {editContract && contract?.status === "draft" && (
-                      <Popconfirm
-                        onConfirm={() => {
-                          let _sections = [...sections];
-                          _sections.splice(index, 1);
+                    {editContract &&
+                      (contract?.status === "draft" ||
+                        contract?.status === "legal-review") && (
+                        <Popconfirm
+                          onConfirm={() => {
+                            let _sections = [...sections];
+                            _sections.splice(index, 1);
+                            setSections(_sections);
+                          }}
+                          title="You can not undo this!"
+                        >
+                          <div>
+                            <CloseCircleOutlined className="h-3 text-red-400 cursor-pointer" />
+                          </div>
+                        </Popconfirm>
+                      )}
+                  </div>
+                  {!editContract && <div>{parse(s?.body)}</div>}
+                  {editContract &&
+                    (contract?.status === "draft" ||
+                      contract?.status === "legal-review") && (
+                      <ReactQuill
+                        theme="snow"
+                        modules={modules}
+                        formats={formats}
+                        value={s.body}
+                        onChange={(value) => {
+                          section.body = value;
+                          _sections[index]
+                            ? (_sections[index] = section)
+                            : _sections.push(section);
                           setSections(_sections);
                         }}
-                        title="You can not undo this!"
-                      >
-                        <div>
-                          <CloseCircleOutlined className="h-3 text-red-400 cursor-pointer" />
-                        </div>
-                      </Popconfirm>
+                      />
                     )}
-                  </div>
-                  {(!editContract || contract?.status !== "draft") && (
-                    <div>{parse(s?.body)}</div>
-                  )}
-                  {editContract && contract?.status === "draft" && (
-                    <ReactQuill
-                      theme="snow"
-                      modules={modules}
-                      formats={formats}
-                      value={s.body}
-                      onChange={(value) => {
-                        section.body = value;
-                        _sections[index]
-                          ? (_sections[index] = section)
-                          : _sections.push(section);
-                        setSections(_sections);
-                      }}
-                    />
-                  )}
                 </>
               );
             })}
-            {editContract && contract?.status === "draft" && (
-              <Button
-                icon={<PlusOutlined />}
-                onClick={() => {
-                  let _sections = [...sections];
-                  _sections.push({
-                    title: `Set section ${sections?.length + 1} Title`,
-                    body: "",
-                  });
-                  setSections(_sections);
-                }}
-              >
-                Add section
-              </Button>
-            )}
+            {editContract &&
+              (contract?.status === "draft" ||
+                contract?.status === "legal-review") && (
+                <Button
+                  icon={<PlusOutlined />}
+                  onClick={() => {
+                    let _sections = [...sections];
+                    _sections.push({
+                      title: `Set section ${sections?.length + 1} Title`,
+                      body: "",
+                    });
+                    setSections(_sections);
+                  }}
+                >
+                  Add section
+                </Button>
+              )}
           </div>
           {/* Signatories */}
           <div className="grid grid-cols-3 gap-5">
@@ -1083,7 +1135,8 @@ export default function Contracts() {
                           strong
                           editable={
                             editContract &&
-                            contract?.status === "draft" && {
+                            (contract?.status === "draft" ||
+                              contract?.status === "legal-review") && {
                               text: s.onBehalfOf,
                               onChange: (e) => {
                                 let _signatories = [...signatories];
@@ -1105,7 +1158,8 @@ export default function Contracts() {
                           strong
                           editable={
                             editContract &&
-                            contract?.status === "draft" && {
+                            (contract?.status === "draft" ||
+                              contract?.status === "legal-review") && {
                               text: s.title,
                               onChange: (e) => {
                                 let _signatories = [...signatories];
@@ -1127,7 +1181,8 @@ export default function Contracts() {
                           strong
                           editable={
                             editContract &&
-                            contract?.status === "draft" && {
+                            (contract?.status === "draft" ||
+                              contract?.status === "legal-review") && {
                               text: s.names,
                               onChange: (e) => {
                                 let _signatories = [...signatories];
@@ -1149,7 +1204,8 @@ export default function Contracts() {
                           strong
                           editable={
                             editContract &&
-                            contract?.status === "draft" && {
+                            (contract?.status === "draft" ||
+                              contract?.status === "legal-review") && {
                               text: s.email,
                               onChange: (e) => {
                                 let _signatories = [...signatories];
@@ -1265,8 +1321,11 @@ export default function Contracts() {
               );
             })}
 
-            {user?.permissions?.canApproveAsLegal &&
-              !documentFullySignedInternally(contract) && (
+            {editContract &&
+              ((user?.permissions?.canApproveAsLegal &&
+                !documentFullySignedInternally(contract)) ||
+                (user?.permissions.canApproveAsPM &&
+                  contract?.status == "draft")) && (
                 <div className="flex flex-col ring-1 ring-gray-300 rounded py-5 space-y-3 items-center justify-center  hover:bg-gray-50">
                   <Image
                     src="/icons/icons8-signature-80.png"
@@ -1298,7 +1357,7 @@ export default function Contracts() {
                       setSignatories(signs);
                     }}
                   >
-                    Add intenal Signatory
+                    Add internal Signatory
                   </div>
                   <div
                     className="cursor-pointer underline"
@@ -1329,7 +1388,11 @@ export default function Contracts() {
     let _contract = { ...contract };
     _contract.sections = sections;
     _contract.signatories = signatories;
-    _contract.status = "pending-signature";
+    _contract.status = !previousStatus
+      ? "draft"
+      : previousStatus === "legal-review"
+      ? "pending-signature"
+      : "legal-review";
 
     fetch(`${url}/contracts/${contract?._id}`, {
       method: "PUT",
