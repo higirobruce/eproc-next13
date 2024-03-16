@@ -866,11 +866,9 @@ export default function Contracts() {
         centered
         open={openViewContract}
         footer={[
-          !editContract && (
-            <Button key="1" onClick={() => setOpenViewContract(false)}>
-              Close
-            </Button>
-          ),
+          <Button key="1" onClick={() => setOpenViewContract(false)}>
+            Close
+          </Button>,
           editContract &&
             (contract?.status === "draft" ||
               (user?.permissions?.canApproveAsPM &&
