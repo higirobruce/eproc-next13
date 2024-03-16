@@ -96,9 +96,7 @@ export default function Contracts() {
   let [totalValue, setTotalValue] = useState(0);
   let [openViewContract, setOpenViewContract] = useState(false);
   let [startingDelivery, setStartingDelivery] = useState(false);
-  const [editContract, setEditContract] = useState(
-    user?.permissions?.canEditContracts
-  );
+  const [editContract, setEditContract] = useState(false);
   const [previewAttachment, setPreviewAttachment] = useState(false);
   const [attachmentId, setAttachmentId] = useState("TOR-id.pdf");
 
@@ -891,15 +889,13 @@ export default function Contracts() {
             ),
 
           !editContract &&
-            !documentFullySignedInternally(contract) &&
             ((user?.permissions?.canApproveAsPM &&
               contract?.status === "draft") ||
               (user?.permissions?.canApproveAsLegal &&
                 contract?.status === "legal-review")) && (
-              <Button
-                key="3"
-                type="primary"
-                onClick={() => {
+              <Popconfirm
+                title="Are you sure?"
+                onConfirm={() => {
                   user?.permissions?.canApproveAsLegal &&
                     handleUpdateContract(sections, signatories, "legal-review");
                   user?.permissions?.canApproveAsPM &&
@@ -907,8 +903,12 @@ export default function Contracts() {
                   setOpenViewContract(false);
                 }}
               >
-                Save and Submit
-              </Button>
+                <Button key="3" type="primary">
+                  {user?.permissions?.canApproveAsLegal &&
+                    "Submit for signature"}
+                  {user?.permissions?.canApproveAsPM && "Submit for review"}
+                </Button>
+              </Popconfirm>
             ),
         ]}
         // onOk={() => {
@@ -1041,8 +1041,10 @@ export default function Contracts() {
                       level={4}
                       editable={
                         editContract &&
-                        (contract?.status === "draft" ||
-                          contract?.status === "legal-review") && {
+                        ((user?.permissions?.canApproveAsPM &&
+                          contract?.status === "draft") ||
+                          (user?.permissions?.canApproveAsLegal &&
+                            contract?.status === "legal-review")) && {
                           onChange: (e) => {
                             section.title = e;
                             _sections[index]
@@ -1057,8 +1059,10 @@ export default function Contracts() {
                       {s.title}
                     </Typography.Title>
                     {editContract &&
-                      (contract?.status === "draft" ||
-                        contract?.status === "legal-review") && (
+                      ((user?.permissions?.canApproveAsPM &&
+                        contract?.status === "draft") ||
+                        (user?.permissions?.canApproveAsLegal &&
+                          contract?.status === "legal-review")) && (
                         <Popconfirm
                           onConfirm={() => {
                             let _sections = [...sections];
@@ -1075,8 +1079,10 @@ export default function Contracts() {
                   </div>
                   {!editContract && <div>{parse(s?.body)}</div>}
                   {editContract &&
-                    (contract?.status === "draft" ||
-                      contract?.status === "legal-review") && (
+                    ((user?.permissions?.canApproveAsPM &&
+                      contract?.status === "draft") ||
+                      (user?.permissions?.canApproveAsLegal &&
+                        contract?.status === "legal-review")) && (
                       <ReactQuill
                         theme="snow"
                         modules={modules}
@@ -1095,8 +1101,10 @@ export default function Contracts() {
               );
             })}
             {editContract &&
-              (contract?.status === "draft" ||
-                contract?.status === "legal-review") && (
+              ((user?.permissions?.canApproveAsPM &&
+                contract?.status === "draft") ||
+                (user?.permissions?.canApproveAsLegal &&
+                  contract?.status === "legal-review")) && (
                 <Button
                   icon={<PlusOutlined />}
                   onClick={() => {
@@ -1244,15 +1252,20 @@ export default function Contracts() {
                       )}
                     </div>
 
-                    <div
-                      onClick={() => {
-                        let _signatories = [...signatories];
-                        _signatories.splice(index, 1);
-                        setSignatories(_signatories);
-                      }}
-                    >
-                      <XMarkIcon className="h-3 px-5 cursor-pointer" />
-                    </div>
+                    {((user?.permissions?.canApproveAsPM &&
+                      contract?.status === "draft") ||
+                      (user?.permissions?.canApproveAsLegal &&
+                        contract?.status === "legal-review")) && (
+                      <div
+                        onClick={() => {
+                          let _signatories = [...signatories];
+                          _signatories.splice(index, 1);
+                          setSignatories(_signatories);
+                        }}
+                      >
+                        <XMarkIcon className="h-3 px-5 cursor-pointer" />
+                      </div>
+                    )}
                   </div>
                   {s?.signed && (
                     <div className="flex flex-row justify-center space-x-10 items-center border-t-2 bg-blue-50 p-5">
@@ -1310,6 +1323,8 @@ export default function Contracts() {
                         {s.signed
                           ? "Signed"
                           : contract?.status === "draft"
+                          ? "Still in drafting phases"
+                          : contract?.status === "legal-review"
                           ? "Waiting for Legal's review"
                           : `Waiting for ${yetToSign[0]?.names}'s signature`}
                       </div>
@@ -1320,10 +1335,10 @@ export default function Contracts() {
             })}
 
             {editContract &&
-              ((user?.permissions?.canApproveAsLegal &&
-                !documentFullySignedInternally(contract)) ||
-                (user?.permissions.canApproveAsPM &&
-                  contract?.status == "draft")) && (
+              ((user?.permissions?.canApproveAsPM &&
+                contract?.status === "draft") ||
+                (user?.permissions?.canApproveAsLegal &&
+                  contract?.status === "legal-review")) && (
                 <div className="flex flex-col ring-1 ring-gray-300 rounded py-5 space-y-3 items-center justify-center  hover:bg-gray-50">
                   <Image
                     src="/icons/icons8-signature-80.png"
