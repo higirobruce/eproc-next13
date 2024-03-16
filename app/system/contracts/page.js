@@ -49,7 +49,7 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { encode } from "base-64";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useUser } from "@/app/context/UserContext";
 
 let modules = {
@@ -82,6 +82,7 @@ let formats = [
 
 export default function Contracts() {
   let router = useRouter();
+  let params = useSearchParams();
   const { user, login, logout } = useUser();
   // let user = JSON.parse(localStorage.getItem("user"));
   let token = localStorage.getItem("token");
@@ -813,6 +814,10 @@ export default function Contracts() {
 
   function getContracts() {
     setDataLoaded(false);
+    let searchNumber =
+      params?.get("number") && searchText == ""
+        ? params?.get("number")?.trim()
+        : false;
     if (user?.userType === "VENDOR") {
       fetch(`${url}/contracts/byVendorId/${user?._id}/${searchStatus}`, {
         method: "GET",
@@ -842,13 +847,17 @@ export default function Contracts() {
       })
         .then((res) => getResultFromServer(res))
         .then((res) => {
-          let _contracts =
-            user?.permissions?.canApproveAsLegal ||
-            user?.permissions?.canApproveAsPM
-              ? res
-              : res?.filter((r) => r.status !== "draft");
-          setContracts(_contracts);
-          setTempContracts(_contracts);
+          let _contracts = res;
+
+          if (searchNumber) {
+            setContracts(_contracts?.filter((c) => c?.number == searchNumber));
+            setTempContracts(
+              _contracts?.filter((c) => c?.number == searchNumber)
+            );
+          } else {
+            setContracts(_contracts);
+            setTempContracts(_contracts);
+          }
           setDataLoaded(true);
         })
         .catch((err) => {
@@ -875,6 +884,7 @@ export default function Contracts() {
                 user?.permissions?.canApproveAsLegal &&
                 !documentFullySignedInternally(contract))) && (
               <Button
+                type="primary"
                 key="2"
                 onClick={() => {
                   user?.permissions?.canApproveAsPM &&
@@ -1128,7 +1138,7 @@ export default function Contracts() {
               });
               return (
                 <div
-                  key={s?.email}
+                  key={index}
                   className="flex flex-col ring-1 ring-gray-300 rounded pt-5 space-y-3 justify-between"
                 >
                   <div className="flex flex-row justify-between">
@@ -1252,20 +1262,21 @@ export default function Contracts() {
                       )}
                     </div>
 
-                    {((user?.permissions?.canApproveAsPM &&
-                      contract?.status === "draft") ||
-                      (user?.permissions?.canApproveAsLegal &&
-                        contract?.status === "legal-review")) && (
-                      <div
-                        onClick={() => {
-                          let _signatories = [...signatories];
-                          _signatories.splice(index, 1);
-                          setSignatories(_signatories);
-                        }}
-                      >
-                        <XMarkIcon className="h-3 px-5 cursor-pointer" />
-                      </div>
-                    )}
+                    {editContract &&
+                      ((user?.permissions?.canApproveAsPM &&
+                        contract?.status === "draft") ||
+                        (user?.permissions?.canApproveAsLegal &&
+                          contract?.status === "legal-review")) && (
+                        <div
+                          onClick={() => {
+                            let _signatories = [...signatories];
+                            _signatories.splice(index, 1);
+                            setSignatories(_signatories);
+                          }}
+                        >
+                          <XMarkIcon className="h-3 px-5 cursor-pointer" />
+                        </div>
+                      )}
                   </div>
                   {s?.signed && (
                     <div className="flex flex-row justify-center space-x-10 items-center border-t-2 bg-blue-50 p-5">
@@ -1290,7 +1301,8 @@ export default function Contracts() {
                   {(user?.email === s?.email || user?.tempEmail === s?.email) &&
                     !s?.signed &&
                     previousSignatorySigned(signatories, index) &&
-                    contract.status !== "draft" && (
+                    contract.status !== "draft" &&
+                    contract.status !== "legal-review" && (
                       <Popconfirm
                         title="Confirm Contract Signature"
                         onConfirm={() => handleSignContract(s, index)}
@@ -1312,7 +1324,8 @@ export default function Contracts() {
                     user?.tempEmail !== s?.email &&
                     !s.signed) ||
                     !previousSignatorySigned(signatories, index) ||
-                    contract?.status == "draft") && (
+                    contract?.status == "draft" ||
+                    contract?.status === "legal-review") && (
                     <div className="flex flex-row justify-center space-x-5 items-center border-t-2 bg-gray-50 p-5">
                       <Image
                         width={40}
@@ -1896,7 +1909,20 @@ export default function Contracts() {
               </motion.div>
             </Row>
           )}
-
+          {params?.get("number") && params && (
+            <div className="mx-12">
+              <Button
+                onClick={() => {
+                  params = null;
+                  getContracts();
+                  router.push("/system/contracts");
+                }}
+                type="primary"
+              >
+                View all Contracts
+              </Button>
+            </div>
+          )}
           {/* <div class="absolute -bottom-20 right-10 opacity-10">
             <Image alt="watermatk" src="/icons/blue icon.png" width={110} height={100} />
           </div> */}

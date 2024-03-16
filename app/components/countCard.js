@@ -14,7 +14,7 @@ export default function CountCard({ count, title, icon, color }) {
               className={`flex flex-row items-center justify-between text-blue-400`}
             >
               <div>{icon}</div>
-              <div className="text-xl">{count.toLocaleString()}</div>
+              <div className="text-xl">{count?.toLocaleString()}</div>
             </div>
           }
         />

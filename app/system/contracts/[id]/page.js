@@ -91,6 +91,7 @@ export default function page({ params }) {
 
   const [editContract, setEditContract] = useState(false);
   const [signing, setSigning] = useState(false);
+  const [signatories, setSignatories] = useState(null);
 
   useEffect(() => {
     getContractDetails(params?.id, router).then((res) => setContract(res));
@@ -538,6 +539,8 @@ export default function page({ params }) {
                       {s.signed
                         ? "Signed"
                         : contract?.status === "draft"
+                        ? "Still in drafting phase"
+                        : contract?.status === "legal-review"
                         ? "Waiting for Legal's review"
                         : `Waiting for ${yetToSign[0]?.names}'s signature`}
                     </div>
@@ -919,7 +922,8 @@ export default function page({ params }) {
                 {(user?.email === s?.email || user?.tempEmail === s?.email) &&
                   !s?.signed &&
                   previousSignatorySigned(contract?.signatories, index) &&
-                  contract?.status !== "draft" && (
+                  contract?.status !== "draft" &&
+                  contract?.status !== "legal-review" && (
                     <Popconfirm
                       title="Confirm Contract Signature"
                       onConfirm={() => handleSignContract(s, index)}
@@ -941,7 +945,8 @@ export default function page({ params }) {
                   user?.tempEmail !== s?.email &&
                   !s.signed) ||
                   !previousSignatorySigned(contract?.signatories, index) ||
-                  contract?.status == "draft") && (
+                  contract?.status == "draft" ||
+                  contract?.status === "legal-review") && (
                   <div className="flex flex-row justify-center space-x-5 items-center border-t-2 bg-gray-50 p-5">
                     <Image
                       width={40}
@@ -952,6 +957,8 @@ export default function page({ params }) {
                       {s.signed
                         ? "Signed"
                         : contract?.status === "draft"
+                        ? "Still in drafting phase"
+                        : contract?.status === "legal-review"
                         ? "Waiting for Legal's review"
                         : `Waiting for ${yetToSign[0]?.names}'s signature`}
                     </div>

@@ -100,7 +100,6 @@ const LoginForm = ({ goTo }) => {
         // const { payload, protectedHeader } = await jose.jwtVerify(jwt, secret);
         const payload = jwt_decode.jwtDecode(jwt);
         
-
         if (payload.allowed) {
           if (payload.userObj.status === "approved") {
             messageApi.open({
