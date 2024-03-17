@@ -337,7 +337,8 @@ export default function page({ params }) {
     contractStartDate,
     contractEndDate,
     signatories,
-    reqAttachmentDocId
+    reqAttachmentDocId,
+    status
   ) {
     fetch(`${url}/contracts/`, {
       method: "POST",
@@ -356,6 +357,7 @@ export default function page({ params }) {
         signatories,
         reqAttachmentDocId,
         request: rowData?._id,
+        status
       }),
     })
       .then((res) => getResultFromServer(res))
