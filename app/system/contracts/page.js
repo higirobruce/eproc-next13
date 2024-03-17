@@ -847,7 +847,7 @@ export default function Contracts() {
       })
         .then((res) => getResultFromServer(res))
         .then((res) => {
-          let _contracts = res;
+          let _contracts = res?.data;
 
           if (searchNumber) {
             setContracts(_contracts?.filter((c) => c?.number == searchNumber));
