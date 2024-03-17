@@ -185,8 +185,8 @@ export default function PurchaseOrders() {
       })
         .then((res) => getResultFromServer(res))
         .then((res) => {
-          setPOs(res);
-          setTempPOs(res);
+          setPOs(res?.data);
+          setTempPOs(res?.data);
           setDataLoaded(true);
         })
         .catch((err) => {
