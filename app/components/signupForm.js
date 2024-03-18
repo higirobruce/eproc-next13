@@ -2169,7 +2169,7 @@ const SignupForm = () => {
                   </div>
                 </div>
 
-                {/* <Form.Item
+                <Form.Item
                   name="agreement"
                   valuePropName="checked"
                   rules={[
@@ -2193,7 +2193,7 @@ const SignupForm = () => {
                       agreement
                     </a>
                   </Checkbox>
-                </Form.Item> */}
+                </Form.Item>
 
                 <Form.Item className="pb-5" {...tailFormItemLayout}>
                   {submitting ? (
