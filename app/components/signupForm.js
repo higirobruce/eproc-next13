@@ -2052,7 +2052,6 @@ const SignupForm = () => {
                         {otherAreaOfExpertise && (
                           <div>
                             <div className="flex flex-row spacex-3">
-                              
                               Specify your “Other” Area of Expertise
                               <div className="text-red-500">*</div>
                               <div>
@@ -2169,7 +2168,7 @@ const SignupForm = () => {
                   </div>
                 </div>
 
-                {/* <Form.Item
+                <Form.Item
                   name="agreement"
                   valuePropName="checked"
                   rules={[
@@ -2193,7 +2192,7 @@ const SignupForm = () => {
                       agreement
                     </a>
                   </Checkbox>
-                </Form.Item> */}
+                </Form.Item>
 
                 <Form.Item className="pb-5" {...tailFormItemLayout}>
                   {submitting ? (
